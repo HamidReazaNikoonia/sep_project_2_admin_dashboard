@@ -236,16 +236,16 @@ const CourseSessionList = () => {
         //         );
         //       },
         // },
-        {
-            field: 'member',
-            headerName: 'تعداد دانشجو',
-            width: 120,
-            renderCell: (params) => (
-                <div>
-                    {params.value?.length || 0} / {params.row.max_member_accept}
-                </div>
-            ),
-        },
+        // {
+        //     field: 'member',
+        //     headerName: 'تعداد دانشجو',
+        //     width: 120,
+        //     renderCell: (params) => (
+        //         <div>
+        //             {params.value?.length || 0} / {params.row.max_member_accept}
+        //         </div>
+        //     ),
+        // },
         // {
         //     field: 'course_duration',
         //     headerName: 'مدت دوره',

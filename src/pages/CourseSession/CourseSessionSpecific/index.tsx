@@ -188,14 +188,15 @@ const CourseSessionSpecific = () => {
                             </Typography>
                             <Typography>{course.price.toLocaleString()} تومان</Typography>
                         </Box>
-                        <Box mt={2}>
+                        {/* Course Max Student No */}
+                        {/* <Box mt={2}>
                             <Typography variant="subtitle2" color="textSecondary">
                                 ظرفیت دوره
                             </Typography>
                             <Typography>
                                 {course.member.length} / {course.max_member_accept} نفر
                             </Typography>
-                        </Box>
+                        </Box> */}
                     </StyledPaper>
                 </Grid>
 
