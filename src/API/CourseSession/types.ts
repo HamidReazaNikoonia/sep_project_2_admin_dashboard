@@ -26,6 +26,7 @@ interface Course {
   category?: ObjectId;
   price?: number;
   isActive?: boolean;
+  course_status?: boolean;
   createdAt?: Date | string;
   updatedAt?: Date | string;
   // Add other fields from your model as needed

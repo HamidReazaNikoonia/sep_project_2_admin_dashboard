@@ -241,7 +241,7 @@ const NewCourse = () => {
   };
 
   return (
-    <Box dir="rtl" p={3}>
+    <Box dir="rtl" p={{xs: 0, md:4}}>
       <Typography className='pb-4' variant="h4" gutterBottom>
         ایجاد دوره جدید
       </Typography>

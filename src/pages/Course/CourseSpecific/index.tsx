@@ -81,7 +81,7 @@ const CourseSpecific = () => {
   }
 
   return (
-    <Box dir="rtl" p={3}>
+    <Box dir="rtl" p={{xs: 0, md:4}}>
       <div className="flex justify-between items-center mb-4">
         <Typography className="text-right" variant="h4" gutterBottom>
           جزئیات دوره

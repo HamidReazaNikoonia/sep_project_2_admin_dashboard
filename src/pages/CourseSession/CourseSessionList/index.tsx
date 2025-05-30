@@ -166,7 +166,7 @@ const CourseSessionList = () => {
             width: 200,
             renderCell: (params) => (
                 <Link
-                    to={`/courses-session/${params.row.id}`}
+                    to={`/courses-sessions/${params.row.id}`}
                     style={{
                         color: 'inherit',
                         textDecoration: 'none',

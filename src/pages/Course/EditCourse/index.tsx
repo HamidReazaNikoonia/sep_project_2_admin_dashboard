@@ -259,7 +259,7 @@ const EditCourse = () => {
   }
 
   return (
-    <Box dir="rtl" p={3}>
+    <Box dir="rtl" p={{xs: 0, md:4}}>
       <Typography variant="h4" gutterBottom>
         ویرایش دوره
       </Typography>
