@@ -37,6 +37,7 @@ import TransactionList from './pages/Transaction/TransactionList'
 import TransactionSpecific from './pages/Transaction/SpecificTransaction'
 import CourseSessionList from './pages/CourseSession/CourseSessionList'
 import CourseSessionSpecific from './pages/CourseSession/CourseSessionSpecific'
+import CreateCourseSession from './pages/CourseSession/CreateCourseSession'
 
 const router = createBrowserRouter([
   {
@@ -152,6 +153,14 @@ const router = createBrowserRouter([
     element: (
       <Layout>
         <CourseSessionList />
+      </Layout>
+    )
+  },
+  {
+    path: '/courses-sessions/create',
+    element: (
+      <Layout>
+        <CreateCourseSession />
       </Layout>
     )
   },

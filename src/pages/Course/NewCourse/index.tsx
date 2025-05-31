@@ -179,7 +179,7 @@ const NewCourse = () => {
   };
 
   const onSubmit = async (data: FormData) => {
-    console.log({kir:data});
+    console.log({k:data});
     try {
       // Check if thumbnail is uploaded
       if (!thumbnailUploadedFile?._id) {

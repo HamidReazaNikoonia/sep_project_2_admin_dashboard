@@ -318,14 +318,14 @@ const CourseSessionList = () => {
         <Box sx={{ width: '100%', p: 3 }}>
             <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
                 <Link
-                    to="/courses-sessions/new"
+                    to="/courses-sessions/create"
                     style={{
                         textDecoration: 'none',
                         color: 'inherit',
                     }}
                 >
                     <Button variant="contained" color="primary">
-                        افزودن دوره جدید
+                        افزودن (کلاس) دوره جدید
                     </Button>
                 </Link>
                 <Typography variant="h4">لیست کلاس ها</Typography>
