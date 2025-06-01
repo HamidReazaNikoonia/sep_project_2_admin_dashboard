@@ -1,4 +1,4 @@
-import { Edit as EditIcon } from '@mui/icons-material';
+import { Edit as EditIcon, AddCircleOutline } from '@mui/icons-material';
 import {
     Box,
     Typography,
@@ -92,11 +92,19 @@ const CourseSessionSpecific = () => {
                 <Typography className="text-right" variant="h4" gutterBottom>
                     جزئیات دوره
                 </Typography>
+                <div className='flex flex-col md:flex-row w-auto md:w-80 justify-around space-y-3 md:space-y-0  '> 
                 <Link to={`/courses/${course_id}/edit`}>
                     <Button endIcon={<EditIcon />} variant="contained" color="warning">
                         ویرایش دوره&nbsp;&nbsp;
                     </Button>
                 </Link>
+
+                <Link to={`/courses-sessions/${course_id}/assign-coach/`}>
+                    <Button endIcon={<AddCircleOutline />} variant="contained" color="info">
+                         افزودن استاد&nbsp;&nbsp;
+                    </Button>
+                </Link>
+                </div>
             </div>
 
             <Grid container spacing={3}>

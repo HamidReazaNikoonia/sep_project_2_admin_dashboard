@@ -38,6 +38,7 @@ import TransactionSpecific from './pages/Transaction/SpecificTransaction'
 import CourseSessionList from './pages/CourseSession/CourseSessionList'
 import CourseSessionSpecific from './pages/CourseSession/CourseSessionSpecific'
 import CreateCourseSession from './pages/CourseSession/CreateCourseSession'
+import CourseAssignCoach from './pages/CourseSession/CourseAssignCoach'
 
 const router = createBrowserRouter([
   {
@@ -169,6 +170,14 @@ const router = createBrowserRouter([
     element: (
       <Layout>
         <CourseSessionSpecific />
+      </Layout>
+    )
+  },
+  {
+    path: '/courses-sessions/:course_id/assign-coach',
+    element: (
+      <Layout>
+        <CourseAssignCoach />
       </Layout>
     )
   },
