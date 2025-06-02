@@ -10,7 +10,14 @@ export default defineConfig({
   build: {
     sourcemap: true,
   },
-  plugins: [react(), EnvironmentPlugin(['REACT_APP_TEXT', 'REACT_APP_SERVER_URL', 'REACT_APP_SERVER_FILE'])],
+  plugins: [
+    react(),
+    EnvironmentPlugin([
+      'REACT_APP_TEXT',
+      'REACT_APP_SERVER_URL',
+      'REACT_APP_SERVER_FILE',
+    ]),
+  ],
   publicDir: 'public',
   server: {
     host: true,
@@ -19,6 +26,12 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
+      'moment/locale/fa': path.resolve(
+        __dirname,
+        'node_modules/moment/locale/fa.js',
+      ),
+      'moment/moment': path.resolve(__dirname, 'node_modules/moment/moment.js'),
+      moment: path.resolve(__dirname, 'node_modules/moment/moment.js'),
     },
   },
 })
