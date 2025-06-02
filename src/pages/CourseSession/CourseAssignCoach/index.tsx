@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import { useParams } from 'react-router'
 import {
   Box,
@@ -8,6 +8,7 @@ import {
   Grid2 as Grid,
   TextField,
   MenuItem,
+  Button,
 } from '@mui/material'
 import {
   useCourseSession,
@@ -22,6 +23,7 @@ import clsx from 'clsx'
 // import * as momentJalaali from 'moment-jalaali';
 
 const CourseAssignCoach: React.FC = () => {
+  const childRef = useRef()
   // Get course_id from route params
   const { course_id } = useParams<{ course_id: string }>()
   // Store course_id in state
@@ -30,6 +32,7 @@ const CourseAssignCoach: React.FC = () => {
   const [selectedCurentCoach, setSelectedCurentCoach] = useState<string | null>(
     null,
   )
+  const [selectedSession, setselectedSession] = useState([])
 
   // Errors State
   const [errors, setErrors] = useState({
@@ -76,6 +79,43 @@ const CourseAssignCoach: React.FC = () => {
       showToast('خطا', 'دوره در دسترس نیست', 'error')
     }
   }, [course_id])
+
+  const handleReset = () => {
+    if (childRef.current) {
+      childRef.current.reset()
+    }
+  }
+
+  const addProgramTimeSlot = () => {
+    // @ts-expect-error
+    if (!timeSlotItem || timeSlotItem?.length === 0) {
+      showToast('خطا', 'لطفا بازه زمانی را انتخاب کنید', 'error')
+    }
+    // ------------------------
+    const selectedTimeSlotVar = timeSlotItem && timeSlotItem[0]
+    const selectedDateVar = selectedDateState
+    console.log({ selectedTimeSlotVar })
+    console.log({ selectedDateVar })
+
+    // add session to list
+    const _session = {
+      date: selectedDateVar,
+      // @ts-expect-error
+      startTime: selectedTimeSlotVar?.startTime,
+      // @ts-expect-error
+      endTime: selectedTimeSlotVar?.endTime,
+    }
+
+    console.log({ _session })
+
+    // @ts-expect-error
+    setselectedSession([...selectedSession, _session])
+
+    // Reset Time Slot and Calendar
+    setSelectedDateState(momentJalaali().locale('fa').format('jYYYY/jM/jD'))
+    settimeSlotItem(null)
+    handleReset()
+  }
 
   if (isLoading) {
     return (
@@ -196,12 +236,47 @@ const CourseAssignCoach: React.FC = () => {
               لطفا تاریخ و ساعت مورد نظر خود را انتخاب کنید
             </h2>
 
+            <div className="flex justify-center mt-8">
+              <Button variant="outlined" onClick={addProgramTimeSlot}>
+                اضافه کردن جلسه +
+              </Button>
+            </div>
+
             {/* Calendar Wrapper */}
             <div className="py-14">
               <CustomDataPickerCalendar
                 timeSlotChangeHandler={timeSlotChangeHandler}
                 dateChangeHandler={dateChangeHandler}
+                ref={childRef}
               />
+            </div>
+          </div>
+
+          {/* Selected Time Slot Program List */}
+          <div className="flex w-full flex-col border-y-2 px-8 py-12">
+            <h2 className="text-center font-bold text-lg mb-8">
+              لیست جلسات انتخاب شده
+            </h2>
+
+            <div className="w-full flex flex-col space-y-2">
+              {selectedSession &&
+                selectedSession.map((item) => (
+                  <div className="w-full flex justify-between items-center px-2 md:px-8 py-4 bg-[#385773] border rounded-xl">
+                    {/* Letf Side */}
+                    <div className="flex flex-1 space-x-5 font-bold text-white">
+                      <div>{item.date}</div>
+
+                      <div>{`${item.startTime} - ${item.endTime}`}</div>
+                    </div>
+
+                    {/* Rigth Side */}
+                    <div>
+                      <Button variant="contained" color="error">
+                        حذف
+                      </Button>
+                    </div>
+                  </div>
+                ))}
             </div>
           </div>
 
@@ -234,6 +309,17 @@ const CourseAssignCoach: React.FC = () => {
           </div>
         </div>
         {/* Next: Add coach/class selection and time slot form here */}
+
+        <div className="w-full text-center mt-12">
+          <Button
+            sx={{ minWidth: '90%' }}
+            size="large"
+            variant="contained"
+            color="primary"
+          >
+            ثبت
+          </Button>
+        </div>
       </div>
     </div>
   )
