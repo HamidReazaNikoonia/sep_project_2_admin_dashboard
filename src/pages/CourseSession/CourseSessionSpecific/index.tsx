@@ -130,7 +130,7 @@ const CourseSessionSpecific = () => {
                   <Typography variant="subtitle2" color="textSecondary">
                     عنوان دوره
                   </Typography>
-                  <Typography>{course.title}</Typography>
+                  <Typography fontWeight={600}>{course.title}</Typography>
                 </Box>
               </Grid>
 
@@ -140,7 +140,7 @@ const CourseSessionSpecific = () => {
                     <Typography variant="subtitle2" color="textSecondary">
                       زیرعنوان
                     </Typography>
-                    <Typography>{course.sub_title}</Typography>
+                    <Typography fontWeight={600}>{course.sub_title}</Typography>
                   </Box>
                 </Grid>
               )}
@@ -150,22 +150,33 @@ const CourseSessionSpecific = () => {
                   <Typography variant="subtitle2" color="textSecondary">
                     نوع دوره
                   </Typography>
-                  <Typography>
+                  <Typography fontWeight={600}>
                     {course.course_type === 'HOZORI' ? 'حضوری' : 'آنلاین'}
                   </Typography>
                 </Box>
               </Grid>
 
               <Grid size={6}>
-                <Box>
-                  <Typography variant="subtitle2" color="textSecondary">
+                <Box sx={{ maxWidth: '100px' }}>
+                  <Typography
+                    sx={{ paddingBottom: '8px' }}
+                    variant="subtitle2"
+                    color="textSecondary"
+                  >
                     دسته‌بندی
                   </Typography>
-                  <Typography>
+                  <Typography
+                    fontWeight={600}
+                    className="bg-yellow-300 px-4 rounded-3xl py-1"
+                  >
                     {course.course_session_category?.name || '-'}
                   </Typography>
 
-                  <Typography>
+                  <Typography
+                    fontWeight={600}
+                    sx={{ marginTop: '5px' }}
+                    className="bg-yellow-300 px-4 rounded-3xl py-1"
+                  >
                     {course.course_session_sub_category?.name || '-'}
                   </Typography>
                 </Box>
@@ -311,11 +322,8 @@ const CourseSessionSpecific = () => {
               اساتید و زمان کلاس ها
             </Typography>
             <Grid container spacing={2}>
-              {course.coaches && course.sessions ? (
-                <ScheduleCoachTimeView
-                  sessions={course.sessions}
-                  coaches={course.coaches}
-                />
+              {course ? (
+                <ScheduleCoachTimeView courseId={course.id} />
               ) : (
                 <div>اطلاعاتی وجود ندارد</div>
               )}

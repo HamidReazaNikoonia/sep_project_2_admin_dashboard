@@ -5,6 +5,8 @@ import { Course, Category } from './types'
 // Query keys
 const COURSES_KEY = 'courses-session'
 const COURSE_CATEGORIES_KEY = 'course-session-categories'
+const CLASS_PROGRAM_SPECIFIC_COURSE_KEY =
+  'class-program-specific-course-session'
 
 // Hooks for courses
 export const useCourseSessions = (params?: {
@@ -57,6 +59,16 @@ export const useAssignCoachToCourseSession = (courseId: string) => {
   return useMutation({
     mutationFn: (requestBody: any) =>
       courseSessionApi.assignCoachToCourseSession(courseId, requestBody),
+  })
+}
+
+export const useGetAllProgramsOFSpecificCourse = (courseId: string) => {
+  // const queryClient = useQueryClient();
+
+  return useQuery({
+    queryKey: [CLASS_PROGRAM_SPECIFIC_COURSE_KEY, courseId],
+    queryFn: () => courseSessionApi.getAllProgramsOFSpecificCourse(courseId),
+    enabled: !!courseId,
   })
 }
 

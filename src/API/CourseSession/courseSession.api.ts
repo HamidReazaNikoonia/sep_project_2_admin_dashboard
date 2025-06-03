@@ -62,6 +62,14 @@ const courseSessionApi = {
     return data
   },
 
+  // Update course
+  getAllProgramsOFSpecificCourse: async (courseId: string) => {
+    const { data } = await axios.get<{ course: any }>(
+      `course-session/${courseId}/program`,
+    )
+    return data
+  },
+
   // Delete course
   deleteCourseSession: async (courseId: string) => {
     const { data } = await axios.delete(`course-session/${courseId}`)

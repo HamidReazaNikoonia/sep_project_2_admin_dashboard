@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react'
 import {
   List,
   ListItem,
@@ -7,36 +7,57 @@ import {
   ListItemText,
   Typography,
   Paper,
-  Divider
-} from '@mui/material'; // Import your types
+  Divider,
+} from '@mui/material' // Import your types
+import { useGetAllProgramsOFSpecificCourse } from '@/API/CourseSession/courseSession.hook'
 
 interface ScheduleCoachTimeViewProps {
-  sessions: any[];
-  coaches: any[];
+  courseId: string
 }
 
-const ScheduleCoachTimeView: React.FC<ScheduleCoachTimeViewProps> = ({ sessions, coaches }) => {
-  // Group sessions by coach
-  const sessionsByCoach = sessions.reduce((acc, session) => {
-    if (!acc[session.coach]) {
-      acc[session.coach] = [];
-    }
-    acc[session.coach].push(session);
-    return acc;
-  }, {} as Record<string, any>);
+const ScheduleCoachTimeView: React.FC<ScheduleCoachTimeViewProps> = ({
+  courseId,
+}) => {
+  // Fetch programs for the course
+  console.log(courseId)
+  const { data, isLoading, isError } =
+    useGetAllProgramsOFSpecificCourse(courseId)
 
-  console.log({coaches, sessions })
+  // Handle loading and error states
+  if (isLoading) return <div>در حال بارگذاری...</div>
+  if (isError) return <div>خطا در دریافت داده‌ها</div>
 
-  // Find coach by ID
-//   const getCoachById = (coachId: string) => {
-//     return coaches.find(coach => coach.id === coachId);
-//   };
+  // Extract programs
+  const programs = data.data.programs
+
+  // Group programs by coach
+  const programsByCoach = programs.reduce(
+    (acc: Record<string, any[]>, program: any) => {
+      const coachId = program.coach?._id
+      if (!coachId) return acc
+      if (!acc[coachId]) acc[coachId] = []
+      acc[coachId].push(program)
+      return acc
+    },
+    {},
+  )
+
+  // Get unique coaches from programs
+  const coaches = Object.values(programsByCoach).map(
+    (programs: any[]) => programs[0].coach,
+  )
+
+  // useEffect(() => {
+  //   console.log(data)
+  //   console.log({courseId})
+
+  // }, [])
 
   // Format time slot
   const formatSessionTime = (session: any) => {
-    const date = new Date(session.date).toLocaleDateString('fa-IR');
-    return `${date} | ${session.startTime} - ${session.endTime}`;
-  };
+    const date = new Date(session.date).toLocaleDateString('fa-IR')
+    return `${date} | ${session.startTime} - ${session.endTime}`
+  }
 
   return (
     <div className="flex flex-col md:flex-row h-full w-full gap-4 p-4">
@@ -48,33 +69,32 @@ const ScheduleCoachTimeView: React.FC<ScheduleCoachTimeViewProps> = ({ sessions,
           </Typography>
           <Divider />
           <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
-            {coaches.map((coach) => (
-              <ListItem 
-                key={coach.id} 
+            {coaches.map((coach: any) => (
+              <ListItem
+                key={coach._id}
                 alignItems="flex-start"
-                className="hover:bg-gray-100 cursor-pointer"
+                className="hover:bg-gray-100 cursor-pointer items-center"
               >
                 <ListItemAvatar>
-                  <Avatar 
+                  <Avatar
                     alt={`${coach.first_name} ${coach.last_name}`}
-                    sx={{ bgcolor: stringToColor(coach.first_name + ' ' + coach.last_name) }}
+                    sx={{
+                      bgcolor: stringToColor(
+                        coach.first_name + ' ' + coach.last_name,
+                      ),
+                    }}
                   >
-                    {coach.first_name && coach.first_name.charAt(0)}{coach.last_name && coach.last_name.charAt(0)}
+                    {coach.first_name && coach.first_name.charAt(0)}
+                    {coach.last_name && coach.last_name.charAt(0)}
                   </Avatar>
                 </ListItemAvatar>
                 <ListItemText
                   primary={`${coach.first_name} ${coach.last_name}`}
                   secondary={
                     <React.Fragment>
-                      <Typography
-                        component="span"
-                        variant="body2"
-                        sx={{ color: 'text.primary', display: 'inline' }}
-                      >
-                        {coach.mobile}
-                      </Typography>
+                      {/* No mobile in new data, remove or replace */}
                       <br />
-                      {sessionsByCoach[coach.id]?.length || 0} جلسه
+                      {programsByCoach[coach._id]?.length || 0} برنامه
                     </React.Fragment>
                   }
                   sx={{ textAlign: 'right' }}
@@ -93,57 +113,86 @@ const ScheduleCoachTimeView: React.FC<ScheduleCoachTimeViewProps> = ({ sessions,
           </Typography>
           <Divider />
           <div className="mt-4 space-y-4 py-4">
-            {coaches.map((coach) => (
-              <div key={coach.id} className="pb-6 border-b last:border-b-0">
-                <Typography variant="subtitle1" sx={{fontWeight: 800}} className="text-right">
-                    نام استاد :‌ {`${coach.first_name} ${coach.last_name}`}
+            {coaches.map((coach: any) => (
+              <div key={coach._id} className="pb-6 border-b last:border-b-0">
+                <Typography
+                  variant="h6"
+                  sx={{ fontWeight: 800 }}
+                  className="text-right"
+                >
+                  نام استاد :‌ {`${coach.first_name} ${coach.last_name}`}
                 </Typography>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 mt-2">
-                  {sessionsByCoach[coach.id]?.map((session) => (
-                    <div 
-                      key={session._id}  
-                      className="px-4 py-3 bg-white border border-gray-200 rounded-lg shadow hover:shadow-lg   transition-shadow"
+                {/* For each program of this coach */}
+                {programsByCoach[coach._id]?.map((program: any) => (
+                  <div
+                    key={program._id}
+                    className="my-4 bg-amber-300 px-4 py-6 rounded-2xl shadow-md"
+                  >
+                    <Typography
+                      variant="body"
+                      className="text-right pb-2 text-gray-600"
                     >
-                      <Typography variant="body2" className="text-right pb-2">
-                        {formatSessionTime(session)}
-                      </Typography>
-                      <Typography 
-                        variant="caption" 
-                        className={`inline-block px-2 py-1 rounded-full mt-1 ${
-                          session.status === 'scheduled' 
-                            ? 'bg-blue-100 text-blue-800' 
-                            : session.status === 'completed' 
-                              ? 'bg-green-100 text-green-800' 
-                              : 'bg-red-100 text-red-800'
-                        }`}
-                      >
-                        {session.status === 'scheduled' ? 'برنامه ریزی شده' : 
-                         session.status === 'completed' ? 'تکمیل شده' : 'لغو شده'}
-                      </Typography>
+                      نوع برنامه:{' '}
+                      {program.program_type === 'ONLINE'
+                        ? 'آنلاین مجازی'
+                        : 'حضوری'}
+                    </Typography>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 mt-2">
+                      {program.sessions.map((session: any) => (
+                        <div
+                          key={session._id}
+                          className="px-4 py-3 bg-white border border-gray-200 rounded-lg shadow hover:shadow-lg transition-shadow"
+                        >
+                          <Typography
+                            variant="body2"
+                            className="text-right pb-2"
+                            fontWeight={600}
+                          >
+                            {session.date} | {session.startTime} -{' '}
+                            {session.endTime}
+                          </Typography>
+                          <Typography
+                            variant="caption"
+                            className={`inline-block px-2 py-1 rounded-full mt-1 ${
+                              session.status === 'scheduled'
+                                ? 'bg-blue-100 text-blue-800'
+                                : session.status === 'completed'
+                                  ? 'bg-green-100 text-green-800'
+                                  : 'bg-red-100 text-red-800'
+                            }`}
+                          >
+                            {session.status === 'scheduled'
+                              ? 'برنامه ریزی شده'
+                              : session.status === 'completed'
+                                ? 'تکمیل شده'
+                                : 'لغو شده'}
+                          </Typography>
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
+                  </div>
+                ))}
               </div>
             ))}
           </div>
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
 // Helper function to generate avatar color from name
 function stringToColor(string: string) {
-  let hash = 0;
+  let hash = 0
   for (let i = 0; i < string.length; i++) {
-    hash = string.charCodeAt(i) + ((hash << 5) - hash);
+    hash = string.charCodeAt(i) + ((hash << 5) - hash)
   }
-  let color = '#';
+  let color = '#'
   for (let i = 0; i < 3; i++) {
-    const value = (hash >> (i * 8)) & 0xFF;
-    color += `00${value.toString(16)}`.slice(-2);
+    const value = (hash >> (i * 8)) & 0xff
+    color += `00${value.toString(16)}`.slice(-2)
   }
-  return color;
+  return color
 }
 
-export default ScheduleCoachTimeView;
+export default ScheduleCoachTimeView
