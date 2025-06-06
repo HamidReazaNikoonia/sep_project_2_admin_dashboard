@@ -85,7 +85,7 @@ const courseSessionApi = {
   // Get course categories
   getCategories: async () => {
     const { data } = await axios.get<CourseCategoryResponse>(
-      'course-session/category',
+      'course-session/category/tree',
     )
     return data
   },

@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { useState } from 'react';
+import { useState } from 'react'
 import {
   Drawer,
   List,
@@ -9,8 +9,8 @@ import {
   ListItemText,
   IconButton,
   useMediaQuery,
-  Theme
-} from '@mui/material';
+  Theme,
+} from '@mui/material'
 import {
   Menu,
   Dashboard,
@@ -21,23 +21,26 @@ import {
   Ballot,
   Receipt,
   Class,
-  ChevronLeft
-} from '@mui/icons-material';
-import { Link, useLocation } from 'react-router'; // Import from react-router
+  PeopleOutline,
+  ChevronLeft,
+  Article,
+} from '@mui/icons-material'
+import { Link, useLocation } from 'react-router' // Import from react-router
 
 const Sidebar = ({ mobileOpen, handleDrawerToggle }) => {
-  const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down('md'));
-  const location = useLocation(); // Get current location for active route styling
+  const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down('md'))
+  const location = useLocation() // Get current location for active route styling
 
   const menuItems = [
     { text: 'لیست کاربران', icon: <People />, path: '/users' },
     { text: 'لیست محصولات', icon: <ShoppingCart />, path: '/products' },
+    { text: 'لیست اساتید', icon: <PeopleOutline />, path: '/coach' },
     { text: 'لیست دوره ها', icon: <School />, path: '/courses' },
     { text: 'لیست کلاس ها', icon: <Class />, path: '/courses-sessions' },
     { text: 'لیست سفارش ها', icon: <Ballot />, path: '/orders' },
     { text: 'لیست تراکنش ها', icon: <Receipt />, path: '/transactions' },
-  ];
-
+    { text: 'کد تخفیف', icon: <Article />, path: '/code' },
+  ]
 
   return (
     <Drawer
@@ -66,17 +69,14 @@ const Sidebar = ({ mobileOpen, handleDrawerToggle }) => {
 
       <List>
         {menuItems.map((item) => (
-          <ListItem
-            key={item.text}
-            disablePadding
-            sx={{ display: 'block' }}
-          >
+          <ListItem key={item.text} disablePadding sx={{ display: 'block' }}>
             <Link
               to={item.path}
-              className={`block no-underline ${location.pathname === item.path
+              className={`block no-underline ${
+                location.pathname === item.path
                   ? 'text-primary-600 bg-gray-100'
                   : 'text-gray-700'
-                }`}
+              }`}
             >
               <ListItemButton
                 sx={{
@@ -100,7 +100,7 @@ const Sidebar = ({ mobileOpen, handleDrawerToggle }) => {
         ))}
       </List>
     </Drawer>
-  );
-};
+  )
+}
 
-export default Sidebar;
+export default Sidebar

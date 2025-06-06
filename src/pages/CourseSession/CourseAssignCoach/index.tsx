@@ -11,6 +11,7 @@ import {
   Button,
 } from '@mui/material'
 import {
+  useAssignCoachToCourseSession,
   useCourseSession,
   useCourseSessionClasses,
 } from '@/API/CourseSession/courseSession.hook'
@@ -45,6 +46,21 @@ const CourseAssignCoach: React.FC = () => {
   const [timeSlotItem, settimeSlotItem] = useState(null)
   // Fetch course session data
   const { data, isLoading, isError, error } = useCourseSession(course_id!)
+
+  const assignCoachMutation = useAssignCoachToCourseSession(course_id)
+
+  // Handler to assign a coach to a program
+  const handleAssignCoach = () => {
+    console.log(selectedClassId)
+    // const requestBody = {
+    //   coach_id: selectedCurentCoach,
+    //   class_id: selectedClassId,
+    //   program_type: ,
+    //   max_member_accept,
+    //   sessions:
+    // }
+    // assignCoachMutation.mutate(course_id, requestBody);
+  }
 
   // Fetch All Coaches Data
   const {
@@ -115,6 +131,10 @@ const CourseAssignCoach: React.FC = () => {
     setSelectedDateState(momentJalaali().locale('fa').format('jYYYY/jM/jD'))
     settimeSlotItem(null)
     handleReset()
+  }
+
+  const submitFormHandler = () => {
+    handleAssignCoach()
   }
 
   if (isLoading) {
@@ -316,6 +336,7 @@ const CourseAssignCoach: React.FC = () => {
             size="large"
             variant="contained"
             color="primary"
+            onClick={submitFormHandler}
           >
             ثبت
           </Button>

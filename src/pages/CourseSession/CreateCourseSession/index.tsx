@@ -1,7 +1,7 @@
-import React, { useState, useRef } from 'react';
-import { useForm, Controller, useFieldArray } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup';
-import * as yup from 'yup';
+import React, { useState, useRef } from 'react'
+import { useForm, Controller, useFieldArray } from 'react-hook-form'
+import { yupResolver } from '@hookform/resolvers/yup'
+import * as yup from 'yup'
 import {
   Box,
   TextField,
@@ -12,31 +12,32 @@ import {
   Switch,
   FormControlLabel,
   Alert,
-} from '@mui/material';
-import StyledPaper from '../../../components/StyledPaper';
-import ImageUploader from 'react-images-upload';
+} from '@mui/material'
+import StyledPaper from '../../../components/StyledPaper'
+import ImageUploader from 'react-images-upload'
 // @ts-ignore
-import StarterKit from "@tiptap/starter-kit";
-import {
-  MenuButtonBold,
-  MenuButtonItalic,
-  MenuControlsContainer,
-  MenuDivider,
-  MenuSelectHeading,
-  RichTextEditor,
-  type RichTextEditorRef,
-} from "mui-tiptap";
-import Editor from '@/components/TextEditor';
-import CircularProgress from "@mui/material/CircularProgress";
-import UploadIcon from "@mui/icons-material/Upload";
-import AddIcon from "@mui/icons-material/Add";
-import DeleteIcon from "@mui/icons-material/Delete";
-import { showToast } from '@/utils/toast';
-import { useCreateCourseSession } from '@/API/CourseSession/courseSession.hook';
-import { useNavigate } from 'react-router';
+// import StarterKit from "@tiptap/starter-kit";
+// import {
+//   MenuButtonBold,
+//   MenuButtonItalic,
+//   MenuControlsContainer,
+//   MenuDivider,
+//   MenuSelectHeading,
+//   RichTextEditor,
+//   type RichTextEditorRef,
+// } from "mui-tiptap";
+import Editor from '@/components/TextEditor'
+import CircularProgress from '@mui/material/CircularProgress'
+import UploadIcon from '@mui/icons-material/Upload'
+import AddIcon from '@mui/icons-material/Add'
+import DeleteIcon from '@mui/icons-material/Delete'
+import { showToast } from '@/utils/toast'
+import { useCreateCourseSession } from '@/API/CourseSession/courseSession.hook'
+import { data, useNavigate } from 'react-router'
+import CategorySelection from '@/components/CategorySelection'
 
-const SERVER_URL = process.env.REACT_APP_SERVER_URL;
-const SERVER_FILE = process.env.REACT_APP_SERVER_FILE;
+const SERVER_URL = process.env.REACT_APP_SERVER_URL
+const SERVER_FILE = process.env.REACT_APP_SERVER_FILE
 
 // Validation schema
 yup.setLocale({
@@ -46,64 +47,64 @@ yup.setLocale({
   number: {
     min: 'عدد وارد شده معتبر نیست',
   },
-});
+})
 
 const schema = yup.object().shape({
   title: yup.string().required(),
   sub_title: yup.string().required(),
   description: yup.string().required(),
   description_long: yup.string(),
-  price: yup.number().required(),
+  // price: yup.number().required(),
   course_language: yup.string(),
-  course_duration: yup.number(),
-  course_type: yup.string().oneOf(['HOZORI', 'ONLINE']).required(),
+  // course_duration: yup.number(),
+  // course_type: yup.string().oneOf(['HOZORI', 'ONLINE']).required(),
   educational_level: yup.number(),
-  is_have_licence: yup.boolean().required(),
-});
+  // is_have_licence: yup.boolean().required(),
+})
 
 interface FormData {
-  title: string;
-  sub_title: string;
-  description: string;
-  description_long: string;
-  price: number;
-  course_language: string;
-  course_duration: number;
-  course_type: 'HOZORI' | 'ONLINE';
-  educational_level: number;
-  is_have_licence: boolean;
+  title: string
+  sub_title: string
+  description: string
+  description_long: string
+  price: number
+  course_language: string
+  course_duration: number
+  course_type: 'HOZORI' | 'ONLINE'
+  educational_level: number
+  is_have_licence: boolean
   sample_media: {
-    media_type: string;
-    media_title: string;
-    url_address: string;
-  }[];
+    media_type: string
+    media_title: string
+    url_address: string
+  }[]
 }
 
 // Add this type for file upload state
 type FileUploadState = {
   [key: string]: {
-    file: File | null;
-    uploading: boolean;
-    error: string | null;
-    uploadedFile: any | null;
-  };
-};
-
-interface UploadedFile {
-  _id: string;
-  file_name: string;
+    file: File | null
+    uploading: boolean
+    error: string | null
+    uploadedFile: any | null
+  }
 }
 
+interface UploadedFile {
+  _id: string
+  file_name: string
+}
 
 const CreateCourseSession: React.FC = () => {
-  const navigate = useNavigate();
-  const [thumbnailImage, setThumbnailImage] = useState<string | null>(null);
-  const [sampleMediaImage, setSampleMediaImage] = useState<string | null>(null);
-  const [descriptionLong, setDescriptionLong] = useState('');
-  const [fileUploads, setFileUploads] = useState<FileUploadState>({});
+  const navigate = useNavigate()
+  const [thumbnailImage, setThumbnailImage] = useState<string | null>(null)
+  const [sampleMediaImage, setSampleMediaImage] = useState<string | null>(null)
+  const [descriptionLong, setDescriptionLong] = useState('')
+  const [fileUploads, setFileUploads] = useState<FileUploadState>({})
+  const [categories, setcategories] = useState([])
 
   // API Mutation
-  const createCourseSessionMutation = useCreateCourseSession();
+  const createCourseSessionMutation = useCreateCourseSession()
 
   //   const rteRef = useRef<RichTextEditorRef>(null);
 
@@ -117,28 +118,28 @@ const CreateCourseSession: React.FC = () => {
   } = useForm<FormData>({
     resolver: yupResolver(schema),
     defaultValues: {
-      is_have_licence: false,
-      course_type: 'HOZORI',
+      // is_have_licence: false,
+      // course_type: 'HOZORI',
       title: '',
       sub_title: '',
       description: '',
       //   description_long: 'sdsd',
-      price: 0,
+      // price: 0,
       course_language: '',
-      course_duration: 0,
+      // course_duration: 0,
       educational_level: 0,
       sample_media: [],
     },
-  });
+  })
 
   const {
     fields: sampleMediaFields,
     append: appendSampleMedia,
     remove: removeSampleMedia,
   } = useFieldArray({
-    name: "sample_media",
+    name: 'sample_media',
     control,
-  });
+  })
 
   // Keep description_long in sync with WYSIWYG
   // React.useEffect(() => {
@@ -146,56 +147,84 @@ const CreateCourseSession: React.FC = () => {
   // }, [descriptionLong, setValue]);
 
   const onSubmit = async (data: FormData) => {
-    
+    let courseSessionRequestBody = {}
 
     // Form Manual Validation
     if (!descriptionLong) {
       showToast('خطا', ' لطفا توضیحات را کامل کنید', 'error')
     }
 
+    // add categories
+    // course_session_category
+    if (categories && categories.length !== 0) {
+      courseSessionRequestBody.course_session_category = categories
+    } else {
+      showToast('خطا', 'حداقل یک دسته بندی انتخاب کنید', 'error')
+      return false
+    }
+
+    if (!thumbnailImage) {
+      showToast('خطا', ' لطفا تصویر جلسه را انتخاب کنید ', 'error')
+      return false
+    }
+
     // For now, just log the data
+
+    // Upload Thumbnail Image
+    const uploadedthumbnailImageFile = await uploadFile(thumbnailImage)
+
+    // validate Thumbnail Image
+    if (uploadedthumbnailImageFile?._id) {
+      courseSessionRequestBody.tumbnail = uploadedthumbnailImageFile?._id
+    }
+
+    console.log({ uploadedthumbnailImageFile })
 
     // Prepare sample media with uploaded file IDs
     const sampleMediaWithFiles = data.sample_media.map((media, index) => {
-      const uploadKey = `sample_media_${index}`;
-      const uploadedFile = fileUploads[uploadKey]?.uploadedFile;
+      const uploadKey = `sample_media_${index}`
+      const uploadedFile = fileUploads[uploadKey]?.uploadedFile
       if (!uploadedFile?._id) {
-        throw new Error(`لطفا فایل نمونه ${index + 1} را آپلود کنید`);
+        throw new Error(`لطفا فایل نمونه ${index + 1} را آپلود کنید`)
       }
       return {
         media_type: media.media_type,
         media_title: media.media_title,
         url_address: media.url_address,
         file: uploadedFile._id,
-      };
-    });
+      }
+    })
 
-
-    // omit => thumbnailImage, sampleMediaImage, 
-    const courseSessionRequestBody = { ...data, tumbnail: "67620e2688dd804ab80f6c1a", sample_media: sampleMediaWithFiles, description_long: descriptionLong };
-    console.log({courseSessionRequestBody})
+    // omit => thumbnailImage, sampleMediaImage,
+    courseSessionRequestBody = {
+      ...courseSessionRequestBody,
+      ...data,
+      sample_media: sampleMediaWithFiles,
+      description_long: descriptionLong,
+    }
+    console.log({ courseSessionRequestBody })
 
     try {
-      await createCourseSessionMutation.mutateAsync(courseSessionRequestBody);
+      await createCourseSessionMutation.mutateAsync(courseSessionRequestBody)
 
-      showToast('موفق', 'دوره با موفقیت ایجاد شد', 'success');
-      navigate('/courses-sessions');
-
+      showToast('موفق', 'دوره با موفقیت ایجاد شد', 'success')
+      navigate('/courses-sessions')
     } catch (error) {
-      if (error instanceof Error) {
-        showToast('خطا', error.message, 'error');
-      } else {
-        showToast('خطا', 'خطا در ایجاد دوره', 'error');
+      // @ts-expect-error
+      if (error instanceof Error && error?.response?.data?.message) {
+        // @ts-expect-error
+        showToast('خطا', error?.response?.data?.message, 'error')
       }
-      console.error('Error submitting form:', error);
+      showToast('خطا', 'خطا در ایجاد دوره', 'error')
+      // @ts-expect-error
+      console.error('Error submitting form:', error?.response?.data?.message)
     }
 
+    // Attach Long Description
 
-    // Attach Long Description 
-    
     // const logDesc = rteRef.current?.editor?.getHTML();
     // console.log({text_editor:logDesc })
-  };
+  }
 
   // const mainFormSubmitHandler = (e) => {
   //   e.preventDefault();
@@ -204,10 +233,9 @@ const CreateCourseSession: React.FC = () => {
   //   // console.log({text_editor:logDesc })
   // }
 
-
   const submitHandlerForPassData = (data) => {
-    console.log({ data });
-    setDescriptionLong(data);
+    console.log({ data })
+    setDescriptionLong(data)
   }
 
   // Dummy upload function (replace with your real upload logic)
@@ -219,46 +247,50 @@ const CreateCourseSession: React.FC = () => {
   // };
 
   const uploadFile = async (file: File): Promise<UploadedFile> => {
-    const formData = new FormData();
-    formData.append('file', file);
+    const formData = new FormData()
+    formData.append('file', file)
 
     const response = await fetch(`${SERVER_URL}/admin/setting/upload`, {
       method: 'POST',
       body: formData,
-    });
+    })
 
     if (!response.ok) {
-      throw new Error('Upload failed');
+      throw new Error('Upload failed')
     }
 
-    const data = await response.json();
-    return data.uploadedFile;
-  };
+    const data = await response.json()
+    return data.uploadedFile
+  }
 
   const handleFileUpload = async (key: string) => {
     console.log({ key })
-    const fileState = fileUploads[key];
-    if (!fileState?.file) return;
+    const fileState = fileUploads[key]
+    if (!fileState?.file) return
 
     setFileUploads((prev) => ({
       ...prev,
       [key]: { ...prev[key], uploading: true, error: null },
-    }));
+    }))
 
     try {
-      const uploadedFile = await uploadFile(fileState.file);
+      const uploadedFile = await uploadFile(fileState.file)
       setFileUploads((prev) => ({
         ...prev,
         [key]: { ...prev[key], uploading: false, uploadedFile },
-      }));
+      }))
       // Optionally show a toast here
     } catch (error) {
       setFileUploads((prev) => ({
         ...prev,
-        [key]: { ...prev[key], uploading: false, error: "خطا در آپلود فایل" },
-      }));
+        [key]: { ...prev[key], uploading: false, error: 'خطا در آپلود فایل' },
+      }))
     }
-  };
+  }
+
+  const implementCategories = (data: [string] | any) => {
+    setcategories(data)
+  }
 
   return (
     <Box dir="rtl" p={{ xs: 0, md: 4 }}>
@@ -348,7 +380,7 @@ const CreateCourseSession: React.FC = () => {
             )}
           </Grid>
           {/* Sample Media Image Uploader */}
-          <Grid size={{ xs: 12, md: 6 }}>
+          {/* <Grid size={{ xs: 12, md: 6 }}>
             <Typography variant="subtitle1" sx={{ mb: 1 }}>
               نمونه رسانه جلسه
             </Typography>
@@ -366,9 +398,9 @@ const CreateCourseSession: React.FC = () => {
                 نمونه رسانه انتخاب شد: {sampleMediaImage.name}
               </Alert>
             )}
-          </Grid>
+          </Grid> */}
           {/* Price */}
-          <Grid size={{ xs: 12, md: 4 }}>
+          {/* <Grid size={{ xs: 12, md: 4 }}>
             <TextField
               {...register('price')}
               fullWidth
@@ -377,7 +409,7 @@ const CreateCourseSession: React.FC = () => {
               error={!!errors.price}
               helperText={errors.price?.message}
             />
-          </Grid>
+          </Grid> */}
           {/* Course Language */}
           <Grid size={{ xs: 12, md: 4 }}>
             <TextField
@@ -389,7 +421,7 @@ const CreateCourseSession: React.FC = () => {
             />
           </Grid>
           {/* Course Duration */}
-          <Grid size={{ xs: 12, md: 4 }}>
+          {/* <Grid size={{ xs: 12, md: 4 }}>
             <TextField
               {...register('course_duration')}
               fullWidth
@@ -398,9 +430,9 @@ const CreateCourseSession: React.FC = () => {
               error={!!errors.course_duration}
               helperText={errors.course_duration?.message}
             />
-          </Grid>
+          </Grid> */}
           {/* Course Type */}
-          <Grid size={{ xs: 12, md: 6 }}>
+          {/* <Grid size={{ xs: 12, md: 6 }}>
             <TextField
               {...register('course_type')}
               select
@@ -412,7 +444,7 @@ const CreateCourseSession: React.FC = () => {
               <MenuItem value="HOZORI">حضوری</MenuItem>
               <MenuItem value="ONLINE">آنلاین</MenuItem>
             </TextField>
-          </Grid>
+          </Grid> */}
           {/* Educational Level */}
           <Grid size={{ xs: 12, md: 6 }}>
             <TextField
@@ -425,7 +457,7 @@ const CreateCourseSession: React.FC = () => {
             />
           </Grid>
           {/* Is Have Licence */}
-          <Grid size={12}>
+          {/* <Grid size={12}>
             <FormControlLabel
               control={
                 <Controller
@@ -442,19 +474,38 @@ const CreateCourseSession: React.FC = () => {
               }
               label="دارای گواهینامه"
             />
+          </Grid> */}
+
+          {/* Categories Selection */}
+          <Grid size={12}>
+            <StyledPaper sx={{ p: 3 }}>
+              <div className="w-full flex flex-col">
+                <div className="w-full">
+                  <CategorySelection
+                    passSelectedCategories={implementCategories}
+                  />
+                </div>
+              </div>
+            </StyledPaper>
           </Grid>
+
           {/* Sample Media Fields */}
           <Grid size={12}>
             <StyledPaper sx={{ p: 3 }}>
-              <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+              <Box
+                display="flex"
+                justifyContent="space-between"
+                alignItems="center"
+                mb={2}
+              >
                 <Typography variant="h6">نمونه‌های آموزشی</Typography>
                 <Button
                   startIcon={<AddIcon className="ml-2" />}
                   onClick={() =>
                     appendSampleMedia({
-                      media_type: "",
-                      media_title: "",
-                      url_address: "",
+                      media_type: '',
+                      media_title: '',
+                      url_address: '',
                     })
                   }
                 >
@@ -465,7 +516,12 @@ const CreateCourseSession: React.FC = () => {
               {sampleMediaFields.map((field, index) => (
                 <Box
                   key={field.id}
-                  sx={{ mb: 3, p: 2, border: "1px solid #eee", borderRadius: 1 }}
+                  sx={{
+                    mb: 3,
+                    p: 2,
+                    border: '1px solid #eee',
+                    borderRadius: 1,
+                  }}
                 >
                   <Grid container spacing={2}>
                     <Grid size={{ xs: 12, md: 4 }}>
@@ -474,7 +530,9 @@ const CreateCourseSession: React.FC = () => {
                         fullWidth
                         label="عنوان"
                         error={!!errors.sample_media?.[index]?.media_title}
-                        helperText={errors.sample_media?.[index]?.media_title?.message}
+                        helperText={
+                          errors.sample_media?.[index]?.media_title?.message
+                        }
                       />
                     </Grid>
 
@@ -485,7 +543,9 @@ const CreateCourseSession: React.FC = () => {
                         fullWidth
                         label="نوع رسانه"
                         error={!!errors.sample_media?.[index]?.media_type}
-                        helperText={errors.sample_media?.[index]?.media_type?.message}
+                        helperText={
+                          errors.sample_media?.[index]?.media_type?.message
+                        }
                       >
                         <MenuItem value="VIDEO">ویدیو</MenuItem>
                         <MenuItem value="AUDIO">صوت</MenuItem>
@@ -499,7 +559,9 @@ const CreateCourseSession: React.FC = () => {
                         fullWidth
                         label="آدرس URL"
                         error={!!errors.sample_media?.[index]?.url_address}
-                        helperText={errors.sample_media?.[index]?.url_address?.message}
+                        helperText={
+                          errors.sample_media?.[index]?.url_address?.message
+                        }
                       />
                     </Grid>
 
@@ -507,7 +569,7 @@ const CreateCourseSession: React.FC = () => {
                       <input
                         type="file"
                         onChange={(e) => {
-                          const file = e.target.files?.[0];
+                          const file = e.target.files?.[0]
                           if (file) {
                             setFileUploads((prev) => ({
                               ...prev,
@@ -517,10 +579,10 @@ const CreateCourseSession: React.FC = () => {
                                 error: null,
                                 uploadedFile: null,
                               },
-                            }));
+                            }))
                           }
                         }}
-                        style={{ display: "none" }}
+                        style={{ display: 'none' }}
                         id={`sample-media-file-${index}`}
                       />
                       <Box display="flex" alignItems="center" gap={2}>
@@ -530,14 +592,23 @@ const CreateCourseSession: React.FC = () => {
                           </Button>
                         </label>
                         {fileUploads[`sample_media_${index}`]?.file &&
-                          !fileUploads[`sample_media_${index}`]?.uploadedFile && (
+                          !fileUploads[`sample_media_${index}`]
+                            ?.uploadedFile && (
                             <Button
                               variant="contained"
-                              onClick={() => handleFileUpload(`sample_media_${index}`)}
-                              disabled={fileUploads[`sample_media_${index}`]?.uploading}
+                              onClick={() =>
+                                handleFileUpload(`sample_media_${index}`)
+                              }
+                              disabled={
+                                fileUploads[`sample_media_${index}`]?.uploading
+                              }
                               startIcon={
-                                fileUploads[`sample_media_${index}`]?.uploading ? (
-                                  <CircularProgress sx={{ marginLeft: '5px' }} size={20} />
+                                fileUploads[`sample_media_${index}`]
+                                  ?.uploading ? (
+                                  <CircularProgress
+                                    sx={{ marginLeft: '5px' }}
+                                    size={20}
+                                  />
                                 ) : (
                                   <UploadIcon sx={{ marginLeft: '5px' }} />
                                 )
@@ -547,7 +618,9 @@ const CreateCourseSession: React.FC = () => {
                             </Button>
                           )}
                         {fileUploads[`sample_media_${index}`]?.uploadedFile && (
-                          <Alert sx={{ marginLeft: '5px' }} severity="success">فایل با موفقیت آپلود شد</Alert>
+                          <Alert sx={{ marginLeft: '5px' }} severity="success">
+                            فایل با موفقیت آپلود شد
+                          </Alert>
                         )}
                       </Box>
                     </Grid>
@@ -568,14 +641,19 @@ const CreateCourseSession: React.FC = () => {
           </Grid>
           {/* Submit Button */}
           <Grid size={12}>
-            <Button type="submit" variant="contained" color="primary" size="large">
+            <Button
+              type="submit"
+              variant="contained"
+              color="primary"
+              size="large"
+            >
               ثبت جلسه
             </Button>
           </Grid>
         </Grid>
       </form>
     </Box>
-  );
-};
+  )
+}
 
-export default CreateCourseSession; 
+export default CreateCourseSession
