@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useEffect, useState, useRef } from 'react'
 import { useParams } from 'react-router'
 import {
@@ -9,7 +10,11 @@ import {
   TextField,
   MenuItem,
   Button,
+  IconButton,
 } from '@mui/material'
+import UploadIcon from '@mui/icons-material/Upload'
+import AddIcon from '@mui/icons-material/Add'
+import DeleteIcon from '@mui/icons-material/Delete'
 import {
   useAssignCoachToCourseSession,
   useCourseSession,
@@ -23,6 +28,9 @@ import momentJalaali from 'moment-jalaali'
 import clsx from 'clsx'
 // import * as momentJalaali from 'moment-jalaali';
 
+const SERVER_URL = process.env.REACT_APP_SERVER_URL
+const SERVER_FILE = process.env.REACT_APP_SERVER_FILE
+
 const CourseAssignCoach: React.FC = () => {
   const childRef = useRef()
   // Get course_id from route params
@@ -35,15 +43,33 @@ const CourseAssignCoach: React.FC = () => {
   )
   const [selectedSession, setselectedSession] = useState([])
 
+  // DATA STATE
+  const [formData, setformData] = useState({
+    course_type: 'HOZORI',
+    price_real: 0,
+    price_discounted: 0,
+    max_member_accept: 0,
+  })
+
   // Errors State
   const [errors, setErrors] = useState({
     course_type: false,
+    price_real: false,
+    price_discounted: false,
+    max_member_accept: false,
   })
   // Reservation time state
   const [selectedDateState, setSelectedDateState] = useState(
     momentJalaali().locale('fa').format('jYYYY/jM/jD'),
   )
   const [timeSlotItem, settimeSlotItem] = useState(null)
+
+  // sample media state
+  const [sampleMedias, setSampleMedias] = useState([
+    { media_type: '', media_title: '' },
+  ])
+  const [fileUploads, setFileUploads] = useState({})
+
   // Fetch course session data
   const { data, isLoading, isError, error } = useCourseSession(course_id!)
 
@@ -103,23 +129,28 @@ const CourseAssignCoach: React.FC = () => {
   }
 
   const addProgramTimeSlot = () => {
-    // @ts-expect-error
-    if (!timeSlotItem || timeSlotItem?.length === 0) {
+    if (!timeSlotItem) {
       showToast('خطا', 'لطفا بازه زمانی را انتخاب کنید', 'error')
+      return false
+    }
+
+    if (!timeSlotItem?.startTime || !timeSlotItem?.endTime) {
+      showToast('خطا', 'لطفا بازه زمانی را انتخاب کنید', 'error')
+      return false
     }
     // ------------------------
-    const selectedTimeSlotVar = timeSlotItem && timeSlotItem[0]
-    const selectedDateVar = selectedDateState
-    console.log({ selectedTimeSlotVar })
-    console.log({ selectedDateVar })
+    // const selectedTimeSlotVar = timeSlotItem && timeSlotItem[0]
+    // const selectedDateVar = selectedDateState
+    // console.log({ selectedTimeSlotVar })
+    // console.log({ selectedDateVar })
 
     // add session to list
     const _session = {
-      date: selectedDateVar,
+      date: selectedDateState,
       // @ts-expect-error
-      startTime: selectedTimeSlotVar?.startTime,
+      startTime: timeSlotItem?.startTime,
       // @ts-expect-error
-      endTime: selectedTimeSlotVar?.endTime,
+      endTime: timeSlotItem?.endTime,
     }
 
     console.log({ _session })
@@ -133,8 +164,86 @@ const CourseAssignCoach: React.FC = () => {
     handleReset()
   }
 
+  // sample media handler
+  const handleAddMedia = () => {
+    setSampleMedias([...sampleMedias, { media_type: '', media_title: '' }])
+  }
+
+  const handleRemoveMedia = (index: number) => {
+    const newMedias = [...sampleMedias]
+    newMedias.splice(index, 1)
+    setSampleMedias(newMedias)
+
+    // Also remove the corresponding file upload state if it exists
+    const key = `sample_media_${index}`
+    if (fileUploads[key]) {
+      const newFileUploads = { ...fileUploads }
+      delete newFileUploads[key]
+      setFileUploads(newFileUploads)
+    }
+  }
+
+  const handleMediaChange = (
+    index: number,
+    field: keyof SampleMedia,
+    value: string,
+  ) => {
+    const newMedias = [...sampleMedias]
+    newMedias[index] = { ...newMedias[index], [field]: value }
+    setSampleMedias(newMedias)
+  }
+
+  const uploadFile = async (file: File) => {
+    const formData = new FormData()
+    formData.append('file', file)
+
+    const response = await fetch(`${SERVER_URL}/admin/setting/upload`, {
+      method: 'POST',
+      body: formData,
+    })
+
+    if (!response.ok) {
+      throw new Error('Upload failed')
+    }
+
+    const data = await response.json()
+    return data.uploadedFile
+  }
+
+  const handleFileUpload = async (key: string) => {
+    const fileState = fileUploads[key]
+    if (!fileState?.file) return
+
+    setFileUploads((prev) => ({
+      ...prev,
+      [key]: { ...prev[key], uploading: true, error: null },
+    }))
+
+    try {
+      // Replace with your actual file upload function
+      const uploadedFile = await uploadFile(fileState.file)
+      setFileUploads((prev) => ({
+        ...prev,
+        [key]: { ...prev[key], uploading: false, uploadedFile },
+      }))
+
+      // Update the corresponding sample media with the uploaded file reference
+      const index = parseInt(key.split('_')[2])
+      const newMedias = [...sampleMedias]
+      newMedias[index].file = uploadedFile
+      setSampleMedias(newMedias)
+    } catch (error) {
+      setFileUploads((prev) => ({
+        ...prev,
+        [key]: { ...prev[key], uploading: false, error: 'خطا در آپلود فایل' },
+      }))
+    }
+  }
+
   const submitFormHandler = () => {
-    handleAssignCoach()
+    console.log(formData)
+    console.log({ fileUploads, sampleMedias })
+    // handleAssignCoach()
   }
 
   if (isLoading) {
@@ -314,6 +423,10 @@ const CourseAssignCoach: React.FC = () => {
               <div style={{ width: '280px' }}>
                 <TextField
                   select
+                  value={formData.course_type}
+                  onChange={(e) =>
+                    setformData({ ...formData, course_type: e.target.value })
+                  }
                   fullWidth
                   label="نوع جلسه"
                   error={!!errors.course_type}
@@ -326,20 +439,257 @@ const CourseAssignCoach: React.FC = () => {
               {/* Course Max Member */}
               <div className=""></div>
             </div>
-          </div>
-        </div>
-        {/* Next: Add coach/class selection and time slot form here */}
 
-        <div className="w-full text-center mt-12">
-          <Button
-            sx={{ minWidth: '90%' }}
-            size="large"
-            variant="contained"
-            color="primary"
-            onClick={submitFormHandler}
-          >
-            ثبت
-          </Button>
+            <div className="w-full flex flex-col md:flex-row  mt-8 space-x-4">
+              {/* Real Price */}
+              <div className="w-full md:w-1/3">
+                <label
+                  className="pb-2 text-gray-600 text-xs"
+                  htmlFor="price_real"
+                >
+                  قیمت اصلی
+                </label>
+                <TextField
+                  id="price_real"
+                  value={formData.price_real}
+                  onChange={(e) =>
+                    setformData({
+                      ...formData,
+                      price_real: parseInt(e.target.value),
+                    })
+                  }
+                  fullWidth
+                  type="number"
+                  label="قیمت (تومان)"
+                  error={!!errors.price_real}
+                  helperText={errors.price_real?.message}
+                />
+              </div>
+
+              {/* Discounted Price */}
+              <div className="w-full mt-8 md:mt-0 md:w-1/3">
+                <label
+                  className="pb-2 text-gray-600 text-xs"
+                  htmlFor="price_discounted"
+                >
+                  قیمت قبل تخفیف
+                </label>
+                <TextField
+                  id="price_discounted"
+                  value={formData.price_discounted}
+                  onChange={(e) =>
+                    setformData({
+                      ...formData,
+                      price_discounted: parseInt(e.target.value),
+                    })
+                  }
+                  fullWidth
+                  type="number"
+                  label="قیمت (تومان)"
+                  error={!!errors.price_discounted}
+                  helperText={errors.price_discounted?.message}
+                />
+              </div>
+            </div>
+
+            {/* max_member_accept */}
+            <div className="w-full mt-8 space-x-4">
+              <div className="w-full">
+                <label
+                  className="pb-2 text-gray-600 text-xs"
+                  htmlFor="max_member_accept"
+                >
+                  حداکثر شرکت کننده ها
+                </label>
+                <TextField
+                  id="max_member_accept"
+                  value={formData.max_member_accept}
+                  onChange={(e) =>
+                    setformData({
+                      ...formData,
+                      max_member_accept: parseInt(e.target.value),
+                    })
+                  }
+                  fullWidth
+                  type="number"
+                  label="تعداد شرکت کننده ها"
+                  error={!!errors.max_member_accept}
+                  helperText={errors.max_member_accept?.message}
+                />
+              </div>
+            </div>
+
+            <div className="w-full pt-16 border-t">
+              {/* Sample Media Fields */}
+
+              <div className="p-3">
+                <Box sx={{ mt: 3 }}>
+                  <Typography variant="h6" gutterBottom>
+                    نمونه رسانه‌های دوره
+                  </Typography>
+
+                  {sampleMedias.map((media, index) => (
+                    <Box
+                      key={index}
+                      sx={{
+                        mb: 4,
+                        p: 2,
+                        border: '1px solid #eee',
+                        borderRadius: 1,
+                      }}
+                    >
+                      <Grid container spacing={2}>
+                        <Grid size={{ xs: 12, md: 4 }}>
+                          <TextField
+                            fullWidth
+                            label="عنوان رسانه"
+                            value={media.media_title}
+                            onChange={(e) =>
+                              handleMediaChange(
+                                index,
+                                'media_title',
+                                e.target.value,
+                              )
+                            }
+                          />
+                        </Grid>
+
+                        <Grid size={{ xs: 12, md: 4 }}>
+                          <TextField
+                            select
+                            fullWidth
+                            label="نوع رسانه"
+                            value={media.media_type}
+                            onChange={(e) =>
+                              handleMediaChange(
+                                index,
+                                'media_type',
+                                e.target.value,
+                              )
+                            }
+                          >
+                            <MenuItem value="VIDEO">ویدیو</MenuItem>
+                            <MenuItem value="IMAGE">عکس</MenuItem>
+                            <MenuItem value="PDF">PDF</MenuItem>
+                          </TextField>
+                        </Grid>
+
+                        <Grid size={12}>
+                          <input
+                            type="file"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0]
+                              if (file) {
+                                setFileUploads((prev) => ({
+                                  ...prev,
+                                  [`sample_media_${index}`]: {
+                                    file,
+                                    uploading: false,
+                                    error: null,
+                                    uploadedFile: null,
+                                  },
+                                }))
+                              }
+                            }}
+                            style={{ display: 'none' }}
+                            id={`sample-media-file-${index}`}
+                          />
+                          <label htmlFor={`sample-media-file-${index}`}>
+                            <Button variant="contained" component="span">
+                              انتخاب فایل
+                            </Button>
+                          </label>
+
+                          {fileUploads[`sample_media_${index}`]?.file && (
+                            <Typography
+                              variant="caption"
+                              display="block"
+                              sx={{ mt: 1 }}
+                            >
+                              {fileUploads[`sample_media_${index}`].file.name}
+                            </Typography>
+                          )}
+
+                          {fileUploads[`sample_media_${index}`]?.file &&
+                            !fileUploads[`sample_media_${index}`]
+                              ?.uploadedFile && (
+                              <Button
+                                variant="contained"
+                                onClick={() =>
+                                  handleFileUpload(`sample_media_${index}`)
+                                }
+                                disabled={
+                                  fileUploads[`sample_media_${index}`]
+                                    ?.uploading
+                                }
+                                startIcon={
+                                  fileUploads[`sample_media_${index}`]
+                                    ?.uploading ? (
+                                    <CircularProgress className="" size={20} />
+                                  ) : (
+                                    <UploadIcon className="ml-3" />
+                                  )
+                                }
+                                sx={{ mt: 1 }}
+                                fullWidth
+                              >
+                                آپلود فایل
+                              </Button>
+                            )}
+
+                          {fileUploads[`sample_media_${index}`]
+                            ?.uploadedFile && (
+                            <Alert severity="success" sx={{ mt: 1 }}>
+                              &nbsp; فایل با موفقیت آپلود شد&nbsp;
+                            </Alert>
+                          )}
+
+                          {fileUploads[`sample_media_${index}`]?.error && (
+                            <Alert severity="error" sx={{ mt: 1 }}>
+                              {fileUploads[`sample_media_${index}`].error}
+                            </Alert>
+                          )}
+                        </Grid>
+
+                        {sampleMedias.length > 1 && (
+                          <Grid size={12}>
+                            <IconButton
+                              onClick={() => handleRemoveMedia(index)}
+                              color="error"
+                            >
+                              <DeleteIcon />
+                            </IconButton>
+                          </Grid>
+                        )}
+                      </Grid>
+                    </Box>
+                  ))}
+
+                  <Button
+                    variant="outlined"
+                    startIcon={<AddIcon />}
+                    onClick={handleAddMedia}
+                    sx={{ mt: 2 }}
+                  >
+                    افزودن رسانه جدید
+                  </Button>
+                </Box>
+              </div>
+            </div>
+          </div>
+          {/* Next: Add coach/class selection and time slot form here */}
+
+          <div className="w-full text-center mt-12">
+            <Button
+              sx={{ minWidth: '90%' }}
+              size="large"
+              variant="contained"
+              color="primary"
+              onClick={submitFormHandler}
+            >
+              ثبت
+            </Button>
+          </div>
         </div>
       </div>
     </div>

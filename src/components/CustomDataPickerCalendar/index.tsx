@@ -3,7 +3,7 @@ import momentJalaali from 'moment-jalaali'
 // import * as momentJalaali from 'moment-jalaali';
 import { Calendar } from 'react-datepicker2'
 
-import { CircularProgress } from '@mui/material'
+import { CircularProgress, Typography } from '@mui/material'
 import { showToast } from '@/utils/toast'
 
 // TEST
@@ -110,7 +110,11 @@ const CustomDataPickerCalendar = forwardRef(
     const [selectedDateState, setSelectedDateState] = useState(
       momentJalaali().locale('fa').format('jYYYY/jM/jD'),
     )
-    const [timeSlotItem, settimeSlotItem] = useState(timeSlotItemArray)
+    const [timeSlotItem, settimeSlotItem] = useState([])
+    const [sessionTime, setsessionTime] = useState({
+      startTime: '',
+      endTime: '',
+    })
 
     // Expose the reset function to parent via ref
     useImperativeHandle(ref, () => ({
@@ -150,66 +154,126 @@ const CustomDataPickerCalendar = forwardRef(
       console.log(selectedTimeSlotTime)
     }
 
+    // ... existing code ...
+    const startTimeAndEndTimeChangeHandler = (e, key) => {
+      const newSessionTime = { ...sessionTime, [key]: e.target.value }
+      setsessionTime(newSessionTime)
+      timeSlotChangeHandler(newSessionTime)
+    }
+    // ... existing code ...
+
     const reset = () => {
       console.log('Reset function called')
       // Your reset logic here
-      settimeSlotItem(timeSlotItemArray)
+      // settimeSlotItem(timeSlotItemArray)
+      setsessionTime({ startTime: '', endTime: '' })
       setSelectedDateState(momentJalaali().locale('fa').format('jYYYY/jM/jD'))
       setcalendarValue(momentJalaali())
     }
 
     return (
-      <div className="w-full flex flex-col md:flex-row pt-8 justify-around px-0 md:px-8 items-center md:items-start">
-        {/* Calendar Wrapper */}
-        <div>
-          <Calendar
-            value={calendarValue}
-            isGregorian={false}
-            min={enabledRange.min}
-            onChange={(value) => calendarHandler(value)}
-          />
+      <div className="w-full flex flex-col">
+        {/* Time Slot Inputs */}
+        <div className="w-full flex flex-col px-8">
+          <Typography variant="h5" className="text-center pb-2">
+            {sessionTime.startTime} - {sessionTime.endTime}
+          </Typography>
+
+          <div>
+            <div className="flex flex-col gap-2 mb-2">
+              <label className="flex flex-col text-sm">
+                ساعت شروع:
+                <input
+                  type="time"
+                  value={sessionTime.startTime}
+                  onChange={(e) => {
+                    setsessionTime({
+                      ...sessionTime,
+                      startTime: e.target.value,
+                    })
+                    startTimeAndEndTimeChangeHandler(e, 'startTime')
+                    // You can implement a handler to update session.startTime here
+                    // For now, just log the value
+                    console.log(
+                      'New start time:',
+                      e.target.value,
+                      'for session',
+                    )
+                  }}
+                  className="border rounded px-2 py-1 mt-1"
+                />
+              </label>
+              <label className="flex flex-col text-sm">
+                ساعت پایان:
+                <input
+                  type="time"
+                  value={sessionTime.endTime}
+                  onChange={(e) => {
+                    setsessionTime({ ...sessionTime, endTime: e.target.value })
+                    startTimeAndEndTimeChangeHandler(e, 'endTime')
+                    // You can implement a handler to update session.endTime here
+                    // For now, just log the value
+                    console.log('New end time:', e.target.value, 'for session')
+                  }}
+                  className="border rounded px-2 py-1 mt-1"
+                />
+              </label>
+            </div>
+          </div>
         </div>
 
-        {/* Time Slot Wrapper */}
-        <div className="mt-10 md:mt-0">
-          <div
-            id="timeslot_box"
-            className="flex  flex-wrap gap-4 justify-center text-center items-center max-h-385 overflow-y-auto"
-          >
-            {timeSlotIsError ? (
-              <div>An error occurred: SERVER BROKEN</div>
-            ) : null}
-            <>
-              {timeSlotIsLoading ? (
-                <div className="flex p-7 justify-center items-center w-full">
-                  <CircularProgress />
-                </div>
-              ) : (
-                <>
-                  {timeSlotItem &&
-                    timeSlotItem.map((slot, index) => (
-                      <div
-                        key={index}
-                        className="w-[300px] p-4 rounded-2xl"
-                        onClick={() => handleSelectSlot(index, slot)}
-                        style={{
-                          opacity: slot.isBooked ? 0.4 : 1,
-                          color: slot.isSelected ? '#fff' : 'black',
-                          cursor: slot.isBooked ? 'not-allowed' : 'pointer',
-                          backgroundColor: slot.isSelected
-                            ? 'rgb(33 48 127)'
-                            : 'rgb(245 245 245)',
-                        }}
-                      >
-                        {/* {slot.isBooked && (
+        {/* Calendar Wrapper */}
+        <div className="w-full flex flex-col md:flex-row pt-8 justify-around px-0 md:px-8 items-center md:items-start">
+          <div>
+            <Calendar
+              value={calendarValue}
+              isGregorian={false}
+              min={enabledRange.min}
+              onChange={(value) => calendarHandler(value)}
+            />
+          </div>
+
+          {/* Time Slot Wrapper */}
+          <div className="w-full mt-10 md:mt-0">
+            <div
+              id="timeslot_box"
+              className="flex  flex-wrap gap-4 justify-center text-center items-center max-h-385 overflow-y-auto"
+            >
+              {timeSlotIsError ? (
+                <div>An error occurred: SERVER BROKEN</div>
+              ) : null}
+              <>
+                {timeSlotIsLoading ? (
+                  <div className="flex p-7 justify-center items-center w-full">
+                    <CircularProgress />
+                  </div>
+                ) : (
+                  <>
+                    {timeSlotItem &&
+                      timeSlotItem.map((slot, index) => (
+                        <div
+                          key={index}
+                          className="w-[300px] p-4 rounded-2xl"
+                          onClick={() => handleSelectSlot(index, slot)}
+                          style={{
+                            opacity: slot.isBooked ? 0.4 : 1,
+                            color: slot.isSelected ? '#fff' : 'black',
+                            cursor: slot.isBooked ? 'not-allowed' : 'pointer',
+                            backgroundColor: slot.isSelected
+                              ? 'rgb(33 48 127)'
+                              : 'rgb(245 245 245)',
+                          }}
+                        >
+                          {/* {slot.isBooked && (
                              <Typography>This Slot Booked By User</Typography>
                            )} */}
-                        <h5>{`شروع: ${slot.startTime} - پایان: ${slot.endTime}`}</h5>
-                      </div>
-                    ))}
-                </>
-              )}
-            </>
+                          <h5>{`شروع: ${slot.startTime} - پایان: ${slot.endTime}`}</h5>
+                        </div>
+                      ))}
+                  </>
+                )}
+              </>
+            </div>
           </div>
         </div>
       </div>
