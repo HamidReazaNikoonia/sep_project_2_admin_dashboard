@@ -33,7 +33,7 @@ import AddIcon from '@mui/icons-material/Add'
 import DeleteIcon from '@mui/icons-material/Delete'
 import { showToast } from '@/utils/toast'
 import { useCreateCourseSession } from '@/API/CourseSession/courseSession.hook'
-import { data, useNavigate } from 'react-router'
+import { useNavigate } from 'react-router'
 import CategorySelection from '@/components/CategorySelection'
 
 const SERVER_URL = process.env.REACT_APP_SERVER_URL

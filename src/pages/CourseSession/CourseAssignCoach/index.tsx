@@ -1,6 +1,6 @@
 // @ts-nocheck
 import React, { useEffect, useState, useRef } from 'react'
-import { useParams } from 'react-router'
+import { useParams, useNavigate } from 'react-router'
 import {
   Box,
   Typography,
@@ -10,6 +10,7 @@ import {
   TextField,
   MenuItem,
   Button,
+  Divider,
   IconButton,
 } from '@mui/material'
 import UploadIcon from '@mui/icons-material/Upload'
@@ -33,6 +34,7 @@ const SERVER_FILE = process.env.REACT_APP_SERVER_FILE
 
 const CourseAssignCoach: React.FC = () => {
   const childRef = useRef()
+  const navigate = useNavigate()
   // Get course_id from route params
   const { course_id } = useParams<{ course_id: string }>()
   // Store course_id in state
@@ -45,7 +47,7 @@ const CourseAssignCoach: React.FC = () => {
 
   // DATA STATE
   const [formData, setformData] = useState({
-    course_type: 'HOZORI',
+    course_type: 'ON-SITE',
     price_real: 0,
     price_discounted: 0,
     max_member_accept: 0,
@@ -70,23 +72,15 @@ const CourseAssignCoach: React.FC = () => {
   ])
   const [fileUploads, setFileUploads] = useState({})
 
+  // course subjects
+  const [courseSubjects, setCourseSubjects] = useState([
+    { title: '', sub_title: '' },
+  ])
+
   // Fetch course session data
   const { data, isLoading, isError, error } = useCourseSession(course_id!)
 
   const assignCoachMutation = useAssignCoachToCourseSession(course_id)
-
-  // Handler to assign a coach to a program
-  const handleAssignCoach = () => {
-    console.log(selectedClassId)
-    // const requestBody = {
-    //   coach_id: selectedCurentCoach,
-    //   class_id: selectedClassId,
-    //   program_type: ,
-    //   max_member_accept,
-    //   sessions:
-    // }
-    // assignCoachMutation.mutate(course_id, requestBody);
-  }
 
   // Fetch All Coaches Data
   const {
@@ -101,6 +95,41 @@ const CourseAssignCoach: React.FC = () => {
     isLoading: ClassesIsLoading,
     isError: ClassesIsError,
   } = useCourseSessionClasses()
+
+  useEffect(() => {
+    console.log('error from use effect')
+    console.log(assignCoachMutation.error)
+    if (assignCoachMutation.isError) {
+      if (assignCoachMutation.error?.status) {
+        // Confilict Error
+        if (assignCoachMutation.error?.status === 409) {
+          showToast('خطا', 'بازه های زمانی برای کلاس ها تداخل دارد', 'error')
+        }
+
+        // generall back-end error
+        if (assignCoachMutation.error?.response) {
+          const errMsg = assignCoachMutation.error?.response?.data?.message
+          if (errMsg) {
+            showToast('SERVER ERROR', errMsg, 'error')
+          }
+        }
+      }
+    }
+  }, [assignCoachMutation.isError])
+
+  useEffect(() => {
+    if (assignCoachMutation.isSuccess) {
+      showToast('بررسی سرور', 'اطلاعات   ارسال شد', 'info')
+    }
+
+    if (assignCoachMutation.data) {
+      if (assignCoachMutation.data?.id) {
+        showToast('موفقیت', 'اطلاعات با موفقیت ثبت شد', 'success')
+        // navigate
+        navigate(`/courses-sessions/${course_id}`)
+      }
+    }
+  }, [assignCoachMutation.isSuccess, assignCoachMutation.data])
 
   const dateChangeHandler = (date) => {
     setSelectedDateState(date)
@@ -240,9 +269,131 @@ const CourseAssignCoach: React.FC = () => {
     }
   }
 
-  const submitFormHandler = () => {
-    console.log(formData)
+  // add subjects handler
+  const handleAddSubject = () => {
+    setCourseSubjects([...courseSubjects, { title: '', sub_title: '' }])
+  }
+
+  const handleRemoveSubject = (index: number) => {
+    if (courseSubjects.length <= 1) return // Keep at least one subject
+    const newSubjects = [...courseSubjects]
+    newSubjects.splice(index, 1)
+    setCourseSubjects(newSubjects)
+  }
+
+  const handleSubjectChange = (
+    index: number,
+    field: keyof Subject,
+    value: string,
+  ) => {
+    const newSubjects = [...courseSubjects]
+    newSubjects[index] = { ...newSubjects[index], [field]: value }
+    setCourseSubjects(newSubjects)
+  }
+
+  function transformSampleMedia(sampleMedia) {
+    return sampleMedia.map((item) => {
+      const transformedItem = {
+        media_title: item.media_title,
+        media_type: item.media_type,
+      }
+
+      // Only include file._id if it exists
+
+      if (!item.file?._id) {
+        showToast('خطا', 'یکی از فایل های نمونه آپلود نشده است', 'error')
+        showToast('', `فایل آپلود نشده ${item.file?.media_title}`, 'warning')
+        return false
+      }
+
+      if (item.file?._id) {
+        transformedItem.file = item.file._id
+      }
+
+      return transformedItem
+    })
+  }
+
+  const submitFormHandler = async () => {
+    console.log({ formData })
     console.log({ fileUploads, sampleMedias })
+    console.log({ courseSubjects })
+    console.log({ selectedClassId })
+    console.log({ selectedCurentCoach })
+    console.log({ selectedSession })
+
+    try {
+      const _sample_media_transfer = transformSampleMedia(sampleMedias)
+
+      console.log({ _sample_media_transfer })
+
+      if (!selectedCurentCoach || selectedCurentCoach === '') {
+        showToast('خطا', 'لطفا استاد را انتخاب کنید', 'error')
+        return false
+      }
+
+      if (!selectedClassId || selectedClassId === '') {
+        showToast('خطا', 'لطفا کلاس را انتخاب کنید', 'error')
+        return false
+      }
+
+      if (!formData?.price_real || formData?.price_real === 0) {
+        showToast('خطا', 'لطفا قیمت اصلی را وارد کنید', 'error')
+        return false
+      }
+
+      if (
+        !formData.max_member_accept ||
+        formData.max_member_accept === 0 ||
+        formData.max_member_accept < 0
+      ) {
+        showToast('خطا', 'مقدار شرکت کننده ها را به درستی وارد کنید', 'error')
+        return false
+      }
+
+      if (selectedSession.length === 0) {
+        showToast('خطا', 'حداقل یک جلسه (‌بازه زمانی ) وارد کنید', 'error')
+        return false
+      }
+
+      if (!courseSubjects || courseSubjects?.length === 0) {
+        showToast('خطا', 'حداقل ۱ سر فصل را وارد کنید', 'error')
+        return false
+      }
+
+      if (!_sample_media_transfer) {
+        showToast('خطا', 'یکی از فایل های نمونه آپلود نشده است', 'error')
+        return false
+      }
+
+      const requestBody = {
+        coach_id: selectedCurentCoach,
+        class_id: selectedClassId,
+        program_type: formData?.course_type,
+        price_real: formData?.price_real,
+        ...(formData?.price_discounted
+          ? { price_discounted: formData?.price_discounted }
+          : {}),
+        max_member_accept: formData?.max_member_accept,
+        sessions: selectedSession,
+        subjects: courseSubjects,
+        sample_media: _sample_media_transfer,
+      }
+
+      console.log({ requestBody })
+      const resData = await assignCoachMutation.mutate(requestBody)
+      console.log({ resData })
+    } catch (error) {
+      // @ts-expect-error
+      if (error instanceof Error && error?.response?.data?.message) {
+        // @ts-expect-error
+        showToast('خطا', error?.response?.data?.message, 'error')
+      }
+      showToast('خطا', 'خطا در ایجاد دوره', 'error')
+      // @ts-expect-error
+      console.error('Error submitting form:', error?.response?.data?.message)
+    }
+
     // handleAssignCoach()
   }
 
@@ -431,7 +582,7 @@ const CourseAssignCoach: React.FC = () => {
                   label="نوع جلسه"
                   error={!!errors.course_type}
                 >
-                  <MenuItem value="HOZORI">حضوری</MenuItem>
+                  <MenuItem value="ON-SITE">حضوری</MenuItem>
                   <MenuItem value="ONLINE">آنلاین</MenuItem>
                 </TextField>
               </div>
@@ -675,6 +826,83 @@ const CourseAssignCoach: React.FC = () => {
                   </Button>
                 </Box>
               </div>
+            </div>
+
+            {/* Course Subjects */}
+            <div className="w-full">
+              <Box
+                sx={{ mt: 4, p: 3, border: '1px solid #eee', borderRadius: 2 }}
+              >
+                <Typography variant="h6" gutterBottom>
+                  سر فصل‌های دوره
+                </Typography>
+                <Divider sx={{ mb: 3 }} />
+
+                {courseSubjects.map((subject, index) => (
+                  <Box
+                    key={index}
+                    sx={{
+                      mb: 3,
+                      p: 2,
+                      border: '1px solid #f5f5f5',
+                      borderRadius: 1,
+                    }}
+                  >
+                    <Grid container spacing={2}>
+                      <Grid item xs={12} md={6}>
+                        <TextField
+                          fullWidth
+                          label="عنوان فصل"
+                          value={subject.title}
+                          onChange={(e) =>
+                            handleSubjectChange(index, 'title', e.target.value)
+                          }
+                        />
+                      </Grid>
+
+                      <Grid item xs={12} md={6}>
+                        <TextField
+                          fullWidth
+                          label="زیرعنوان"
+                          value={subject.sub_title}
+                          onChange={(e) =>
+                            handleSubjectChange(
+                              index,
+                              'sub_title',
+                              e.target.value,
+                            )
+                          }
+                        />
+                      </Grid>
+
+                      {courseSubjects.length > 1 && (
+                        <Grid
+                          item
+                          xs={12}
+                          sx={{ display: 'flex', justifyContent: 'flex-end' }}
+                        >
+                          <IconButton
+                            onClick={() => handleRemoveSubject(index)}
+                            color="error"
+                            size="small"
+                          >
+                            <DeleteIcon />
+                          </IconButton>
+                        </Grid>
+                      )}
+                    </Grid>
+                  </Box>
+                ))}
+
+                <Button
+                  variant="contained"
+                  startIcon={<AddIcon className="ml-3" />}
+                  onClick={handleAddSubject}
+                  sx={{ mt: 1 }}
+                >
+                  اضافه کردن سر فصل
+                </Button>
+              </Box>
             </div>
           </div>
           {/* Next: Add coach/class selection and time slot form here */}

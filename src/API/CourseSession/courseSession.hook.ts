@@ -59,6 +59,15 @@ export const useAssignCoachToCourseSession = (courseId: string) => {
   return useMutation({
     mutationFn: (requestBody: any) =>
       courseSessionApi.assignCoachToCourseSession(courseId, requestBody),
+    onSuccess: (response) => {
+      console.log('log from useAssignCoachToCourseSession')
+      console.log(response)
+    },
+    onError: (err) => {
+      console.log('log from useAssignCoachToCourseSession')
+      console.log(err)
+      console.log(err?.response)
+    },
   })
 }
 
