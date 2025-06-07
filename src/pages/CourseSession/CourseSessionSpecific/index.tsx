@@ -99,11 +99,11 @@ const CourseSessionSpecific = () => {
           جزئیات دوره
         </Typography>
         <div className="flex flex-col md:flex-row w-auto md:w-80 justify-around space-y-3 md:space-y-0  ">
-          <Link to={`/courses/${course_id}/edit`}>
+          {/* <Link to={`/courses/${course_id}/edit`}>
             <Button endIcon={<EditIcon />} variant="contained" color="warning">
               ویرایش دوره&nbsp;&nbsp;
             </Button>
-          </Link>
+          </Link> */}
 
           <Link to={`/courses-sessions/${course_id}/assign-coach/`}>
             <Button
@@ -145,7 +145,7 @@ const CourseSessionSpecific = () => {
                 </Grid>
               )}
 
-              <Grid size={6}>
+              {/* <Grid size={6}>
                 <Box>
                   <Typography variant="subtitle2" color="textSecondary">
                     نوع دوره
@@ -154,7 +154,7 @@ const CourseSessionSpecific = () => {
                     {course.course_type === 'HOZORI' ? 'حضوری' : 'آنلاین'}
                   </Typography>
                 </Box>
-              </Grid>
+              </Grid> */}
 
               <Grid size={6}>
                 <Box sx={{ maxWidth: '100px' }}>
@@ -165,24 +165,18 @@ const CourseSessionSpecific = () => {
                   >
                     دسته‌بندی
                   </Typography>
-                  <Typography
-                    fontWeight={600}
-                    className="bg-yellow-300 px-4 rounded-3xl py-1"
-                  >
-                    {course.course_session_category?.name || '-'}
-                  </Typography>
 
-                  <Typography
-                    fontWeight={600}
-                    sx={{ marginTop: '5px' }}
-                    className="bg-yellow-300 px-4 rounded-3xl py-1"
-                  >
-                    {course.course_session_sub_category?.name || '-'}
-                  </Typography>
+                  {Array.isArray(course?.course_session_category) &&
+                    course.course_session_category?.length !== 0 &&
+                    course.course_session_category.map((category) => (
+                      <div className="bg-yellow-300 px-4 rounded-3xl mb-1.5 py-1 font-semibold">
+                        {category.name || '-'}
+                      </div>
+                    ))}
                 </Box>
               </Grid>
 
-              <Grid size={6}>
+              {/* <Grid size={6}>
                 <Box>
                   <Typography variant="subtitle2" color="textSecondary">
                     مدت دوره
@@ -193,7 +187,7 @@ const CourseSessionSpecific = () => {
                       : '-'}
                   </Typography>
                 </Box>
-              </Grid>
+              </Grid> */}
 
               <Grid size={6}>
                 <Box>
@@ -207,32 +201,8 @@ const CourseSessionSpecific = () => {
           </StyledPaper>
         </Grid>
 
-        {/* Price and Capacity */}
-        <Grid size={{ xs: 12, md: 3 }}>
-          <StyledPaper sx={{ p: 3, minHeight: { xs: 'auto', md: '318px' } }}>
-            <Typography variant="h6" gutterBottom>
-              قیمت و ظرفیت
-            </Typography>
-            <Box mt={2}>
-              <Typography variant="subtitle2" color="textSecondary">
-                قیمت دوره
-              </Typography>
-              <Typography>{course.price.toLocaleString()} تومان</Typography>
-            </Box>
-            {/* Course Max Student No */}
-            {/* <Box mt={2}>
-                            <Typography variant="subtitle2" color="textSecondary">
-                                ظرفیت دوره
-                            </Typography>
-                            <Typography>
-                                {course.member.length} / {course.max_member_accept} نفر
-                            </Typography>
-                        </Box> */}
-          </StyledPaper>
-        </Grid>
-
         {/* Status and Coach */}
-        <Grid size={{ xs: 12, md: 3 }}>
+        <Grid size={{ xs: 12, md: 6 }}>
           <StyledPaper sx={{ p: 3, minHeight: { xs: 'auto', md: '318px' } }}>
             <div className="flex flex-col gap-4">
               <div>
@@ -241,6 +211,10 @@ const CourseSessionSpecific = () => {
                 </Typography>
                 <div className="flex w-full">
                   <div className="flex mr-2">
+                    {Array.isArray(course.coaches) &&
+                      course.coaches?.length === 0 && (
+                        <div className="p-4">مدرس ثبت نشده است</div>
+                      )}
                     {Array.isArray(course.coaches) &&
                       course.coaches.length !== 0 &&
                       course.coaches.map((coach) => (
@@ -311,6 +285,46 @@ const CourseSessionSpecific = () => {
                   />
                 </div>
               </div>
+            </div>
+          </StyledPaper>
+        </Grid>
+
+        {/* Description */}
+        <Grid size={12}>
+          <StyledPaper sx={{ p: { xs: 0, md: 4 } }}>
+            <Typography sx={{ paddingTop: '15px' }} variant="h6" gutterBottom>
+              توضیحات
+            </Typography>
+
+            <div
+              className="w-full px-2 md:px-4 py-4 flex flex-wrap leading-8"
+              style={{
+                wordBreak: 'break-word',
+                overflowWrap: 'break-word',
+              }}
+            >
+              {course.description}
+            </div>
+          </StyledPaper>
+        </Grid>
+
+        {/* Long Description */}
+        <Grid size={12}>
+          <StyledPaper sx={{ p: { xs: 0, md: 4 } }}>
+            <Typography sx={{ paddingTop: '15px' }} variant="h6" gutterBottom>
+              توضیحات کامل
+            </Typography>
+
+            <div
+              className="w-full px-2 md:px-4 py-4 flex flex-wrap leading-8"
+              style={{
+                wordBreak: 'break-word',
+                overflowWrap: 'break-word',
+              }}
+            >
+              <div
+                dangerouslySetInnerHTML={{ __html: course.description_long }}
+              />
             </div>
           </StyledPaper>
         </Grid>

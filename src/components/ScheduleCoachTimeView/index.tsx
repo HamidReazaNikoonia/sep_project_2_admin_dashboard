@@ -69,6 +69,9 @@ const ScheduleCoachTimeView: React.FC<ScheduleCoachTimeViewProps> = ({
           </Typography>
           <Divider />
           <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
+            {Array.isArray(coaches) && coaches.length === 0 && (
+              <div className="p-4 text-red-600">مدرس ثبت نشده است</div>
+            )}
             {coaches.map((coach: any) => (
               <ListItem
                 key={coach._id}
