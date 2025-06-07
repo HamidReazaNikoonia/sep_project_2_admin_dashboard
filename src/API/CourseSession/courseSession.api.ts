@@ -118,6 +118,25 @@ const courseSessionApi = {
     )
     return data
   },
+
+  // course session package
+  getAllPackages: async () => {
+    const { data } = await axios.get(
+      `course-session/admin/course-session-package`,
+    )
+    return data
+  },
+
+  createCourseSessionPackage: async (requestData: {
+    title: string
+    price: number
+  }) => {
+    const { data } = await axios.post(
+      `course-session/admin/course-session-package`,
+      requestData,
+    )
+    return data
+  },
 }
 
 export default courseSessionApi

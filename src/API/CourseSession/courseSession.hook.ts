@@ -7,6 +7,7 @@ const COURSES_KEY = 'courses-session'
 const COURSE_CATEGORIES_KEY = 'course-session-categories'
 const CLASS_PROGRAM_SPECIFIC_COURSE_KEY =
   'class-program-specific-course-session'
+const COURSE_SESSION_PACKAGES = 'course-session-packages'
 
 // Hooks for courses
 export const useCourseSessions = (params?: {
@@ -137,6 +138,26 @@ export const useCreateCourseSessionSubCategory = (courseCategoryId: string) => {
       courseSessionApi.createSubCategory(courseCategoryId, categoryData),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [COURSE_CATEGORIES_KEY] })
+    },
+  })
+}
+
+// course session packages
+export const useGetAllPackages = () => {
+  return useQuery({
+    queryKey: [COURSE_SESSION_PACKAGES],
+    queryFn: () => courseSessionApi.getAllPackages(),
+  })
+}
+
+export const useCreateCourseSessionPackage = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (requestData: { title: string; price: number }) =>
+      courseSessionApi.createCourseSessionPackage(requestData),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [COURSE_SESSION_PACKAGES] })
     },
   })
 }
