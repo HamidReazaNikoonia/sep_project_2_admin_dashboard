@@ -189,12 +189,21 @@ const CourseSessionSpecific = () => {
                 </Box>
               </Grid> */}
 
-              <Grid size={6}>
+              <Grid size={3}>
                 <Box>
                   <Typography variant="subtitle2" color="textSecondary">
                     زبان دوره
                   </Typography>
                   <Typography>{course.course_language || '-'}</Typography>
+                </Box>
+              </Grid>
+
+              <Grid size={3}>
+                <Box>
+                  <Typography variant="subtitle2" color="textSecondary">
+                    زمان دوره
+                  </Typography>
+                  <Typography>{course.course_duration || '-'}</Typography>
                 </Box>
               </Grid>
             </Grid>
