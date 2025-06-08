@@ -1,6 +1,6 @@
 // @ts-nocheck
 import React, { useEffect, useState, useRef } from 'react'
-import { useParams, useNavigate } from 'react-router'
+import { useParams, useNavigate, Link } from 'react-router'
 import {
   Box,
   Typography,
@@ -12,6 +12,12 @@ import {
   Button,
   Divider,
   IconButton,
+  AlertTitle,
+  Table,
+  TableHead,
+  TableBody,
+  TableRow,
+  TableCell,
 } from '@mui/material'
 import UploadIcon from '@mui/icons-material/Upload'
 import AddIcon from '@mui/icons-material/Add'
@@ -20,6 +26,7 @@ import {
   useAssignCoachToCourseSession,
   useCourseSession,
   useCourseSessionClasses,
+  useGetAllPackages,
 } from '@/API/CourseSession/courseSession.hook'
 import { showToast } from '@/utils/toast'
 import { useGetAllCoaches } from '@/API/Coach/coach.hook'
@@ -27,6 +34,7 @@ import CoachListAndFilter from '@/components/CoachListAndFilter'
 import CustomDataPickerCalendar from '@/components/CustomDataPickerCalendar'
 import momentJalaali from 'moment-jalaali'
 import clsx from 'clsx'
+import { StyledTableContainer } from '@/components/StyledTableContainer'
 // import * as momentJalaali from 'moment-jalaali';
 
 const SERVER_URL = process.env.REACT_APP_SERVER_URL
@@ -51,6 +59,7 @@ const CourseAssignCoach: React.FC = () => {
     price_real: 0,
     price_discounted: 0,
     max_member_accept: 0,
+    course_duration: 0,
   })
 
   // Errors State
@@ -59,6 +68,7 @@ const CourseAssignCoach: React.FC = () => {
     price_real: false,
     price_discounted: false,
     max_member_accept: false,
+    course_duration: false,
   })
   // Reservation time state
   const [selectedDateState, setSelectedDateState] = useState(
@@ -76,6 +86,9 @@ const CourseAssignCoach: React.FC = () => {
   const [courseSubjects, setCourseSubjects] = useState([
     { title: '', sub_title: '' },
   ])
+
+  // course session packages
+  const [selectedPackages, setSelectedPackages] = useState<string[]>([])
 
   // Fetch course session data
   const { data, isLoading, isError, error } = useCourseSession(course_id!)
@@ -95,6 +108,14 @@ const CourseAssignCoach: React.FC = () => {
     isLoading: ClassesIsLoading,
     isError: ClassesIsError,
   } = useCourseSessionClasses()
+
+  // fetach All packages
+  const {
+    data: packagesData,
+    isLoading: packagesIsLoading,
+    error: packagesError,
+    isError: packagesIsError,
+  } = useGetAllPackages()
 
   useEffect(() => {
     console.log('error from use effect')
@@ -314,6 +335,14 @@ const CourseAssignCoach: React.FC = () => {
     })
   }
 
+  const handleCheckboxChange = (packageId: string) => {
+    setSelectedPackages((prev) =>
+      prev.includes(packageId)
+        ? prev.filter((id) => id !== packageId)
+        : [...prev, packageId],
+    )
+  }
+
   const submitFormHandler = async () => {
     console.log({ formData })
     console.log({ fileUploads, sampleMedias })
@@ -321,6 +350,8 @@ const CourseAssignCoach: React.FC = () => {
     console.log({ selectedClassId })
     console.log({ selectedCurentCoach })
     console.log({ selectedSession })
+
+    console.log({ selectedPackages })
 
     try {
       const _sample_media_transfer = transformSampleMedia(sampleMedias)
@@ -375,9 +406,13 @@ const CourseAssignCoach: React.FC = () => {
           ? { price_discounted: formData?.price_discounted }
           : {}),
         max_member_accept: formData?.max_member_accept,
+        course_duration: formData?.course_duration || 0,
         sessions: selectedSession,
         subjects: courseSubjects,
         sample_media: _sample_media_transfer,
+        ...(selectedPackages?.length !== 0
+          ? { packages: selectedPackages }
+          : {}),
       }
 
       console.log({ requestBody })
@@ -644,8 +679,8 @@ const CourseAssignCoach: React.FC = () => {
             </div>
 
             {/* max_member_accept */}
-            <div className="w-full mt-8 space-x-4">
-              <div className="w-full">
+            <div className="w-full flex flex-col md:flex-row mt-8 space-x-4">
+              <div className="w-full md:w-1/3">
                 <label
                   className="pb-2 text-gray-600 text-xs"
                   htmlFor="max_member_accept"
@@ -666,6 +701,29 @@ const CourseAssignCoach: React.FC = () => {
                   label="تعداد شرکت کننده ها"
                   error={!!errors.max_member_accept}
                   helperText={errors.max_member_accept?.message}
+                />
+              </div>
+              <div className="w-full md:w-1/3">
+                <label
+                  className="pb-2 text-gray-600 text-xs"
+                  htmlFor="course_duration"
+                >
+                  زمان دوره (دقیقه)
+                </label>
+                <TextField
+                  id="course_duration"
+                  value={formData.course_duration}
+                  onChange={(e) =>
+                    setformData({
+                      ...formData,
+                      course_duration: parseInt(e.target.value),
+                    })
+                  }
+                  fullWidth
+                  type="number"
+                  label="زمان دوره (دقیقه)"
+                  error={!!errors.course_duration}
+                  helperText={errors.course_duration?.message}
                 />
               </div>
             </div>
@@ -817,8 +875,8 @@ const CourseAssignCoach: React.FC = () => {
                   ))}
 
                   <Button
-                    variant="outlined"
-                    startIcon={<AddIcon />}
+                    variant="contained"
+                    startIcon={<AddIcon className="ml-3" />}
                     onClick={handleAddMedia}
                     sx={{ mt: 2 }}
                   >
@@ -904,12 +962,106 @@ const CourseAssignCoach: React.FC = () => {
                 </Button>
               </Box>
             </div>
+
+            {/* Course Session Package */}
+            <div className="w-full border-t pt-12">
+              <Box
+                sx={{ mt: 4, p: 3, border: '1px solid #eee', borderRadius: 2 }}
+              >
+                <Typography variant="h6" gutterBottom>
+                  خدمات پکیج های آموزشی
+                </Typography>
+
+                <Typography sx={{ paddingTop: '5px' }} variant="body2">
+                  مدرک ها
+                </Typography>
+
+                <div className="flex flex-col">
+                  <div className="text-left">
+                    <Link to={`/courses-sessions/implement-package`}>
+                      <AddIcon />
+                    </Link>
+                  </div>
+
+                  {/* Packages List Container */}
+                  <div className="w-full border bg-gray-300 pb-6 px-2 rounded-3xl mt-6">
+                    {packagesIsError && (
+                      <AlertTitle>پکیج ها در دسترس نیستند</AlertTitle>
+                    )}
+
+                    {packagesIsLoading && (
+                      <Box p={3}>
+                        <CircularProgress />
+                        <Typography sx={{ mt: 2 }}>
+                          در حال بارگذاری اطلاعات دوره...
+                        </Typography>
+                      </Box>
+                    )}
+
+                    {packagesData && packagesData?.length == 0 && (
+                      <Box p={3}>
+                        <Typography sx={{ m: 2 }}>
+                          {' '}
+                          پکیجی وجود ندارد{' '}
+                        </Typography>
+                      </Box>
+                    )}
+
+                    {packagesData && packagesData?.length !== 0 && (
+                      <div className="p-3 mt-8">
+                        <StyledTableContainer>
+                          <Table>
+                            <TableHead>
+                              <TableRow>
+                                <TableCell>گزینه</TableCell>
+                                <TableCell>عنوان</TableCell>
+                                <TableCell>قیمت</TableCell>
+                              </TableRow>
+                            </TableHead>
+                            <TableBody>
+                              {packagesData?.map(
+                                (pkg: {
+                                  _id: string
+                                  title: string
+                                  price: number
+                                }) => (
+                                  <TableRow key={pkg._id}>
+                                    <TableCell>
+                                      <input
+                                        type="checkbox"
+                                        checked={selectedPackages.includes(
+                                          pkg._id,
+                                        )}
+                                        onChange={() =>
+                                          handleCheckboxChange(pkg._id)
+                                        }
+                                      />
+                                    </TableCell>
+                                    <TableCell>{pkg.title}</TableCell>
+                                    <TableCell>
+                                      {pkg?.price &&
+                                        pkg?.price.toLocaleString()}
+                                    </TableCell>
+                                  </TableRow>
+                                ),
+                              )}
+                            </TableBody>
+                          </Table>
+                        </StyledTableContainer>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </Box>
+            </div>
           </div>
           {/* Next: Add coach/class selection and time slot form here */}
 
           <div className="w-full text-center mt-12">
             <Button
               sx={{ minWidth: '90%' }}
+              loading={assignCoachMutation.isPending}
+              disabled={assignCoachMutation.isPending}
               size="large"
               variant="contained"
               color="primary"
