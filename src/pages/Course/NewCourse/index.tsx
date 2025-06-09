@@ -1,6 +1,7 @@
 //@ts-nocheck
 import React, { useState } from 'react'
 import { useFieldArray } from 'react-hook-form'
+import Editor from '@/components/TextEditor'
 import {
   Add as AddIcon,
   Delete as DeleteIcon,
@@ -36,6 +37,7 @@ const SERVER_FILE = process.env.REACT_APP_SERVER_FILE
 const schema = yup.object({
   title: yup.string().required('عنوان دوره الزامی است'),
   sub_title: yup.string().required('زیرعنوان دوره الزامی است'),
+  description: yup.string().required('توضیحات دوره الزامی است'),
   price_real: yup
     .number()
     .required('قیمت دوره الزامی است')
@@ -53,7 +55,7 @@ const schema = yup.object({
     .required('حداکثر ظرفیت الزامی است')
     .min(1, 'حداقل ظرفیت ۱ نفر است')
     .integer('ظرفیت باید عدد صحیح باشد'),
-  course_language: yup.string().required('زبان دوره الزامی است'),
+  course_language: yup.string(),
   course_duration: yup.number().required('مدت دوره الزامی است'),
   slug: yup.string(),
   // educational_level: yup.number().required('سطح آموزشی الزامی است'),
@@ -106,6 +108,7 @@ const NewCourse = () => {
   const [fileUploads, setFileUploads] = useState<FileUploadState>({})
   // const { data: categories = [] } = useCourseCategories()
   const [categories, setCategories] = useState<any>([])
+  const [descriptionLong, setDescriptionLong] = useState('')
   const createCourse = useCreateCourse()
 
   const {
@@ -125,6 +128,10 @@ const NewCourse = () => {
       course_objects: [],
       price_discount: null,
       price_real: 0,
+      description: '',
+      max_member_accept: 1,
+      course_duration: 0,
+      course_language: 'FA',
     },
     mode: 'onChange',
   })
@@ -202,6 +209,11 @@ const NewCourse = () => {
       }))
       showToast('خطا', 'خطا در آپلود فایل', 'error')
     }
+  }
+
+  const submitHandlerForPassData = (data) => {
+    console.log({ data })
+    setDescriptionLong(data)
   }
 
   const onSubmit = async (data: FormData) => {
@@ -454,6 +466,35 @@ const NewCourse = () => {
                   />
                 </div>
               </div>
+            </StyledPaper>
+          </Grid>
+
+          <Grid size={12}>
+            <StyledPaper sx={{ p: 3 }}>
+              <Typography variant="h6" gutterBottom>
+                توضیحات
+              </Typography>
+              <TextField
+                {...register('description')}
+                fullWidth
+                multiline
+                rows={3}
+                label="توضیح کوتاه"
+                error={!!errors.description}
+                helperText={errors.description?.message}
+              />
+            </StyledPaper>
+          </Grid>
+
+          {/* Description Long (WYSIWYG) */}
+          <Grid size={12}>
+            <StyledPaper sx={{ p: 3 }}>
+              <Typography fontWeight={800} variant="subtitle1" sx={{ mb: 1 }}>
+                توضیح کامل
+              </Typography>
+              <Box sx={{ marginBottom: '60px' }}>
+                <Editor submitHandlerForPassData={submitHandlerForPassData} />
+              </Box>
             </StyledPaper>
           </Grid>
 
