@@ -1,4 +1,4 @@
-import { Edit as EditIcon } from '@mui/icons-material';
+import { Edit as EditIcon } from '@mui/icons-material'
 import {
   Box,
   Typography,
@@ -6,60 +6,64 @@ import {
   CircularProgress,
   Switch,
   Button,
-} from '@mui/material';
-import { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router';
-import { useCourse, useUpdateCourse } from '../../../API/Course/course.hook';
-import StyledPaper from '../../../components/StyledPaper';
-import { showToast } from '../../../utils/toast';
-import FolderIcon from '@mui/icons-material/Folder';
-const label = { inputProps: { 'aria-label': 'Switch Course Status' } };
+} from '@mui/material'
+import { useEffect, useState } from 'react'
+import { useParams, Link } from 'react-router'
+import { useCourse, useUpdateCourse } from '../../../API/Course/course.hook'
+import StyledPaper from '../../../components/StyledPaper'
+import { showToast } from '../../../utils/toast'
+import FolderIcon from '@mui/icons-material/Folder'
+const label = { inputProps: { 'aria-label': 'Switch Course Status' } }
 
-const SERVER_URL = process.env.REACT_APP_SERVER_URL;
-const SERVER_FILE = process.env.REACT_APP_SERVER_FILE;
-
+const SERVER_URL = process.env.REACT_APP_SERVER_URL
+const SERVER_FILE = process.env.REACT_APP_SERVER_FILE
 
 const CourseSpecific = () => {
-  const [checked, setChecked] = useState(false);
-  const { course_id } = useParams();
-  const { data, isLoading, isError, error } = useCourse(course_id!);
-  const updateCourse = useUpdateCourse(course_id!);
+  const [checked, setChecked] = useState(false)
+  const { course_id } = useParams()
+  const { data, isLoading, isError, error } = useCourse(course_id!)
+  const updateCourse = useUpdateCourse(course_id!)
 
   const handleChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const newStatus = event.target.checked;
-    setChecked(newStatus);
+    const newStatus = event.target.checked
+    setChecked(newStatus)
 
     try {
       await updateCourse.mutateAsync({
         course_status: newStatus,
-      });
-      showToast('بروزرسانی موفق', 'وضعیت دوره با موفقیت تغییر کرد', 'success');
+      })
+      showToast('بروزرسانی موفق', 'وضعیت دوره با موفقیت تغییر کرد', 'success')
     } catch (error) {
-      setChecked(!newStatus);
-      showToast('خطا', 'خطا در بروزرسانی وضعیت دوره', 'error');
-      console.error('Error updating course status:', error);
+      setChecked(!newStatus)
+      showToast('خطا', 'خطا در بروزرسانی وضعیت دوره', 'error')
+      console.error('Error updating course status:', error)
     }
-  };
+  }
 
   useEffect(() => {
     if (data) {
-      setChecked(data?.course_status);
+      setChecked(data?.course_status)
     }
-  }, [data]);
+  }, [data])
 
   const handleFileDownload = (fileName: string) => {
-    const fileUrl = `${SERVER_FILE}/${fileName}`;
-    window.open(fileUrl, '_blank');
-  };
+    const fileUrl = `${SERVER_FILE}/${fileName}`
+    window.open(fileUrl, '_blank')
+  }
 
-  const course = data;
+  const course = data
 
   if (isLoading) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        minHeight="400px"
+      >
         <CircularProgress />
       </Box>
-    );
+    )
   }
 
   if (isError) {
@@ -69,7 +73,7 @@ const CourseSpecific = () => {
           Error loading course details: {error?.message || 'Unknown error'}
         </Typography>
       </Box>
-    );
+    )
   }
 
   if (!course) {
@@ -77,11 +81,11 @@ const CourseSpecific = () => {
       <Box p={3}>
         <Typography>دوره یافت نشد</Typography>
       </Box>
-    );
+    )
   }
 
   return (
-    <Box dir="rtl" p={{xs: 0, md:4}}>
+    <Box dir="rtl" p={{ xs: 0, md: 4 }}>
       <div className="flex justify-between items-center mb-4">
         <Typography className="text-right" variant="h4" gutterBottom>
           جزئیات دوره
@@ -121,7 +125,7 @@ const CourseSpecific = () => {
                 </Grid>
               )}
 
-              <Grid size={6}>
+              {/* <Grid size={6}>
                 <Box>
                   <Typography variant="subtitle2" color="textSecondary">
                     نوع دوره
@@ -130,16 +134,26 @@ const CourseSpecific = () => {
                     {course.course_type === 'HOZORI' ? 'حضوری' : 'آفلاین'}
                   </Typography>
                 </Box>
-              </Grid>
+              </Grid> */}
 
               <Grid size={6}>
-                <Box>
-                  <Typography variant="subtitle2" color="textSecondary">
+                <Box sx={{ maxWidth: '100px' }}>
+                  <Typography
+                    sx={{ paddingBottom: '8px' }}
+                    variant="subtitle2"
+                    color="textSecondary"
+                  >
                     دسته‌بندی
                   </Typography>
-                  <Typography>
-                    {course.course_category?.name || '-'}
-                  </Typography>
+
+                  {course?.course_category &&
+                    Array.isArray(course?.course_category) &&
+                    course.course_category?.length !== 0 &&
+                    course.course_category.map((category) => (
+                      <div className="bg-yellow-300 px-4 rounded-3xl mb-1.5 py-1 font-semibold">
+                        {category.name || '-'}
+                      </div>
+                    ))}
                 </Box>
               </Grid>
 
@@ -149,7 +163,9 @@ const CourseSpecific = () => {
                     مدت دوره
                   </Typography>
                   <Typography>
-                    {course.course_duration ? `${course.course_duration} ساعت` : '-'}
+                    {course.course_duration
+                      ? `${course.course_duration} دقیقه`
+                      : '-'}
                   </Typography>
                 </Box>
               </Grid>
@@ -176,8 +192,22 @@ const CourseSpecific = () => {
               <Typography variant="subtitle2" color="textSecondary">
                 قیمت دوره
               </Typography>
-              <Typography>{course.price.toLocaleString()} تومان</Typography>
+              <Typography>
+                {course.price_real.toLocaleString()} تومان
+              </Typography>
             </Box>
+
+            {course?.price_discount && (
+              <Box mt={2}>
+                <Typography variant="subtitle2" color="textSecondary">
+                  قیمت با تخفیف
+                </Typography>
+                <Typography>
+                  {course.price_discount.toLocaleString()} تومان
+                </Typography>
+              </Box>
+            )}
+
             <Box mt={2}>
               <Typography variant="subtitle2" color="textSecondary">
                 ظرفیت دوره
@@ -197,9 +227,7 @@ const CourseSpecific = () => {
                 <Typography variant="h6" gutterBottom>
                   مدرس دوره
                 </Typography>
-                <Typography>
-                  {course.coach_id?.name || '-'}
-                </Typography>
+                <Typography>{course.coach_id?.name || '-'}</Typography>
               </div>
 
               {/* Status */}
@@ -223,43 +251,92 @@ const CourseSpecific = () => {
           </StyledPaper>
         </Grid>
 
+        {/* Description */}
+        <Grid size={12}>
+          <StyledPaper sx={{ p: { xs: 0, md: 4 } }}>
+            <Typography sx={{ paddingTop: '15px' }} variant="h6" gutterBottom>
+              توضیحات
+            </Typography>
+
+            <div
+              className="w-full px-2 md:px-4 py-4 flex flex-wrap leading-8"
+              style={{
+                wordBreak: 'break-word',
+                overflowWrap: 'break-word',
+              }}
+            >
+              {course.description}
+            </div>
+          </StyledPaper>
+        </Grid>
+
+        {/* Long Description */}
+        <Grid size={12}>
+          <StyledPaper sx={{ p: { xs: 0, md: 4 } }}>
+            <Typography sx={{ paddingTop: '15px' }} variant="h6" gutterBottom>
+              توضیحات کامل
+            </Typography>
+
+            <div
+              className="w-full px-2 md:px-4 py-4 flex flex-wrap leading-8"
+              style={{
+                wordBreak: 'break-word',
+                overflowWrap: 'break-word',
+              }}
+            >
+              <div
+                dangerouslySetInnerHTML={{ __html: course.description_long }}
+              />
+            </div>
+          </StyledPaper>
+        </Grid>
+
         {/* Course Objects */}
         <Grid size={12}>
           <StyledPaper sx={{ p: 3 }}>
             <Typography variant="h6" gutterBottom>
-              سرفصل‌های دوره <span className="text-sm text-gray-500">( {course.course_objects?.length} سرفصل ) </span>
+              سرفصل‌های دوره{' '}
+              <span className="text-sm text-gray-500">
+                ( {course.course_objects?.length} سرفصل ){' '}
+              </span>
             </Typography>
             <Grid container spacing={2}>
               {course.course_objects.map((object, index) => (
                 <Grid key={index} size={12}>
                   <div className="flex flex-row md:flex-col justify-between md:justify-start items-center md:items-start">
                     <div className="flex items-center gap-2">
-                    <Box sx={{ p: 2, border: '1px solid #eee', borderRadius: 1 }}>
-                    <Typography variant="subtitle1">
-                      {object.subject_title}
-                    </Typography>
-                    <Typography variant="body2" color="textSecondary">
-                      مدت زمان: {object.duration} دقیقه
-                    </Typography>
-                    <Typography variant="body2" color="textSecondary">
-                      وضعیت: {object.status === 'PUBLIC' ? 'رایگان' : 'پرداختی'}
-                    </Typography>
-                  </Box>
+                      <Box
+                        sx={{ p: 2, border: '1px solid #eee', borderRadius: 1 }}
+                      >
+                        <Typography variant="subtitle1">
+                          {object.subject_title}
+                        </Typography>
+                        <Typography variant="body2" color="textSecondary">
+                          مدت زمان: {object.duration} دقیقه
+                        </Typography>
+                        <Typography variant="body2" color="textSecondary">
+                          وضعیت:{' '}
+                          {object.status === 'PUBLIC' ? 'رایگان' : 'پرداختی'}
+                        </Typography>
+                      </Box>
                     </div>
-
 
                     {/* Files */}
                     <div className="flex items-center md:pr-4">
-                    {object.files && (
-                  <Button 
-                    endIcon={<FolderIcon className='text-gray-400 mr-2' />} 
-                    variant="outlined" 
-                    size="small"
-                    onClick={() => handleFileDownload(object.files.file_name)}
-                  >
-                    مشاهده فایل
-                  </Button>
-                )}
+                      {object.files && (
+                        <Button
+                          endIcon={
+                            <FolderIcon className="text-gray-400 mr-2" />
+                          }
+                          variant="outlined"
+                          size="small"
+                          onClick={() =>
+                            handleFileDownload(object.files.file_name)
+                          }
+                        >
+                          مشاهده فایل
+                        </Button>
+                      )}
                     </div>
                   </div>
                 </Grid>
@@ -284,6 +361,22 @@ const CourseSpecific = () => {
                     <Typography variant="body2" color="textSecondary">
                       نوع: {media.media_type}
                     </Typography>
+                    <div className="mt-2">
+                      {media.file && (
+                        <Button
+                          endIcon={
+                            <FolderIcon className="text-gray-400 mr-2" />
+                          }
+                          variant="outlined"
+                          size="small"
+                          onClick={() =>
+                            handleFileDownload(media.file.file_name)
+                          }
+                        >
+                          مشاهده فایل
+                        </Button>
+                      )}
+                    </div>
                     {media.url_address && (
                       <Button
                         variant="outlined"
@@ -324,7 +417,7 @@ const CourseSpecific = () => {
         </Grid>
       </Grid>
     </Box>
-  );
-};
+  )
+}
 
-export default CourseSpecific;
+export default CourseSpecific
