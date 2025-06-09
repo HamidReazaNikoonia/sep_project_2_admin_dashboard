@@ -22,13 +22,12 @@ import {
 import { useForm } from 'react-hook-form'
 import * as yup from 'yup'
 import { yupResolver } from '@hookform/resolvers/yup'
-import {
-  useCreateCourse,
-  useCourseCategories,
-} from '../../../API/Course/course.hook'
+import { useCreateCourse } from '../../../API/Course/course.hook'
 import StyledPaper from '../../../components/StyledPaper'
 import { showToast } from '../../../utils/toast'
 import ImageUploader from 'react-images-upload'
+
+import CourseCategorySelection from '../../../components/CourseCategorySelection'
 
 const SERVER_URL = process.env.REACT_APP_SERVER_URL
 const SERVER_FILE = process.env.REACT_APP_SERVER_FILE
@@ -37,12 +36,18 @@ const SERVER_FILE = process.env.REACT_APP_SERVER_FILE
 const schema = yup.object({
   title: yup.string().required('عنوان دوره الزامی است'),
   sub_title: yup.string().required('زیرعنوان دوره الزامی است'),
-  price: yup
+  price_real: yup
     .number()
     .required('قیمت دوره الزامی است')
     .min(10000, 'حداقل قیمت ۱۰,۰۰۰ تومان است'),
-  course_type: yup.string().required('نوع دوره الزامی است'),
-  course_category: yup.string().required('دسته‌بندی دوره الزامی است'),
+  price_discount: yup
+    .number()
+    .nullable()
+    .transform((value, originalValue) =>
+      originalValue === '' || originalValue === null ? null : value,
+    )
+    .optional()
+    .min(10000, 'حداقل قیمت ۱۰,۰۰۰ تومان است'),
   max_member_accept: yup
     .number()
     .required('حداکثر ظرفیت الزامی است')
@@ -99,13 +104,14 @@ const NewCourse = () => {
   const [thumbnailUploadedFile, setThumbnailUploadedFile] =
     useState<UploadedFile | null>(null)
   const [fileUploads, setFileUploads] = useState<FileUploadState>({})
-  const { data: categories = [] } = useCourseCategories()
+  // const { data: categories = [] } = useCourseCategories()
+  const [categories, setCategories] = useState<any>([])
   const createCourse = useCreateCourse()
 
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isValid, isDirty },
     control,
     watch,
     setValue,
@@ -117,7 +123,10 @@ const NewCourse = () => {
       course_status: true,
       sample_media: [{ media_type: '', media_title: '', url_address: '' }],
       course_objects: [],
+      price_discount: null,
+      price_real: 0,
     },
+    mode: 'onChange',
   })
 
   const {
@@ -197,6 +206,9 @@ const NewCourse = () => {
 
   const onSubmit = async (data: FormData) => {
     console.log({ k: data })
+    console.log('Form is valid:', isValid)
+    console.log('Form has errors:', Object.keys(errors).length > 0)
+
     try {
       // Check if thumbnail is uploaded
       if (!thumbnailUploadedFile?._id) {
@@ -236,8 +248,17 @@ const NewCourse = () => {
         },
       )
 
+      // add categories
+      // course_session_category
+      if (!categories && categories.length === 0) {
+        showToast('خطا', 'حداقل یک دسته بندی انتخاب کنید', 'error')
+        return false
+      }
+
       const courseData = {
         ...data,
+        ...(categories &&
+          categories.length !== 0 && { course_category: categories }),
         tumbnail_image: thumbnailUploadedFile._id,
         sample_media: sampleMediaWithFiles,
         course_objects: courseObjectsWithFiles,
@@ -257,6 +278,20 @@ const NewCourse = () => {
       }
       console.error('Error submitting form:', error)
     }
+  }
+
+  const checkFormErrors = () => {
+    console.log('Current errors:', errors)
+    console.log('Error fields:', Object.keys(errors))
+    console.log('Is form valid:', isValid)
+
+    if (Object.keys(errors).length > 0) {
+      showToast('خطا', 'لطفا خطاهای فرم را برطرف کنید', 'error')
+    }
+  }
+
+  const implementCategories = (data: [string] | any) => {
+    setCategories(data)
   }
 
   return (
@@ -294,7 +329,7 @@ const NewCourse = () => {
                   />
                 </Grid>
 
-                <Grid size={{ xs: 12, md: 4 }}>
+                {/* <Grid size={{ xs: 12, md: 4 }}>
                   <TextField
                     {...register('course_type')}
                     select
@@ -306,7 +341,7 @@ const NewCourse = () => {
                     <MenuItem value="HOZORI">حضوری</MenuItem>
                     <MenuItem value="OFFLINE">آفلاین</MenuItem>
                   </TextField>
-                </Grid>
+                </Grid> */}
 
                 {/* <Grid size={{ xs: 12, md: 4 }}>
                   <TextField
@@ -327,12 +362,23 @@ const NewCourse = () => {
 
                 <Grid size={{ xs: 12, md: 4 }}>
                   <TextField
-                    {...register('price')}
+                    {...register('price_real')}
                     fullWidth
                     type="number"
-                    label="قیمت دوره (تومان)"
-                    error={!!errors.price}
-                    helperText={errors.price?.message}
+                    label="قیمت دوره (ریال)"
+                    error={!!errors.price_real}
+                    helperText={errors.price_real?.message}
+                  />
+                </Grid>
+
+                <Grid size={{ xs: 12, md: 4 }}>
+                  <TextField
+                    {...register('price_discount')}
+                    fullWidth
+                    type="number"
+                    label="قیمت با تخفیف (ریال)"
+                    error={!!errors.price_discount}
+                    helperText={errors.price_discount?.message}
                   />
                 </Grid>
 
@@ -372,7 +418,7 @@ const NewCourse = () => {
                     {...register('course_duration')}
                     fullWidth
                     type="number"
-                    label="مدت دوره (ساعت)"
+                    label="مدت دوره (دقیقه)"
                     error={!!errors.course_duration}
                     helperText={errors.course_duration?.message}
                   />
@@ -395,6 +441,19 @@ const NewCourse = () => {
                   />
                 </Grid>
               </Grid>
+            </StyledPaper>
+          </Grid>
+
+          {/* Categories Selection */}
+          <Grid size={12}>
+            <StyledPaper sx={{ p: 3 }}>
+              <div className="w-full flex flex-col">
+                <div className="w-full">
+                  <CourseCategorySelection
+                    passSelectedCategories={implementCategories}
+                  />
+                </div>
+              </div>
             </StyledPaper>
           </Grid>
 
@@ -427,7 +486,7 @@ const NewCourse = () => {
                       thumbnailUploading ? (
                         <CircularProgress size={20} />
                       ) : (
-                        <UploadIcon />
+                        <UploadIcon className="ml-2" />
                       )
                     }
                     sx={{ mt: 2 }}
@@ -505,6 +564,7 @@ const NewCourse = () => {
                         <MenuItem value="VIDEO">ویدیو</MenuItem>
                         <MenuItem value="AUDIO">صوت</MenuItem>
                         <MenuItem value="PDF">PDF</MenuItem>
+                        <MenuItem value="IMAGE">تصویر</MenuItem>
                       </TextField>
                     </Grid>
 
@@ -526,9 +586,8 @@ const NewCourse = () => {
                         onChange={(e) => {
                           const file = e.target.files?.[0]
                           if (file) {
-                            register(`sample_media.${index}.file`).onChange(
-                              file,
-                            )
+                            setValue(`sample_media.${index}.file`, file)
+
                             setFileUploads((prev) => ({
                               ...prev,
                               [`sample_media_${index}`]: {
@@ -677,9 +736,8 @@ const NewCourse = () => {
                         onChange={(e) => {
                           const file = e.target.files?.[0]
                           if (file) {
-                            register(`course_objects.${index}.files`).onChange(
-                              file,
-                            )
+                            setValue(`course_objects.${index}.files`, file)
+
                             setFileUploads((prev) => ({
                               ...prev,
                               [`course_object_${index}`]: {
@@ -738,7 +796,7 @@ const NewCourse = () => {
                         startIcon={<DeleteIcon className="ml-2" />}
                         onClick={() => removeCourseObject(index)}
                       >
-                        حذف سرفصل
+                        حذف
                       </Button>
                     </Grid>
                   </Grid>
@@ -746,22 +804,33 @@ const NewCourse = () => {
               ))}
             </StyledPaper>
           </Grid>
-
-          {/* Submit Button */}
-          <Grid size={12}>
-            <Button
-              type="submit"
-              variant="contained"
-              color="primary"
-              size="large"
-              disabled={createCourse.isPending}
-              sx={{ mt: 3 }}
-            >
-              {createCourse.isPending ? 'در حال ایجاد...' : 'ایجاد دوره'}
-            </Button>
-          </Grid>
         </Grid>
+
+        <Button
+          type="submit"
+          variant="contained"
+          color="primary"
+          sx={{ mt: 3, mb: 2 }}
+        >
+          ایجاد دوره
+        </Button>
+
+        {/* Debug section - you can remove this in production */}
+        {/* <Box sx={{ mt: 3, p: 2, bgcolor: '#f5f5f5', borderRadius: 1 }}>
+          <Typography variant="subtitle2">وضعیت فرم:</Typography>
+          <Typography variant="body2">معتبر: {isValid ? 'بله' : 'خیر'}</Typography>
+          <Typography variant="body2">تغییر یافته: {isDirty ? 'بله' : 'خیر'}</Typography>
+          <Typography variant="body2">تعداد خطاها: {Object.keys(errors).length}</Typography>
+          {Object.keys(errors).length > 0 && (
+            <Box sx={{ mt: 1 }}>
+              <Typography variant="subtitle2">خطاها:</Typography>
+              <pre>{JSON.stringify(errors, null, 2)}</pre>
+            </Box>
+          )}
+        </Box> */}
       </form>
+
+      <Button onClick={checkFormErrors}>بررسی خطاهای فرم</Button>
     </Box>
   )
 }
