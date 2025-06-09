@@ -1,7 +1,7 @@
-import { Lock, LockOpen, TextFields } from "@mui/icons-material";
-import { Box, Button, Stack, Typography } from "@mui/material";
-import type { EditorOptions } from "@tiptap/core";
-import { useCallback, useRef, useState } from "react";
+import { Lock, LockOpen, TextFields } from '@mui/icons-material'
+import { Box, Button, Stack, Typography } from '@mui/material'
+import type { EditorOptions } from '@tiptap/core'
+import { useCallback, useRef, useState } from 'react'
 import {
   LinkBubbleMenu,
   MenuButton,
@@ -10,35 +10,35 @@ import {
   TableBubbleMenu,
   insertImages,
   type RichTextEditorRef,
-} from "mui-tiptap";
-import EditorMenuControls from "./EditorMenuControls";
-import useExtensions from "./useExtensions";
+} from 'mui-tiptap'
+import EditorMenuControls from './EditorMenuControls'
+import useExtensions from './useExtensions'
 
 const exampleContent =
-  '<h2 style="text-align: center">Hey there 👋</h2><p>This is a <em>basic</em> example of <code>mui-tiptap</code>, which combines <a target="_blank" rel="noopener noreferrer nofollow" href="https://tiptap.dev/">Tiptap</a> with customizable <a target="_blank" rel="noopener noreferrer nofollow" href="https://mui.com/">MUI (Material-UI)</a> styles, plus a suite of additional components and extensions! Sure, there are <strong>all <em>kinds</em> of <s>text</s> <u>formatting</u> options</strong> you’d probably expect from a rich text editor. But wait until you see the <span data-type="mention" data-id="15" data-label="Axl Rose">@Axl Rose</span> mentions and lists:</p><ul><li><p>That’s a bullet list with one …</p></li><li><p>… or two list items.</p></li></ul><p>Isn’t that great? And all of that is editable. <strong><span style="color: #ff9900">But wait, </span><span style="color: #403101"><mark data-color="#ffd699" style="background-color: #ffd699; color: inherit">there’s more!</mark></span></strong> Let’s try a code block:</p><pre><code class="language-css">body {\n  display: none;\n}</code></pre><p></p><p>That’s only the tip of the iceberg. Feel free to add and resize images:</p><img height="auto" src="https://picsum.photos/600/400" alt="random image" width="350" style="aspect-ratio: 3 / 2"><p></p><p>Organize information in tables:</p><table><tbody><tr><th colspan="1" rowspan="1"><p>Name</p></th><th colspan="1" rowspan="1"><p>Role</p></th><th colspan="1" rowspan="1"><p>Team</p></th></tr><tr><td colspan="1" rowspan="1"><p>Alice</p></td><td colspan="1" rowspan="1"><p>PM</p></td><td colspan="1" rowspan="1"><p>Internal tools</p></td></tr><tr><td colspan="1" rowspan="1"><p>Bob</p></td><td colspan="1" rowspan="1"><p>Software</p></td><td colspan="1" rowspan="1"><p>Infrastructure</p></td></tr></tbody></table><p></p><p>Or write down your groceries:</p><ul data-type="taskList"><li data-checked="true" data-type="taskItem"><label><input type="checkbox" checked="checked"><span></span></label><div><p>Milk</p></div></li><li data-checked="false" data-type="taskItem"><label><input type="checkbox"><span></span></label><div><p>Eggs</p></div></li><li data-checked="false" data-type="taskItem"><label><input type="checkbox"><span></span></label><div><p>Sriracha</p></div></li></ul><blockquote><p>Wow, that’s amazing. Good work! 👏 <br>— Mom</p></blockquote><p>Give it a try and click around!</p>';
+  '<h2 style="text-align: center">Hey there 👋</h2><p>This is a <em>basic</em> example of <code>mui-tiptap</code>, which combines <a target="_blank" rel="noopener noreferrer nofollow" href="https://tiptap.dev/">Tiptap</a> with customizable <a target="_blank" rel="noopener noreferrer nofollow" href="https://mui.com/">MUI (Material-UI)</a> styles, plus a suite of additional components and extensions! Sure, there are <strong>all <em>kinds</em> of <s>text</s> <u>formatting</u> options</strong> you’d probably expect from a rich text editor. But wait until you see the <span data-type="mention" data-id="15" data-label="Axl Rose">@Axl Rose</span> mentions and lists:</p><ul><li><p>That’s a bullet list with one …</p></li><li><p>… or two list items.</p></li></ul><p>Isn’t that great? And all of that is editable. <strong><span style="color: #ff9900">But wait, </span><span style="color: #403101"><mark data-color="#ffd699" style="background-color: #ffd699; color: inherit">there’s more!</mark></span></strong> Let’s try a code block:</p><pre><code class="language-css">body {\n  display: none;\n}</code></pre><p></p><p>That’s only the tip of the iceberg. Feel free to add and resize images:</p><img height="auto" src="https://picsum.photos/600/400" alt="random image" width="350" style="aspect-ratio: 3 / 2"><p></p><p>Organize information in tables:</p><table><tbody><tr><th colspan="1" rowspan="1"><p>Name</p></th><th colspan="1" rowspan="1"><p>Role</p></th><th colspan="1" rowspan="1"><p>Team</p></th></tr><tr><td colspan="1" rowspan="1"><p>Alice</p></td><td colspan="1" rowspan="1"><p>PM</p></td><td colspan="1" rowspan="1"><p>Internal tools</p></td></tr><tr><td colspan="1" rowspan="1"><p>Bob</p></td><td colspan="1" rowspan="1"><p>Software</p></td><td colspan="1" rowspan="1"><p>Infrastructure</p></td></tr></tbody></table><p></p><p>Or write down your groceries:</p><ul data-type="taskList"><li data-checked="true" data-type="taskItem"><label><input type="checkbox" checked="checked"><span></span></label><div><p>Milk</p></div></li><li data-checked="false" data-type="taskItem"><label><input type="checkbox"><span></span></label><div><p>Eggs</p></div></li><li data-checked="false" data-type="taskItem"><label><input type="checkbox"><span></span></label><div><p>Sriracha</p></div></li></ul><blockquote><p>Wow, that’s amazing. Good work! 👏 <br>— Mom</p></blockquote><p>Give it a try and click around!</p>'
 
 function fileListToImageFiles(fileList: FileList): File[] {
   // You may want to use a package like attr-accept
   // (https://www.npmjs.com/package/attr-accept) to restrict to certain file
   // types.
   return Array.from(fileList).filter((file) => {
-    const mimeType = (file.type || "").toLowerCase();
-    return mimeType.startsWith("image/");
-  });
+    const mimeType = (file.type || '').toLowerCase()
+    return mimeType.startsWith('image/')
+  })
 }
 
-export default function Editor({submitHandlerForPassData}) {
+export default function Editor({ submitHandlerForPassData, initialContent }) {
   const extensions = useExtensions({
-    placeholder: "Add your own content here...",
-  });
-  const rteRef = useRef<RichTextEditorRef>(null);
-  const [isEditable, setIsEditable] = useState(true);
-  const [showMenuBar, setShowMenuBar] = useState(true);
+    placeholder: 'Add your own content here...',
+  })
+  const rteRef = useRef<RichTextEditorRef>(null)
+  const [isEditable, setIsEditable] = useState(true)
+  const [showMenuBar, setShowMenuBar] = useState(true)
 
   const handleNewImageFiles = useCallback(
     (files: File[], insertPosition?: number): void => {
       if (!rteRef.current?.editor) {
-        return;
+        return
       }
 
       // For the sake of a demo, we don't have a server to upload the files to,
@@ -52,73 +52,71 @@ export default function Editor({submitHandlerForPassData}) {
       const attributesForImageFiles = files.map((file) => ({
         src: URL.createObjectURL(file),
         alt: file.name,
-      }));
+      }))
 
       insertImages({
         images: attributesForImageFiles,
         editor: rteRef.current.editor,
         insertPosition,
-      });
+      })
     },
     [],
-  );
+  )
 
   // Allow for dropping images into the editor
-  const handleDrop: NonNullable<EditorOptions["editorProps"]["handleDrop"]> =
+  const handleDrop: NonNullable<EditorOptions['editorProps']['handleDrop']> =
     useCallback(
       (view, event, _slice, _moved) => {
         if (!(event instanceof DragEvent) || !event.dataTransfer) {
-          return false;
+          return false
         }
 
-        const imageFiles = fileListToImageFiles(event.dataTransfer.files);
+        const imageFiles = fileListToImageFiles(event.dataTransfer.files)
         if (imageFiles.length > 0) {
           const insertPosition = view.posAtCoords({
             left: event.clientX,
             top: event.clientY,
-          })?.pos;
+          })?.pos
 
-          handleNewImageFiles(imageFiles, insertPosition);
+          handleNewImageFiles(imageFiles, insertPosition)
 
           // Return true to treat the event as handled. We call preventDefault
           // ourselves for good measure.
-          event.preventDefault();
-          return true;
+          event.preventDefault()
+          return true
         }
 
-        return false;
+        return false
       },
       [handleNewImageFiles],
-    );
+    )
 
   // Allow for pasting images
-  const handlePaste: NonNullable<EditorOptions["editorProps"]["handlePaste"]> =
+  const handlePaste: NonNullable<EditorOptions['editorProps']['handlePaste']> =
     useCallback(
       (_view, event, _slice) => {
         if (!event.clipboardData) {
-          return false;
+          return false
         }
 
-        const pastedImageFiles = fileListToImageFiles(
-          event.clipboardData.files,
-        );
+        const pastedImageFiles = fileListToImageFiles(event.clipboardData.files)
         if (pastedImageFiles.length > 0) {
-          handleNewImageFiles(pastedImageFiles);
+          handleNewImageFiles(pastedImageFiles)
           // Return true to mark the paste event as handled. This can for
           // instance prevent redundant copies of the same image showing up,
           // like if you right-click and copy an image from within the editor
           // (in which case it will be added to the clipboard both as a file and
           // as HTML, which Tiptap would otherwise separately parse.)
-          return true;
+          return true
         }
 
         // We return false here to allow the standard paste-handler to run.
-        return false;
+        return false
       },
       [handleNewImageFiles],
-    );
+    )
 
-  const [submittedContent, setSubmittedContent] = useState("");
+  const [submittedContent, setSubmittedContent] = useState('')
 
   return (
     <>
@@ -129,8 +127,8 @@ export default function Editor({submitHandlerForPassData}) {
           // scroll margin isn't built in since it will likely vary depending on
           // where the editor itself is rendered (e.g. if there's a sticky nav
           // bar on your site).
-          "& .ProseMirror": {
-            "& h1, & h2, & h3, & h4, & h5, & h6": {
+          '& .ProseMirror': {
+            '& h1, & h2, & h3, & h4, & h5, & h6': {
               scrollMarginTop: showMenuBar ? 50 : 0,
             },
           },
@@ -139,7 +137,7 @@ export default function Editor({submitHandlerForPassData}) {
         <RichTextEditor
           ref={rteRef}
           extensions={extensions}
-          content={``}
+          content={`${initialContent} `}
           editable={isEditable}
           editorProps={{
             handleDrop: handleDrop,
@@ -150,7 +148,7 @@ export default function Editor({submitHandlerForPassData}) {
             // The "outlined" variant is the default (shown here only as
             // example), but can be changed to "standard" to remove the outlined
             // field border from the editor
-            variant: "outlined",
+            variant: 'outlined',
             MenuBarProps: {
               hide: !showMenuBar,
             },
@@ -162,7 +160,7 @@ export default function Editor({submitHandlerForPassData}) {
                 direction="row"
                 spacing={2}
                 sx={{
-                  borderTopStyle: "solid",
+                  borderTopStyle: 'solid',
                   borderTopWidth: 1,
                   borderTopColor: (theme) => theme.palette.divider,
                   py: 1,
@@ -172,7 +170,7 @@ export default function Editor({submitHandlerForPassData}) {
                 <MenuButton
                   value="formatting"
                   tooltipLabel={
-                    showMenuBar ? "Hide formatting" : "Show formatting"
+                    showMenuBar ? 'Hide formatting' : 'Show formatting'
                   }
                   size="small"
                   onClick={() =>
@@ -186,8 +184,8 @@ export default function Editor({submitHandlerForPassData}) {
                   value="formatting"
                   tooltipLabel={
                     isEditable
-                      ? "Prevent edits (use read-only mode)"
-                      : "Allow edits"
+                      ? 'Prevent edits (use read-only mode)'
+                      : 'Allow edits'
                   }
                   size="small"
                   onClick={() => setIsEditable((currentState) => !currentState)}
@@ -199,10 +197,10 @@ export default function Editor({submitHandlerForPassData}) {
                   variant="contained"
                   size="small"
                   onClick={() => {
-                    setSubmittedContent(
-                      rteRef.current?.editor?.getHTML() ?? "",
-                    );
-                    submitHandlerForPassData(rteRef.current?.editor?.getHTML() ?? "")
+                    setSubmittedContent(rteRef.current?.editor?.getHTML() ?? '')
+                    submitHandlerForPassData(
+                      rteRef.current?.editor?.getHTML() ?? '',
+                    )
                   }}
                 >
                   ذخیره
@@ -221,40 +219,41 @@ export default function Editor({submitHandlerForPassData}) {
       </Box>
 
       <div className="h-full p-8 mt-8 bg-white border border-gray-200 rounded-lg shadow-md">
-      <Typography fontWeight={800} variant="h5" sx={{ mt: 5 }}>
-        پیش نمایش توضیحات کامل
-      </Typography>
+        <Typography fontWeight={800} variant="h5" sx={{ mt: 5 }}>
+          پیش نمایش توضیحات کامل
+        </Typography>
 
-      {submittedContent ? (
-        <>
-          <pre style={{ marginTop: 10, overflow: "auto", maxWidth: "100%" }}>
-            <code>{submittedContent}</code>
-          </pre>
+        {submittedContent ? (
+          <>
+            <pre style={{ marginTop: 10, overflow: 'auto', maxWidth: '100%' }}>
+              <code>{submittedContent}</code>
+            </pre>
 
-          <Box mt={3}>
-            <Typography variant="overline" sx={{ mb: 2 }}>
-                پیش نمایش توضیحات به همان شکلی هست که در سایت به کاربر نمایش داده خواهد شد در کادر زیر
-            </Typography>
+            <Box mt={3}>
+              <Typography variant="overline" sx={{ mb: 2 }}>
+                پیش نمایش توضیحات به همان شکلی هست که در سایت به کاربر نمایش
+                داده خواهد شد در کادر زیر
+              </Typography>
 
-           <div className="w-full border-2 border-dashed p-4 ">
-           <RichTextReadOnly
-              content={submittedContent}
-              extensions={extensions}
-            />
-           </div>
-          </Box>
-        </>
-      ) : (
-        <div className="py-4 px-2">
-          با کلیک رو ذخیره , شما میتوانید پیش نمایش توضیحات کامل در فرم بالا را به همان شکلی که کاربر در سایت نمایش میکند ببینید
-          و از ترتیب قرار گیری اطلاعات قبل از ثبت دوره اطمینان حاصل کنید
-
-          <div className="text-amber-800 mt-4 font-bold">
-          لطفا بعد از هر تغییر در فرم بالا , روی دکمه ذخیره کلیک کنید
+              <div className="w-full border-2 border-dashed p-4 ">
+                <RichTextReadOnly
+                  content={submittedContent}
+                  extensions={extensions}
+                />
+              </div>
+            </Box>
+          </>
+        ) : (
+          <div className="py-4 px-2">
+            با کلیک رو ذخیره , شما میتوانید پیش نمایش توضیحات کامل در فرم بالا
+            را به همان شکلی که کاربر در سایت نمایش میکند ببینید و از ترتیب قرار
+            گیری اطلاعات قبل از ثبت دوره اطمینان حاصل کنید
+            <div className="text-amber-800 mt-4 font-bold">
+              لطفا بعد از هر تغییر در فرم بالا , روی دکمه ذخیره کلیک کنید
+            </div>
           </div>
-        </div>
-      )}
+        )}
       </div>
     </>
-  );
+  )
 }

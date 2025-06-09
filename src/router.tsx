@@ -42,6 +42,7 @@ import CreateCourseSession from './pages/CourseSession/CreateCourseSession'
 import CourseAssignCoach from './pages/CourseSession/CourseAssignCoach'
 import CreateCoupon from './pages/Coupon/CreateCoupon'
 import NewCoach from './pages/Coach/NewCoach'
+import EditCourseSession from './pages/CourseSession/EditCourseSession'
 
 const router = createBrowserRouter(
   [
@@ -174,6 +175,14 @@ const router = createBrowserRouter(
       element: (
         <Layout>
           <CourseSessionSpecific />
+        </Layout>
+      ),
+    },
+    {
+      path: '/courses-sessions/:course_id/edit',
+      element: (
+        <Layout>
+          <EditCourseSession />
         </Layout>
       ),
     },

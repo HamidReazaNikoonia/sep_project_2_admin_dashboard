@@ -174,10 +174,19 @@ const CategoryItem: React.FC<CategoryItemProps> = ({
   )
 }
 
-const CategorySelection: React.FC = ({ passSelectedCategories }) => {
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([])
+const CategorySelection: React.FC = ({
+  passSelectedCategories,
+  initialCategories,
+}) => {
+  const _initialCategories = initialCategories.map(
+    (category: any) => category.id,
+  )
+  const [selectedCategories, setSelectedCategories] =
+    useState<string[]>(_initialCategories)
   // This is a mock implementation - replace with your actual hook
   const [categoriesData, setCategoriesData] = useState(null)
+
+  console.log({ initialCategories, _initialCategories })
 
   const { data, isLoading, isSuccess, isError } = useCourseSessionCategories()
 

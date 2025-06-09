@@ -208,12 +208,12 @@ const CoachList = () => {
         </div>
       ),
     },
-    {
-      field: 'enrolledCourses',
-      headerName: 'دوره‌های ثبت‌نام شده',
-      width: 200,
-      renderCell: (params) => <div>{params.value.length} دوره</div>,
-    },
+    // {
+    //   field: 'enrolledCourses',
+    //   headerName: 'دوره‌های ثبت‌نام شده',
+    //   width: 200,
+    //   renderCell: (params) => <div>{params.value.length} دوره</div>,
+    // },
     {
       field: 'actions',
       headerName: 'عملیات',
