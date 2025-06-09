@@ -41,6 +41,7 @@ const Sidebar = ({ mobileOpen, handleDrawerToggle }) => {
     { text: 'لیست سفارش ها', icon: <Ballot />, path: '/orders' },
     { text: 'لیست تراکنش ها', icon: <Receipt />, path: '/transactions' },
     { text: 'کد تخفیف', icon: <Discount />, path: '/coupon' },
+    { text: 'مدیریت کلاس ها ', icon: <Class />, path: '/class-room' },
   ]
 
   return (

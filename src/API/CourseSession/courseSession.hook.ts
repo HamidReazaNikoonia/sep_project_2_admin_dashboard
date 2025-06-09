@@ -161,3 +161,26 @@ export const useCreateCourseSessionPackage = () => {
     },
   })
 }
+
+// Class Room
+export const useGetAllClassRooms = () => {
+  return useQuery({
+    queryKey: ['class-rooms'],
+    queryFn: () => courseSessionApi.getAllClassRooms(),
+  })
+}
+
+export const useCreateClassRoom = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (requestData: {
+      class_title: string
+      class_status: string
+      class_max_student_number: number
+    }) => courseSessionApi.createClassRoom(requestData),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['class-rooms'] })
+    },
+  })
+}

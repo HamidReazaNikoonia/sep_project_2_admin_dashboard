@@ -43,6 +43,7 @@ import CourseAssignCoach from './pages/CourseSession/CourseAssignCoach'
 import CreateCoupon from './pages/Coupon/CreateCoupon'
 import NewCoach from './pages/Coach/NewCoach'
 import EditCourseSession from './pages/CourseSession/EditCourseSession'
+import ClassRoom from './pages/ClassRoom'
 
 const router = createBrowserRouter(
   [
@@ -199,6 +200,14 @@ const router = createBrowserRouter(
       element: (
         <Layout>
           <CourseSessionPackages />
+        </Layout>
+      ),
+    },
+    {
+      path: '/class-room',
+      element: (
+        <Layout>
+          <ClassRoom />
         </Layout>
       ),
     },

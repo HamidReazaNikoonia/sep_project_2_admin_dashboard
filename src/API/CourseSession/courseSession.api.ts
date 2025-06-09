@@ -137,6 +137,21 @@ const courseSessionApi = {
     )
     return data
   },
+
+  // Class Room
+  getAllClassRooms: async () => {
+    const { data } = await axios.get(`admin/class-no`)
+    return data
+  },
+
+  createClassRoom: async (requestData: {
+    class_title: string
+    class_status: string
+    class_max_student_number: number
+  }) => {
+    const { data } = await axios.post(`admin/class-no`, requestData)
+    return data
+  },
 }
 
 export default courseSessionApi
