@@ -201,14 +201,10 @@ const CourseSessionList = () => {
       width: 200,
       sortable: false,
       renderCell: (params) => {
-        const category = params.row.course_session_category?.name
-        const subCategory = params.row.course_session_sub_category?.name
+        const category = params.row?.course_session_category[0]?.name
+        // const subCategory = params.row.course_session_sub_category?.name
 
-        return (
-          <div>
-            {category || '-'} | {subCategory || '-'}
-          </div>
-        )
+        return <div>{category || '-'}</div>
       },
     },
     // {

@@ -55,10 +55,10 @@ const schema = yup.object().shape({
   description: yup.string().required(),
   description_long: yup.string(),
   // price: yup.number().required(),
-  course_language: yup.string(),
+  // course_language: yup.string(),
   // course_duration: yup.number(),
   // course_type: yup.string().oneOf(['HOZORI', 'ONLINE']).required(),
-  educational_level: yup.number(),
+  // educational_level: yup.number(),
   // is_have_licence: yup.boolean().required(),
 })
 
@@ -125,9 +125,9 @@ const CreateCourseSession: React.FC = () => {
       description: '',
       //   description_long: 'sdsd',
       // price: 0,
-      course_language: '',
+      // course_language: '',
       // course_duration: 0,
-      educational_level: 0,
+      // educational_level: 0,
       sample_media: [],
     },
   })
@@ -360,7 +360,7 @@ const CreateCourseSession: React.FC = () => {
             )}
           </Grid>
           {/* Thumbnail Image Uploader */}
-          <Grid size={{ xs: 12, md: 6 }}>
+          <Grid size={12}>
             <Typography variant="subtitle1" sx={{ mb: 1 }}>
               تصویر جلسه
             </Typography>
@@ -411,7 +411,7 @@ const CreateCourseSession: React.FC = () => {
             />
           </Grid> */}
           {/* Course Language */}
-          <Grid size={{ xs: 12, md: 4 }}>
+          {/* <Grid size={{ xs: 12, md: 4 }}>
             <TextField
               {...register('course_language')}
               fullWidth
@@ -419,7 +419,7 @@ const CreateCourseSession: React.FC = () => {
               error={!!errors.course_language}
               helperText={errors.course_language?.message}
             />
-          </Grid>
+          </Grid> */}
           {/* Course Duration */}
           {/* <Grid size={{ xs: 12, md: 4 }}>
             <TextField
@@ -446,7 +446,7 @@ const CreateCourseSession: React.FC = () => {
             </TextField>
           </Grid> */}
           {/* Educational Level */}
-          <Grid size={{ xs: 12, md: 6 }}>
+          {/* <Grid size={{ xs: 12, md: 6 }}>
             <TextField
               {...register('educational_level')}
               fullWidth
@@ -455,7 +455,7 @@ const CreateCourseSession: React.FC = () => {
               error={!!errors.educational_level}
               helperText={errors.educational_level?.message}
             />
-          </Grid>
+          </Grid> */}
           {/* Is Have Licence */}
           {/* <Grid size={12}>
             <FormControlLabel
@@ -548,6 +548,7 @@ const CreateCourseSession: React.FC = () => {
                         }
                       >
                         <MenuItem value="VIDEO">ویدیو</MenuItem>
+                        <MenuItem value="IMAGE">تصویر</MenuItem>
                         <MenuItem value="AUDIO">صوت</MenuItem>
                         <MenuItem value="PDF">PDF</MenuItem>
                       </TextField>
