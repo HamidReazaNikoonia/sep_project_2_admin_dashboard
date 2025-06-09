@@ -41,6 +41,7 @@ import CourseSessionSpecific from './pages/CourseSession/CourseSessionSpecific'
 import CreateCourseSession from './pages/CourseSession/CreateCourseSession'
 import CourseAssignCoach from './pages/CourseSession/CourseAssignCoach'
 import CreateCoupon from './pages/Coupon/CreateCoupon'
+import NewCoach from './pages/Coach/NewCoach'
 
 const router = createBrowserRouter(
   [
@@ -197,6 +198,14 @@ const router = createBrowserRouter(
       element: (
         <Layout>
           <CreateCoupon />
+        </Layout>
+      ),
+    },
+    {
+      path: '/coach/new',
+      element: (
+        <Layout>
+          <NewCoach />
         </Layout>
       ),
     },
