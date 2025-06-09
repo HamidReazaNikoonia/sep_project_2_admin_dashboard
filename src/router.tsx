@@ -40,6 +40,7 @@ import CourseSessionList from './pages/CourseSession/CourseSessionList'
 import CourseSessionSpecific from './pages/CourseSession/CourseSessionSpecific'
 import CreateCourseSession from './pages/CourseSession/CreateCourseSession'
 import CourseAssignCoach from './pages/CourseSession/CourseAssignCoach'
+import CreateCoupon from './pages/Coupon/CreateCoupon'
 
 const router = createBrowserRouter(
   [
@@ -188,6 +189,14 @@ const router = createBrowserRouter(
       element: (
         <Layout>
           <CourseSessionPackages />
+        </Layout>
+      ),
+    },
+    {
+      path: '/coupon',
+      element: (
+        <Layout>
+          <CreateCoupon />
         </Layout>
       ),
     },

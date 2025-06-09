@@ -24,6 +24,7 @@ import {
   PeopleOutline,
   ChevronLeft,
   Article,
+  Discount,
 } from '@mui/icons-material'
 import { Link, useLocation } from 'react-router' // Import from react-router
 
@@ -39,7 +40,7 @@ const Sidebar = ({ mobileOpen, handleDrawerToggle }) => {
     { text: 'لیست کلاس ها', icon: <Class />, path: '/courses-sessions' },
     { text: 'لیست سفارش ها', icon: <Ballot />, path: '/orders' },
     { text: 'لیست تراکنش ها', icon: <Receipt />, path: '/transactions' },
-    { text: 'کد تخفیف', icon: <Article />, path: '/code' },
+    { text: 'کد تخفیف', icon: <Discount />, path: '/coupon' },
   ]
 
   return (
