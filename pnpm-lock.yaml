@@ -36,8 +36,8 @@ importers:
         specifier: ^2.12.0
         version: 2.12.0(@tiptap/core@2.14.0(@tiptap/pm@2.12.0))
       '@tiptap/extension-bold':
-        specifier: ^2.12.0
-        version: 2.12.0(@tiptap/core@2.14.0(@tiptap/pm@2.12.0))
+        specifier: ^2.14.0
+        version: 2.14.0(@tiptap/core@2.14.0(@tiptap/pm@2.12.0))
       '@tiptap/extension-bullet-list':
         specifier: ^2.12.0
         version: 2.12.0(@tiptap/core@2.14.0(@tiptap/pm@2.12.0))
@@ -1378,8 +1378,8 @@ packages:
     peerDependencies:
       '@tiptap/core': ^2.7.0
 
-  '@tiptap/extension-bold@2.12.0':
-    resolution: {integrity: sha512-lAUtoLDLRc5ofD2I9MFY6MQ7d1qBLLqS1rvpwaPjOaoQb/GPVnaHj9qXYG0SY9K3erMtto48bMFpAcscjZHzZQ==}
+  '@tiptap/extension-bold@2.14.0':
+    resolution: {integrity: sha512-8DWwelH55H8KtLECSIv0wh8x/F/6lpagV/pMvT+Azujad0oqK+1iAPKU/kLgjXbFSkisrpV6KSwQts5neCtfRQ==}
     peerDependencies:
       '@tiptap/core': ^2.7.0
 
@@ -5574,7 +5574,7 @@ snapshots:
     dependencies:
       '@tiptap/core': 2.14.0(@tiptap/pm@2.12.0)
 
-  '@tiptap/extension-bold@2.12.0(@tiptap/core@2.14.0(@tiptap/pm@2.12.0))':
+  '@tiptap/extension-bold@2.14.0(@tiptap/core@2.14.0(@tiptap/pm@2.12.0))':
     dependencies:
       '@tiptap/core': 2.14.0(@tiptap/pm@2.12.0)
 
@@ -5777,7 +5777,7 @@ snapshots:
     dependencies:
       '@tiptap/core': 2.14.0(@tiptap/pm@2.12.0)
       '@tiptap/extension-blockquote': 2.12.0(@tiptap/core@2.14.0(@tiptap/pm@2.12.0))
-      '@tiptap/extension-bold': 2.12.0(@tiptap/core@2.14.0(@tiptap/pm@2.12.0))
+      '@tiptap/extension-bold': 2.14.0(@tiptap/core@2.14.0(@tiptap/pm@2.12.0))
       '@tiptap/extension-bullet-list': 2.12.0(@tiptap/core@2.14.0(@tiptap/pm@2.12.0))
       '@tiptap/extension-code': 2.14.0(@tiptap/core@2.14.0(@tiptap/pm@2.12.0))
       '@tiptap/extension-code-block': 2.12.0(@tiptap/core@2.14.0(@tiptap/pm@2.12.0))(@tiptap/pm@2.12.0)
