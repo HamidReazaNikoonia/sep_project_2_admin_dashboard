@@ -51,8 +51,8 @@ importers:
         specifier: ^2.14.0
         version: 2.14.0(@tiptap/core@2.14.0(@tiptap/pm@2.14.0))(@tiptap/extension-text-style@2.14.0(@tiptap/core@2.14.0(@tiptap/pm@2.14.0)))
       '@tiptap/extension-document':
-        specifier: ^2.12.0
-        version: 2.12.0(@tiptap/core@2.14.0(@tiptap/pm@2.14.0))
+        specifier: ^2.22.0
+        version: 2.22.0(@tiptap/core@2.14.0(@tiptap/pm@2.14.0))
       '@tiptap/extension-dropcursor':
         specifier: ^2.12.0
         version: 2.12.0(@tiptap/core@2.14.0(@tiptap/pm@2.14.0))(@tiptap/pm@2.14.0)
@@ -1428,8 +1428,8 @@ packages:
       '@tiptap/core': ^2.7.0
       '@tiptap/extension-text-style': ^2.7.0
 
-  '@tiptap/extension-document@2.12.0':
-    resolution: {integrity: sha512-sA1Q+mxDIv0Y3qQTBkYGwknNbDcGFiJ/fyAFholXpqbrcRx3GavwR/o0chBdsJZlFht0x7AWGwUYWvIo7wYilA==}
+  '@tiptap/extension-document@2.22.0':
+    resolution: {integrity: sha512-vk/txcZWZ5P6LmOgd8kqxeIsf+vNurh8EuOCFJnpOClyzT74iD5zuzTA583pfs2r3SpCZutltD3XWiHRFZb3yw==}
     peerDependencies:
       '@tiptap/core': ^2.7.0
 
@@ -5620,7 +5620,7 @@ snapshots:
       '@tiptap/core': 2.14.0(@tiptap/pm@2.14.0)
       '@tiptap/extension-text-style': 2.14.0(@tiptap/core@2.14.0(@tiptap/pm@2.14.0))
 
-  '@tiptap/extension-document@2.12.0(@tiptap/core@2.14.0(@tiptap/pm@2.14.0))':
+  '@tiptap/extension-document@2.22.0(@tiptap/core@2.14.0(@tiptap/pm@2.14.0))':
     dependencies:
       '@tiptap/core': 2.14.0(@tiptap/pm@2.14.0)
 
@@ -5799,7 +5799,7 @@ snapshots:
       '@tiptap/extension-bullet-list': 2.14.0(@tiptap/core@2.14.0(@tiptap/pm@2.14.0))
       '@tiptap/extension-code': 2.14.0(@tiptap/core@2.14.0(@tiptap/pm@2.14.0))
       '@tiptap/extension-code-block': 2.14.0(@tiptap/core@2.14.0(@tiptap/pm@2.14.0))(@tiptap/pm@2.14.0)
-      '@tiptap/extension-document': 2.12.0(@tiptap/core@2.14.0(@tiptap/pm@2.14.0))
+      '@tiptap/extension-document': 2.22.0(@tiptap/core@2.14.0(@tiptap/pm@2.14.0))
       '@tiptap/extension-dropcursor': 2.12.0(@tiptap/core@2.14.0(@tiptap/pm@2.14.0))(@tiptap/pm@2.14.0)
       '@tiptap/extension-gapcursor': 2.14.0(@tiptap/core@2.14.0(@tiptap/pm@2.14.0))(@tiptap/pm@2.14.0)
       '@tiptap/extension-hard-break': 2.14.0(@tiptap/core@2.14.0(@tiptap/pm@2.14.0))
