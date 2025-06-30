@@ -43,7 +43,7 @@
     "@tiptap/extension-document": "^2.22.3",
     "@tiptap/extension-dropcursor": "^2.23.0",
     "@tiptap/extension-font-family": "^2.23.0",
-    "@tiptap/extension-gapcursor": "^2.22.3",
+    "@tiptap/extension-gapcursor": "^2.23.0",
     "@tiptap/extension-hard-break": "^2.14.0",
     "@tiptap/extension-heading": "^2.23.0",
     "@tiptap/extension-highlight": "^2.22.3",
