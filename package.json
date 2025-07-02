@@ -73,7 +73,7 @@
     "@tiptap/pm": "^2.23.1",
     "@tiptap/react": "^2.22.3",
     "@tiptap/starter-kit": "^2.23.0",
-    "@tiptap/suggestion": "^2.22.3",
+    "@tiptap/suggestion": "^2.23.1",
     "axios": "^1.10.0",
     "clsx": "^2.1.1",
     "lodash": "^4.17.21",
