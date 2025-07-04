@@ -138,8 +138,8 @@ importers:
         specifier: ^2.14.0
         version: 2.14.0(@tiptap/core@2.14.0(@tiptap/pm@2.23.1))
       '@tiptap/extension-underline':
-        specifier: ^2.22.3
-        version: 2.22.3(@tiptap/core@2.14.0(@tiptap/pm@2.23.1))
+        specifier: ^2.24.2
+        version: 2.24.2(@tiptap/core@2.14.0(@tiptap/pm@2.23.1))
       '@tiptap/pm':
         specifier: ^2.23.1
         version: 2.23.1
@@ -1736,8 +1736,8 @@ packages:
     peerDependencies:
       '@tiptap/core': ^2.7.0
 
-  '@tiptap/extension-underline@2.22.3':
-    resolution: {integrity: sha512-floLjh1UbQ2pKgdwfw7qCAJ5VojvH1uqj7xW2RCv79aWYUuJCPD6UBpaBOt/jv7gXDJJ9EeV3m2Hga49CXBrEQ==}
+  '@tiptap/extension-underline@2.24.2':
+    resolution: {integrity: sha512-vzsGRGsHkoV43tnJKjb4aLzVYtJ531Puxjf3qToGP5kRqyuSl2FyCARTZUHgVhMmD7Yu6oXsrXvTR3pNaDuIrA==}
     peerDependencies:
       '@tiptap/core': ^2.7.0
 
@@ -6154,7 +6154,7 @@ snapshots:
     dependencies:
       '@tiptap/core': 2.23.0(@tiptap/pm@2.23.1)
 
-  '@tiptap/extension-underline@2.22.3(@tiptap/core@2.14.0(@tiptap/pm@2.23.1))':
+  '@tiptap/extension-underline@2.24.2(@tiptap/core@2.14.0(@tiptap/pm@2.23.1))':
     dependencies:
       '@tiptap/core': 2.14.0(@tiptap/pm@2.23.1)
 
