@@ -91,7 +91,7 @@ importers:
         version: 2.23.1(@tiptap/core@2.14.0(@tiptap/pm@2.23.1))
       '@tiptap/extension-mention':
         specifier: ^2.14.0
-        version: 2.14.0(@tiptap/core@2.14.0(@tiptap/pm@2.23.1))(@tiptap/pm@2.23.1)(@tiptap/suggestion@2.23.1(@tiptap/core@2.14.0(@tiptap/pm@2.23.1))(@tiptap/pm@2.23.1))
+        version: 2.14.0(@tiptap/core@2.14.0(@tiptap/pm@2.23.1))(@tiptap/pm@2.23.1)(@tiptap/suggestion@2.24.2(@tiptap/core@2.14.0(@tiptap/pm@2.23.1))(@tiptap/pm@2.23.1))
       '@tiptap/extension-ordered-list':
         specifier: ^2.14.0
         version: 2.14.0(@tiptap/core@2.14.0(@tiptap/pm@2.23.1))
@@ -150,8 +150,8 @@ importers:
         specifier: ^2.23.0
         version: 2.23.0
       '@tiptap/suggestion':
-        specifier: ^2.23.1
-        version: 2.23.1(@tiptap/core@2.14.0(@tiptap/pm@2.23.1))(@tiptap/pm@2.23.1)
+        specifier: ^2.24.2
+        version: 2.24.2(@tiptap/core@2.14.0(@tiptap/pm@2.23.1))(@tiptap/pm@2.23.1)
       axios:
         specifier: ^1.10.0
         version: 1.10.0
@@ -1755,8 +1755,8 @@ packages:
   '@tiptap/starter-kit@2.23.0':
     resolution: {integrity: sha512-mmSrWQB57dHQOZLE9Q4vlgsYYMfihVHDMHshgTSy7nsmw3cFgYGcmzdBKVkO6Ekxk4vElzZIzjSTa0cbOOtfKQ==}
 
-  '@tiptap/suggestion@2.23.1':
-    resolution: {integrity: sha512-ryAsYhXmehwQLJnGFw9VHfQMANeWgFzDQUfgg0vcjbHJAa0t3qBsSOUP2RKOuErQmCvlgY/cgxO/6Q0l5IzsIA==}
+  '@tiptap/suggestion@2.24.2':
+    resolution: {integrity: sha512-4gP4WQ0CCeYbu7MV+j7FE0GRbmHzJb/iahdN+Z7/Y9uXam+dPdSNN9cUQqREY/cJP+ACzuD+BJvVqpwNV6m/RA==}
     peerDependencies:
       '@tiptap/core': ^2.7.0
       '@tiptap/pm': ^2.7.0
@@ -6065,11 +6065,11 @@ snapshots:
     dependencies:
       '@tiptap/core': 2.23.0(@tiptap/pm@2.23.1)
 
-  '@tiptap/extension-mention@2.14.0(@tiptap/core@2.14.0(@tiptap/pm@2.23.1))(@tiptap/pm@2.23.1)(@tiptap/suggestion@2.23.1(@tiptap/core@2.14.0(@tiptap/pm@2.23.1))(@tiptap/pm@2.23.1))':
+  '@tiptap/extension-mention@2.14.0(@tiptap/core@2.14.0(@tiptap/pm@2.23.1))(@tiptap/pm@2.23.1)(@tiptap/suggestion@2.24.2(@tiptap/core@2.14.0(@tiptap/pm@2.23.1))(@tiptap/pm@2.23.1))':
     dependencies:
       '@tiptap/core': 2.14.0(@tiptap/pm@2.23.1)
       '@tiptap/pm': 2.23.1
-      '@tiptap/suggestion': 2.23.1(@tiptap/core@2.14.0(@tiptap/pm@2.23.1))(@tiptap/pm@2.23.1)
+      '@tiptap/suggestion': 2.24.2(@tiptap/core@2.14.0(@tiptap/pm@2.23.1))(@tiptap/pm@2.23.1)
 
   '@tiptap/extension-ordered-list@2.14.0(@tiptap/core@2.14.0(@tiptap/pm@2.23.1))':
     dependencies:
@@ -6215,7 +6215,7 @@ snapshots:
       '@tiptap/extension-text-style': 2.23.0(@tiptap/core@2.23.0(@tiptap/pm@2.23.1))
       '@tiptap/pm': 2.23.1
 
-  '@tiptap/suggestion@2.23.1(@tiptap/core@2.14.0(@tiptap/pm@2.23.1))(@tiptap/pm@2.23.1)':
+  '@tiptap/suggestion@2.24.2(@tiptap/core@2.14.0(@tiptap/pm@2.23.1))(@tiptap/pm@2.23.1)':
     dependencies:
       '@tiptap/core': 2.14.0(@tiptap/pm@2.23.1)
       '@tiptap/pm': 2.23.1
