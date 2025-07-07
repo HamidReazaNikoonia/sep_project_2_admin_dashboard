@@ -39,8 +39,8 @@ importers:
         specifier: ^2.14.0
         version: 2.14.0(@tiptap/core@2.14.0(@tiptap/pm@2.23.1))
       '@tiptap/extension-bullet-list':
-        specifier: ^2.14.0
-        version: 2.14.0(@tiptap/core@2.14.0(@tiptap/pm@2.23.1))
+        specifier: ^2.25.0
+        version: 2.25.0(@tiptap/core@2.14.0(@tiptap/pm@2.23.1))
       '@tiptap/extension-code':
         specifier: ^2.22.3
         version: 2.22.3(@tiptap/core@2.14.0(@tiptap/pm@2.23.1))
@@ -1489,13 +1489,8 @@ packages:
       '@tiptap/core': ^2.7.0
       '@tiptap/pm': ^2.7.0
 
-  '@tiptap/extension-bullet-list@2.14.0':
-    resolution: {integrity: sha512-SWnL4bP8Mm/mWN42AMQNoqYE0V6LgSBTVsHwwAki2wIUQdr9HyoAnohvHy3IME56NMwoyZyo+Mzl45wOqUxziA==}
-    peerDependencies:
-      '@tiptap/core': ^2.7.0
-
-  '@tiptap/extension-bullet-list@2.23.0':
-    resolution: {integrity: sha512-YrmH5AVSkpCQ7k1Orm8hlzDeUO7rxpQkS51sr2w+ruruKIun/X6V0phuLee+f7DBrzHenBcuU6gBtU6vgGPYFw==}
+  '@tiptap/extension-bullet-list@2.25.0':
+    resolution: {integrity: sha512-KD+q/q6KIU2anedjtjG8vELkL5rYFdNHWc5XcUJgQoxbOCK3/sBuOgcn9mnFA2eAS6UkraN9Yx0BXEDbXX2HOw==}
     peerDependencies:
       '@tiptap/core': ^2.7.0
 
@@ -5923,11 +5918,11 @@ snapshots:
       '@tiptap/pm': 2.23.1
       tippy.js: 6.3.7
 
-  '@tiptap/extension-bullet-list@2.14.0(@tiptap/core@2.14.0(@tiptap/pm@2.23.1))':
+  '@tiptap/extension-bullet-list@2.25.0(@tiptap/core@2.14.0(@tiptap/pm@2.23.1))':
     dependencies:
       '@tiptap/core': 2.14.0(@tiptap/pm@2.23.1)
 
-  '@tiptap/extension-bullet-list@2.23.0(@tiptap/core@2.23.0(@tiptap/pm@2.23.1))':
+  '@tiptap/extension-bullet-list@2.25.0(@tiptap/core@2.23.0(@tiptap/pm@2.23.1))':
     dependencies:
       '@tiptap/core': 2.23.0(@tiptap/pm@2.23.1)
 
@@ -6190,7 +6185,7 @@ snapshots:
       '@tiptap/core': 2.23.0(@tiptap/pm@2.23.1)
       '@tiptap/extension-blockquote': 2.24.2(@tiptap/core@2.23.0(@tiptap/pm@2.23.1))
       '@tiptap/extension-bold': 2.23.0(@tiptap/core@2.23.0(@tiptap/pm@2.23.1))
-      '@tiptap/extension-bullet-list': 2.23.0(@tiptap/core@2.23.0(@tiptap/pm@2.23.1))
+      '@tiptap/extension-bullet-list': 2.25.0(@tiptap/core@2.23.0(@tiptap/pm@2.23.1))
       '@tiptap/extension-code': 2.23.0(@tiptap/core@2.23.0(@tiptap/pm@2.23.1))
       '@tiptap/extension-code-block': 2.23.0(@tiptap/core@2.23.0(@tiptap/pm@2.23.1))(@tiptap/pm@2.23.1)
       '@tiptap/extension-document': 2.23.0(@tiptap/core@2.23.0(@tiptap/pm@2.23.1))
