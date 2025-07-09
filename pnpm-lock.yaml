@@ -171,8 +171,8 @@ importers:
         specifier: ^0.10.4
         version: 0.10.4
       mui-tiptap:
-        specifier: ^1.18.1
-        version: 1.18.1(pp6nxuzpujgueopozj4b74q25m)
+        specifier: ^1.21.0
+        version: 1.21.0(pp6nxuzpujgueopozj4b74q25m)
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -2545,8 +2545,8 @@ packages:
   emoji-regex@9.2.2:
     resolution: {integrity: sha512-L18DaJsXSUk2+42pv8mLs5jJT2hqFkFE4j21wOmgbUqsZ2hL72NsUU785g9RXgo3s0ZNgVl42TiHp3ZtOv/Vyg==}
 
-  encodeurl@1.0.2:
-    resolution: {integrity: sha512-TPJXq8JqFaVYm2CWmPvnP2Iyo4ZSM7/QKcSmuMLDObfpH5fi7RUGmd/rTDf+rut/saiDiQEeVTNgAmJEdAOx0w==}
+  encodeurl@2.0.0:
+    resolution: {integrity: sha512-Q0n9HRi4m6JuGIV1eFlmvJB7ZEVxu93IrMyiMsGC0lrMJMWzRgx6WGquyfQgZVb31vhGgXnfmPNNXmxnOkRBrg==}
     engines: {node: '>= 0.8'}
 
   enhanced-resolve@5.18.1:
@@ -3559,8 +3559,8 @@ packages:
       typescript:
         optional: true
 
-  mui-tiptap@1.18.1:
-    resolution: {integrity: sha512-ttv75IOUOrcpcPyHQgFQLMKsIcMkppbAfHyjUJOQX3qG0dW0Ait+noaCLFJShU2MjhX2IaqKfFW4MtVhZsYJ9w==}
+  mui-tiptap@1.21.0:
+    resolution: {integrity: sha512-oYKoN1F2mcuceYRNuUGk3vAVWnLfmwpoK3d0s1Awolg4HGdY7LEZpeoW3xB3Z6eUDDZEZjATxaPKagGHbIzLqA==}
     engines: {pnpm: '>=9'}
     peerDependencies:
       '@emotion/react': ^11.4.1
@@ -7059,7 +7059,7 @@ snapshots:
 
   emoji-regex@9.2.2: {}
 
-  encodeurl@1.0.2: {}
+  encodeurl@2.0.0: {}
 
   enhanced-resolve@5.18.1:
     dependencies:
@@ -8245,7 +8245,7 @@ snapshots:
     transitivePeerDependencies:
       - '@types/node'
 
-  mui-tiptap@1.18.1(pp6nxuzpujgueopozj4b74q25m):
+  mui-tiptap@1.21.0(pp6nxuzpujgueopozj4b74q25m):
     dependencies:
       '@emotion/react': 11.14.0(@types/react@19.0.10)(react@18.3.1)
       '@mui/icons-material': 6.4.7(@mui/material@6.4.7(@emotion/react@11.14.0(@types/react@19.0.10)(react@18.3.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.0.10)(react@18.3.1))(@types/react@19.0.10)(react@18.3.1))(@types/react@19.0.10)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@19.0.10)(react@18.3.1)
@@ -8256,7 +8256,7 @@ snapshots:
       '@tiptap/extension-table': 2.24.2(@tiptap/core@2.14.0(@tiptap/pm@2.23.1))(@tiptap/pm@2.23.1)
       '@tiptap/pm': 2.23.1
       '@tiptap/react': 2.22.3(@tiptap/core@2.14.0(@tiptap/pm@2.23.1))(@tiptap/pm@2.23.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      encodeurl: 1.0.2
+      encodeurl: 2.0.0
       lodash: 4.17.21
       react: 18.3.1
       react-colorful: 5.6.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
