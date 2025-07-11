@@ -36,8 +36,8 @@ importers:
         specifier: ^2.24.2
         version: 2.24.2(@tiptap/core@2.26.0(@tiptap/pm@2.23.1))
       '@tiptap/extension-bold':
-        specifier: ^2.14.0
-        version: 2.14.0(@tiptap/core@2.26.0(@tiptap/pm@2.23.1))
+        specifier: ^2.26.0
+        version: 2.26.0(@tiptap/core@2.26.0(@tiptap/pm@2.23.1))
       '@tiptap/extension-bullet-list':
         specifier: ^2.25.0
         version: 2.25.0(@tiptap/core@2.26.0(@tiptap/pm@2.23.1))
@@ -1466,13 +1466,8 @@ packages:
     peerDependencies:
       '@tiptap/core': ^2.7.0
 
-  '@tiptap/extension-bold@2.14.0':
-    resolution: {integrity: sha512-8DWwelH55H8KtLECSIv0wh8x/F/6lpagV/pMvT+Azujad0oqK+1iAPKU/kLgjXbFSkisrpV6KSwQts5neCtfRQ==}
-    peerDependencies:
-      '@tiptap/core': ^2.7.0
-
-  '@tiptap/extension-bold@2.23.0':
-    resolution: {integrity: sha512-OY1xlt1yXpj9+Mzdv+YC6a3okr39xDkeCJyvmLG5OShYUx6fxTT19uXbKF7Y3aAS0BHet5rcrTXEMRlp7N3Qaw==}
+  '@tiptap/extension-bold@2.26.0':
+    resolution: {integrity: sha512-MvcgBVpnFlBAZXcaaVSwCTekaedeMhBKw2Uan7PZtKwAG4IjfUwbh+K7tn459RcpRI0byNqsrR8cqawpasanng==}
     peerDependencies:
       '@tiptap/core': ^2.7.0
 
@@ -5918,11 +5913,7 @@ snapshots:
     dependencies:
       '@tiptap/core': 2.26.0(@tiptap/pm@2.23.1)
 
-  '@tiptap/extension-bold@2.14.0(@tiptap/core@2.26.0(@tiptap/pm@2.23.1))':
-    dependencies:
-      '@tiptap/core': 2.26.0(@tiptap/pm@2.23.1)
-
-  '@tiptap/extension-bold@2.23.0(@tiptap/core@2.26.0(@tiptap/pm@2.23.1))':
+  '@tiptap/extension-bold@2.26.0(@tiptap/core@2.26.0(@tiptap/pm@2.23.1))':
     dependencies:
       '@tiptap/core': 2.26.0(@tiptap/pm@2.23.1)
 
@@ -6159,7 +6150,7 @@ snapshots:
     dependencies:
       '@tiptap/core': 2.26.0(@tiptap/pm@2.23.1)
       '@tiptap/extension-blockquote': 2.24.2(@tiptap/core@2.26.0(@tiptap/pm@2.23.1))
-      '@tiptap/extension-bold': 2.23.0(@tiptap/core@2.26.0(@tiptap/pm@2.23.1))
+      '@tiptap/extension-bold': 2.26.0(@tiptap/core@2.26.0(@tiptap/pm@2.23.1))
       '@tiptap/extension-bullet-list': 2.25.0(@tiptap/core@2.26.0(@tiptap/pm@2.23.1))
       '@tiptap/extension-code': 2.23.0(@tiptap/core@2.26.0(@tiptap/pm@2.23.1))
       '@tiptap/extension-code-block': 2.23.0(@tiptap/core@2.26.0(@tiptap/pm@2.23.1))(@tiptap/pm@2.23.1)
