@@ -111,8 +111,8 @@ importers:
         specifier: ^2.25.0
         version: 2.25.0(@tiptap/core@2.26.0(@tiptap/pm@2.23.1))
       '@tiptap/extension-table':
-        specifier: ^2.24.2
-        version: 2.24.2(@tiptap/core@2.26.0(@tiptap/pm@2.23.1))(@tiptap/pm@2.23.1)
+        specifier: ^2.26.0
+        version: 2.26.0(@tiptap/core@2.26.0(@tiptap/pm@2.23.1))(@tiptap/pm@2.23.1)
       '@tiptap/extension-table-cell':
         specifier: ^2.25.0
         version: 2.25.0(@tiptap/core@2.26.0(@tiptap/pm@2.23.1))
@@ -172,7 +172,7 @@ importers:
         version: 0.10.4
       mui-tiptap:
         specifier: ^1.21.0
-        version: 1.21.0(qnblzp5skyduo7h6kte4bw5nni)
+        version: 1.21.0(wd5cn7sizpdvuyu6wqlj6ppvly)
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -1666,8 +1666,8 @@ packages:
     peerDependencies:
       '@tiptap/core': ^2.7.0
 
-  '@tiptap/extension-table@2.24.2':
-    resolution: {integrity: sha512-MaOzmkZMQIp8j4GJRojKfbgRp7I19WSG6iWUTVDKLne5W0jt2PWnSqz7AXpoo9XDPrq7lckOTuBMb+woZRQBYQ==}
+  '@tiptap/extension-table@2.26.0':
+    resolution: {integrity: sha512-ND20hEhRsbiL0J155nz/HIu8dxhwAgziehIgJOAeP8NEQjsV3GKhDLg0A0s4NdaYMQ65B5ttd7sUqnRwZu/n8Q==}
     peerDependencies:
       '@tiptap/core': ^2.7.0
       '@tiptap/pm': ^2.7.0
@@ -6084,7 +6084,7 @@ snapshots:
     dependencies:
       '@tiptap/core': 2.26.0(@tiptap/pm@2.23.1)
 
-  '@tiptap/extension-table@2.24.2(@tiptap/core@2.26.0(@tiptap/pm@2.23.1))(@tiptap/pm@2.23.1)':
+  '@tiptap/extension-table@2.26.0(@tiptap/core@2.26.0(@tiptap/pm@2.23.1))(@tiptap/pm@2.23.1)':
     dependencies:
       '@tiptap/core': 2.26.0(@tiptap/pm@2.23.1)
       '@tiptap/pm': 2.23.1
@@ -8265,7 +8265,7 @@ snapshots:
     transitivePeerDependencies:
       - '@types/node'
 
-  mui-tiptap@1.21.0(qnblzp5skyduo7h6kte4bw5nni):
+  mui-tiptap@1.21.0(wd5cn7sizpdvuyu6wqlj6ppvly):
     dependencies:
       '@emotion/react': 11.14.0(@types/react@19.0.10)(react@18.3.1)
       '@mui/icons-material': 6.4.7(@mui/material@6.4.7(@emotion/react@11.14.0(@types/react@19.0.10)(react@18.3.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.0.10)(react@18.3.1))(@types/react@19.0.10)(react@18.3.1))(@types/react@19.0.10)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@19.0.10)(react@18.3.1)
@@ -8273,7 +8273,7 @@ snapshots:
       '@tiptap/core': 2.26.0(@tiptap/pm@2.23.1)
       '@tiptap/extension-heading': 2.23.0(@tiptap/core@2.26.0(@tiptap/pm@2.23.1))
       '@tiptap/extension-image': 2.23.1(@tiptap/core@2.26.0(@tiptap/pm@2.23.1))
-      '@tiptap/extension-table': 2.24.2(@tiptap/core@2.26.0(@tiptap/pm@2.23.1))(@tiptap/pm@2.23.1)
+      '@tiptap/extension-table': 2.26.0(@tiptap/core@2.26.0(@tiptap/pm@2.23.1))(@tiptap/pm@2.23.1)
       '@tiptap/pm': 2.23.1
       '@tiptap/react': 2.22.3(@tiptap/core@2.26.0(@tiptap/pm@2.23.1))(@tiptap/pm@2.23.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       encodeurl: 2.0.0
