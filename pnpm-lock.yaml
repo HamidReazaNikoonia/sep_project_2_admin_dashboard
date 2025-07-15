@@ -129,8 +129,8 @@ importers:
         specifier: ^2.12.0
         version: 2.12.0(@tiptap/core@2.26.0(@tiptap/pm@2.26.1))
       '@tiptap/extension-text':
-        specifier: ^2.22.3
-        version: 2.22.3(@tiptap/core@2.26.0(@tiptap/pm@2.26.1))
+        specifier: ^2.26.1
+        version: 2.26.1(@tiptap/core@2.26.0(@tiptap/pm@2.26.1))
       '@tiptap/extension-text-align':
         specifier: ^2.14.0
         version: 2.14.0(@tiptap/core@2.26.0(@tiptap/pm@2.26.1))
@@ -1693,13 +1693,8 @@ packages:
     peerDependencies:
       '@tiptap/core': ^2.7.0
 
-  '@tiptap/extension-text@2.22.3':
-    resolution: {integrity: sha512-07cymWkPTfq6nuum88Yf90YYArbowed8nNiu0Tw3jCvwpzf9J9TDaovT+LAKuSKtrOsnNpFB/9IqUwFxZepOGw==}
-    peerDependencies:
-      '@tiptap/core': ^2.7.0
-
-  '@tiptap/extension-text@2.23.0':
-    resolution: {integrity: sha512-hF+CU1H4B4UgqjBXXPPaACVZdSGuMH0TDYTd7h403qUAIBKkYbjuan7laQpiT0qnF0Dg+sGgvmGcd4H1tTBM8g==}
+  '@tiptap/extension-text@2.26.1':
+    resolution: {integrity: sha512-p2n8WVMd/2vckdJlol24acaTDIZAhI7qle5cM75bn01sOEZoFlSw6SwINOULrUCzNJsYb43qrLEibZb4j2LeQw==}
     peerDependencies:
       '@tiptap/core': ^2.7.0
 
@@ -6101,11 +6096,7 @@ snapshots:
     dependencies:
       '@tiptap/core': 2.26.0(@tiptap/pm@2.26.1)
 
-  '@tiptap/extension-text@2.22.3(@tiptap/core@2.26.0(@tiptap/pm@2.26.1))':
-    dependencies:
-      '@tiptap/core': 2.26.0(@tiptap/pm@2.26.1)
-
-  '@tiptap/extension-text@2.23.0(@tiptap/core@2.26.0(@tiptap/pm@2.26.1))':
+  '@tiptap/extension-text@2.26.1(@tiptap/core@2.26.0(@tiptap/pm@2.26.1))':
     dependencies:
       '@tiptap/core': 2.26.0(@tiptap/pm@2.26.1)
 
@@ -6166,7 +6157,7 @@ snapshots:
       '@tiptap/extension-ordered-list': 2.23.0(@tiptap/core@2.26.0(@tiptap/pm@2.26.1))
       '@tiptap/extension-paragraph': 2.25.0(@tiptap/core@2.26.0(@tiptap/pm@2.26.1))
       '@tiptap/extension-strike': 2.25.0(@tiptap/core@2.26.0(@tiptap/pm@2.26.1))
-      '@tiptap/extension-text': 2.23.0(@tiptap/core@2.26.0(@tiptap/pm@2.26.1))
+      '@tiptap/extension-text': 2.26.1(@tiptap/core@2.26.0(@tiptap/pm@2.26.1))
       '@tiptap/extension-text-style': 2.23.0(@tiptap/core@2.26.0(@tiptap/pm@2.26.1))
       '@tiptap/pm': 2.26.1
 
