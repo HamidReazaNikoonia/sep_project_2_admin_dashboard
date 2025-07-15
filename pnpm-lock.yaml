@@ -63,8 +63,8 @@ importers:
         specifier: ^2.23.0
         version: 2.23.0(@tiptap/core@2.26.0(@tiptap/pm@2.26.1))(@tiptap/pm@2.26.1)
       '@tiptap/extension-hard-break':
-        specifier: ^2.24.2
-        version: 2.24.2(@tiptap/core@2.26.0(@tiptap/pm@2.26.1))
+        specifier: ^2.26.1
+        version: 2.26.1(@tiptap/core@2.26.0(@tiptap/pm@2.26.1))
       '@tiptap/extension-heading':
         specifier: ^2.23.0
         version: 2.23.0(@tiptap/core@2.26.0(@tiptap/pm@2.26.1))
@@ -1544,8 +1544,8 @@ packages:
       '@tiptap/core': ^2.7.0
       '@tiptap/pm': ^2.7.0
 
-  '@tiptap/extension-hard-break@2.24.2':
-    resolution: {integrity: sha512-6TB9GBUTp3DIOptQubEVvL6BVKhxfLzAJwWYXjw0EkZHrK8TQPB3QIjLV/uZy29Ruji2k97ytxuxfrGoQXoXtA==}
+  '@tiptap/extension-hard-break@2.26.1':
+    resolution: {integrity: sha512-d6uStdNKi8kjPlHAyO59M6KGWATNwhLCD7dng0NXfwGndc22fthzIk/6j9F6ltQx30huy5qQram6j3JXwNACoA==}
     peerDependencies:
       '@tiptap/core': ^2.7.0
 
@@ -5985,7 +5985,7 @@ snapshots:
       '@tiptap/core': 2.26.0(@tiptap/pm@2.26.1)
       '@tiptap/pm': 2.26.1
 
-  '@tiptap/extension-hard-break@2.24.2(@tiptap/core@2.26.0(@tiptap/pm@2.26.1))':
+  '@tiptap/extension-hard-break@2.26.1(@tiptap/core@2.26.0(@tiptap/pm@2.26.1))':
     dependencies:
       '@tiptap/core': 2.26.0(@tiptap/pm@2.26.1)
 
@@ -6168,7 +6168,7 @@ snapshots:
       '@tiptap/extension-document': 2.23.0(@tiptap/core@2.26.0(@tiptap/pm@2.26.1))
       '@tiptap/extension-dropcursor': 2.25.0(@tiptap/core@2.26.0(@tiptap/pm@2.26.1))(@tiptap/pm@2.26.1)
       '@tiptap/extension-gapcursor': 2.23.0(@tiptap/core@2.26.0(@tiptap/pm@2.26.1))(@tiptap/pm@2.26.1)
-      '@tiptap/extension-hard-break': 2.24.2(@tiptap/core@2.26.0(@tiptap/pm@2.26.1))
+      '@tiptap/extension-hard-break': 2.26.1(@tiptap/core@2.26.0(@tiptap/pm@2.26.1))
       '@tiptap/extension-heading': 2.23.0(@tiptap/core@2.26.0(@tiptap/pm@2.26.1))
       '@tiptap/extension-history': 2.23.0(@tiptap/core@2.26.0(@tiptap/pm@2.26.1))(@tiptap/pm@2.26.1)
       '@tiptap/extension-horizontal-rule': 2.24.2(@tiptap/core@2.26.0(@tiptap/pm@2.26.1))(@tiptap/pm@2.26.1)
