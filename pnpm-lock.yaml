@@ -45,8 +45,8 @@ importers:
         specifier: ^2.26.1
         version: 2.26.1(@tiptap/core@2.26.0(@tiptap/pm@2.26.1))
       '@tiptap/extension-code-block':
-        specifier: ^2.14.0
-        version: 2.14.0(@tiptap/core@2.26.0(@tiptap/pm@2.26.1))(@tiptap/pm@2.26.1)
+        specifier: ^2.26.1
+        version: 2.26.1(@tiptap/core@2.26.0(@tiptap/pm@2.26.1))(@tiptap/pm@2.26.1)
       '@tiptap/extension-color':
         specifier: ^2.22.3
         version: 2.22.3(@tiptap/core@2.26.0(@tiptap/pm@2.26.1))(@tiptap/extension-text-style@2.14.0(@tiptap/core@2.26.0(@tiptap/pm@2.26.1)))
@@ -1482,14 +1482,8 @@ packages:
     peerDependencies:
       '@tiptap/core': ^2.7.0
 
-  '@tiptap/extension-code-block@2.14.0':
-    resolution: {integrity: sha512-LRYYZeh8U2XgfTsJ4houB9s9cVRt7PRfVa4MaCeOYKfowVOKQh67yV5oom8Azk9XrMPkPxDmMmdPAEPxeVYFvw==}
-    peerDependencies:
-      '@tiptap/core': ^2.7.0
-      '@tiptap/pm': ^2.7.0
-
-  '@tiptap/extension-code-block@2.23.0':
-    resolution: {integrity: sha512-p8iizp5nQBBhYPrIgBVwEqcDnc2fFRAZCXy/xjmAk2kKOhB7NYe3+1yrbFcQKVAdaUFxG+BRj2WxNDeeRt5tJA==}
+  '@tiptap/extension-code-block@2.26.1':
+    resolution: {integrity: sha512-/TDDOwONl0qEUc4+B6V9NnWtSjz95eg7/8uCb8Y8iRbGvI9vT4/znRKofFxstvKmW4URu/H74/g0ywV57h0B+A==}
     peerDependencies:
       '@tiptap/core': ^2.7.0
       '@tiptap/pm': ^2.7.0
@@ -5928,12 +5922,7 @@ snapshots:
     dependencies:
       '@tiptap/core': 2.26.0(@tiptap/pm@2.26.1)
 
-  '@tiptap/extension-code-block@2.14.0(@tiptap/core@2.26.0(@tiptap/pm@2.26.1))(@tiptap/pm@2.26.1)':
-    dependencies:
-      '@tiptap/core': 2.26.0(@tiptap/pm@2.26.1)
-      '@tiptap/pm': 2.26.1
-
-  '@tiptap/extension-code-block@2.23.0(@tiptap/core@2.26.0(@tiptap/pm@2.26.1))(@tiptap/pm@2.26.1)':
+  '@tiptap/extension-code-block@2.26.1(@tiptap/core@2.26.0(@tiptap/pm@2.26.1))(@tiptap/pm@2.26.1)':
     dependencies:
       '@tiptap/core': 2.26.0(@tiptap/pm@2.26.1)
       '@tiptap/pm': 2.26.1
@@ -6155,7 +6144,7 @@ snapshots:
       '@tiptap/extension-bold': 2.26.0(@tiptap/core@2.26.0(@tiptap/pm@2.26.1))
       '@tiptap/extension-bullet-list': 2.25.0(@tiptap/core@2.26.0(@tiptap/pm@2.26.1))
       '@tiptap/extension-code': 2.26.1(@tiptap/core@2.26.0(@tiptap/pm@2.26.1))
-      '@tiptap/extension-code-block': 2.23.0(@tiptap/core@2.26.0(@tiptap/pm@2.26.1))(@tiptap/pm@2.26.1)
+      '@tiptap/extension-code-block': 2.26.1(@tiptap/core@2.26.0(@tiptap/pm@2.26.1))(@tiptap/pm@2.26.1)
       '@tiptap/extension-document': 2.23.0(@tiptap/core@2.26.0(@tiptap/pm@2.26.1))
       '@tiptap/extension-dropcursor': 2.25.0(@tiptap/core@2.26.0(@tiptap/pm@2.26.1))(@tiptap/pm@2.26.1)
       '@tiptap/extension-gapcursor': 2.23.0(@tiptap/core@2.26.0(@tiptap/pm@2.26.1))(@tiptap/pm@2.26.1)
