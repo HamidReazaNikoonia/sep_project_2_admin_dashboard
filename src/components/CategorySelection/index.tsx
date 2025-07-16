@@ -159,7 +159,7 @@ const CategoryItem: React.FC<CategoryItemProps> = ({
 
       {hasChildren && (
         <div className="mt-1">
-          {category.children.map((child) => (
+          {category && category?.children?.map((child) => (
             <CategoryItem
               key={child._id}
               category={child}
@@ -176,17 +176,17 @@ const CategoryItem: React.FC<CategoryItemProps> = ({
 
 const CategorySelection: React.FC = ({
   passSelectedCategories,
-  initialCategories,
+  // initialCategories,
 }) => {
-  const _initialCategories = initialCategories.map(
-    (category: any) => category.id,
-  )
+  // const _initialCategories = initialCategories.map(
+  //   (category: any) => category.id,
+  // )
   const [selectedCategories, setSelectedCategories] =
-    useState<string[]>(_initialCategories)
+    useState<string[]>([])
   // This is a mock implementation - replace with your actual hook
   const [categoriesData, setCategoriesData] = useState(null)
 
-  console.log({ initialCategories, _initialCategories })
+  // console.log({ initialCategories, _initialCategories })
 
   const { data, isLoading, isSuccess, isError } = useCourseSessionCategories()
 

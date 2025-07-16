@@ -40,6 +40,8 @@ const AvatarPreview = styled('img')({
 
 const SERVER_URL = process.env.REACT_APP_SERVER_URL
 
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
 const NewCoach = () => {
   const navigate = useNavigate()
   const { mutate: createCoach, isPending } = useCreateCoach()
@@ -165,7 +167,7 @@ const NewCoach = () => {
     }
 
     // Validate email (if provided)
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    
     if (formData.email && !emailRegex.test(formData.email)) {
       newErrors.email = 'فرمت ایمیل صحیح نیست'
       valid = false
@@ -181,7 +183,12 @@ const NewCoach = () => {
 
     if (validateForm()) {
       const payload = {
-        ...formData,
+        // ...formData,
+        first_name: formData.first_name.trim(),
+        last_name: formData.last_name.trim(),
+        mobile: formData.mobile.trim(),
+        ...(formData.avatar && { avatar: formData.avatar }),
+        ...(formData.email && emailRegex.test(formData.email) && { email: formData.email.trim() }),
         age: formData.age ? parseInt(formData.age) : undefined,
       }
 

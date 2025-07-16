@@ -44,6 +44,7 @@ import CreateCoupon from './pages/Coupon/CreateCoupon'
 import NewCoach from './pages/Coach/NewCoach'
 import EditCourseSession from './pages/CourseSession/EditCourseSession'
 import ClassRoom from './pages/ClassRoom'
+import CouponList from './pages/Coupon/CouponList'
 
 const router = createBrowserRouter(
   [
@@ -215,6 +216,14 @@ const router = createBrowserRouter(
       path: '/coupon',
       element: (
         <Layout>
+          <CouponList />
+        </Layout>
+      ),
+    },
+    {
+      path: '/coupon/create',
+      element: (
+        <Layout>
           <CreateCoupon />
         </Layout>
       ),
@@ -301,7 +310,7 @@ const router = createBrowserRouter(
     },
   ],
   {
-    basename: '/admin',
+    // basename: '/admin',
   },
 )
 

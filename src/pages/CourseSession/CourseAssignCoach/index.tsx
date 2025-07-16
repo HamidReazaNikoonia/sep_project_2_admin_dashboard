@@ -646,7 +646,7 @@ const CourseAssignCoach: React.FC = () => {
                   }
                   fullWidth
                   type="number"
-                  label="قیمت (تومان)"
+                  label="قیمت (ریال)"
                   error={!!errors.price_real}
                   helperText={errors.price_real?.message}
                 />
@@ -671,7 +671,7 @@ const CourseAssignCoach: React.FC = () => {
                   }
                   fullWidth
                   type="number"
-                  label="قیمت (تومان)"
+                  label="قیمت (ریال)"
                   error={!!errors.price_discounted}
                   helperText={errors.price_discounted?.message}
                 />

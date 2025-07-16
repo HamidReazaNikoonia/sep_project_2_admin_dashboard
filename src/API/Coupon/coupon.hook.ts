@@ -4,6 +4,16 @@ import couponApi from './coupon.api'
 // Query keys
 const COUPON_KEY = 'coupon'
 
+
+// get all coupons
+export const useGetAllCoupons = () => {
+  return useQuery({
+    queryKey: [COUPON_KEY],
+    queryFn: () => couponApi.getAllCoupons(),
+  })
+}
+
+// create coupon
 export const useCreateCoupon = () => {
   const queryClient = useQueryClient()
 

@@ -131,9 +131,23 @@ const CreateCoupon = () => {
       return
     }
 
+    const _selectedCourses = selectedCourses.map((course) => ({
+      target_type :"COURSE_SESSION",
+      target_id: course,
+    }))
+
+    const _selectedSessions = selectedSessions.map((session) => ({
+      target_id: session,
+      target_type: "COURSE"
+    }))
+
+    console.log({_selectedCourses, _selectedSessions})
+    console.log({both: [..._selectedCourses, ..._selectedSessions]})
+
     // Prepare data for API
     const couponData = {
       ...formData,
+      type: "DISCOUNT",
       max_uses: Number(formData.max_uses),
       discount_value: Number(formData.discount_value),
       min_purchase_amount: formData.min_purchase_amount
@@ -141,12 +155,9 @@ const CreateCoupon = () => {
         : undefined,
       valid_from: formData.valid_from.format('YYYY-MM-DD'),
       valid_until: formData.valid_until.format('YYYY-MM-DD'),
-      applicable_courses: isSpecificProducts
-        ? {
-            courses: selectedCourses,
-            course_sessions: selectedSessions,
-          }
-        : undefined,
+      ...(isSpecificProducts ? {
+        applicable_courses: [..._selectedCourses, ..._selectedSessions]
+      } : {})
     }
 
     // Submit data

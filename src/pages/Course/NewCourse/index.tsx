@@ -274,6 +274,7 @@ const NewCourse = () => {
         tumbnail_image: thumbnailUploadedFile._id,
         sample_media: sampleMediaWithFiles,
         course_objects: courseObjectsWithFiles,
+        description_long: descriptionLong,
       }
 
       console.log('Submitting course data:', courseData)
