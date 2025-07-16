@@ -66,3 +66,18 @@ code {
     transform: rotate(360deg);
   }
 }
+
+
+#general-search::placeholder {
+  font-weight: bold;
+  font-size: 12px;
+  opacity: 0.5;
+  color: gray;
+}
+
+.filter_on_list::placeholder {
+  font-weight: 300;
+  font-size: 12px;
+  opacity: 0.5;
+  color: gray;
+}

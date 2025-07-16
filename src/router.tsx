@@ -46,6 +46,9 @@ import EditCourseSession from './pages/CourseSession/EditCourseSession'
 import ClassRoom from './pages/ClassRoom'
 import CouponList from './pages/Coupon/CouponList'
 
+
+import TestUserList from './pages/Users/UserList';
+
 const router = createBrowserRouter(
   [
     {
@@ -64,7 +67,7 @@ const router = createBrowserRouter(
       path: '/users',
       element: (
         <Layout>
-          <UserList />
+          <TestUserList />
         </Layout>
       ),
     },
