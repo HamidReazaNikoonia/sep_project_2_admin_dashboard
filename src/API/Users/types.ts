@@ -14,6 +14,15 @@ export interface User {
   }
   
   export interface UserResponse {
+    father_name: string;
+    age: string;
+    gender: string;
+    city: string;
+    country: string;
+    state: string;
+    nationalId: string;
+    isNationalIdVerified: any;
+    national_card_images: boolean;
     first_name?: string;
     last_name?: string;
     email?: string;

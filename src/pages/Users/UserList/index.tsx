@@ -13,7 +13,7 @@ const UserList = () => {
 
     const renderUserItem = (user) => (
         <div dir='rtl' key={user.id} className="p-3 border-b hover:bg-gray-50">
-            <Link to={`/user/${user.id}`} className="font-medium hover:opacity-80">
+            <Link to={`/users/${user.id}`} className="font-medium hover:opacity-80">
                 {/* Mobile Layout (column) */}
                 <div className="md:hidden space-y-3">
                     {/* Row 1: Name + ID */}
@@ -41,7 +41,7 @@ const UserList = () => {
                         </span>
                         <div className="flex space-x-2">
                             <Link
-                                to={`/user/${user.id}/edit`}
+                                to={`/users/${user.id}/edit`}
                                 className="px-2 py-1 text-sm text-blue-600 hover:bg-blue-50 rounded"
                             >
                                 تغییرات
@@ -76,7 +76,7 @@ const UserList = () => {
 
                     <div className="col-span-3 flex justify-end space-x-2">
                         <Link
-                            to={`/user/${user.id}/edit`}
+                            to={`/users/${user.id}/edit`}
                             className="px-2 py-1 text-sm text-blue-600 hover:bg-blue-50 rounded"
                         >
                             تغیرات

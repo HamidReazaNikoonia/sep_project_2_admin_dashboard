@@ -38,7 +38,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
         component="main"
         sx={{
           flexGrow: 1,
-          p: 3,
+          p: {xs: 2, md: 4},
           width: '100%',
           overflowX: 'hidden',
         }}
