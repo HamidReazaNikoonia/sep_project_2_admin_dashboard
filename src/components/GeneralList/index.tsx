@@ -3,6 +3,13 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router'
 import { useDebounce } from '../../hooks/useDebounce';
 import axios from 'axios'; // or your preferred HTTP client
+import Accordion from '@mui/material/Accordion';
+import AccordionSummary from '@mui/material/AccordionSummary';
+import AccordionDetails from '@mui/material/AccordionDetails';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+
+import DatePicker from 'react-datepicker2'
+import moment from 'moment-jalaali'
 
 const List = ({
     apiUrl,
@@ -10,7 +17,8 @@ const List = ({
     renderItem,
     searchPlaceholder,
     title,
-    searchDebounceDelay = 500 // default 500ms delay
+    searchDebounceDelay = 500,  // default 500ms delay
+    showDateFilter = false
 }) => {
     // State for data and loading
     const [data, setData] = useState({
@@ -26,6 +34,25 @@ const List = ({
     const [searchQuery, setSearchQuery] = useState('');
     const debouncedSearchQuery = useDebounce(searchQuery, searchDebounceDelay);
     const [filterValues, setFilterValues] = useState({});
+
+    // Add state for accordion
+    const [expanded, setExpanded] = useState(true);
+    const [expandedCreatedAtDate, setExpandedCreatedAtDate] = useState(true);
+
+
+    // State for date range
+    const [dateRange, setDateRange] = useState({
+        created_from_date: null,
+        created_to_date: null
+    });
+
+    const handleAccordionChange = () => {
+        setExpanded(!expanded);
+    };
+
+    const handleCreatedAtAccordionChange = () => {
+        setExpandedCreatedAtDate(!expandedCreatedAtDate);
+    };
 
     // Initialize filter values
     useEffect(() => {
@@ -65,6 +92,16 @@ const List = ({
                     }
                 });
 
+                // Add date range if enabled and dates are set
+                if (showDateFilter) {
+                    if (dateRange.created_from_date) {
+                        params.append('created_from_date', dateRange.created_from_date?.format('YYYY-MM-DD'));
+                    }
+                    if (dateRange.created_to_date) {
+                        params.append('created_to_date', dateRange.created_to_date?.format('YYYY-MM-DD'));
+                    }
+                }
+
                 const response = await axios.get(`${apiUrl}?${params.toString()}`, {
                     headers: {
                         Authorization: `Bearer ${localStorage.getItem('__token__')}`
@@ -84,7 +121,7 @@ const List = ({
         };
 
         fetchData();
-    }, [data.page, data.limit, debouncedSearchQuery, filterValues]);
+    }, [data.page, data.limit, debouncedSearchQuery, dateRange, filterValues]);
 
     // Handle page change
     const handlePageChange = (newPage) => {
@@ -107,6 +144,34 @@ const List = ({
         // Reset to first page when filtering
         setData({ ...data, page: 1 });
     };
+
+    // Handle date range change
+    // const handleDateChange = (e) => {
+    //     const { name, value } = e.target;
+    //     setDateRange(prev => ({
+    //         ...prev,
+    //         [name]: value
+    //     }));
+    //     // Reset to first page when date changes
+    //     setData(prev => ({ ...prev, page: 1 }));
+    // };
+
+    const handleDateChange = (name: string) => (date: any) => {
+        setDateRange({
+            ...dateRange,
+            [name]: date,
+        });
+        // Reset to first page when date changes
+        setData(prev => ({ ...prev, page: 1 }));
+    }
+
+    // reset 
+    const resetDateRange = () => {
+        setDateRange({
+            created_from_date: null,
+            created_to_date: null
+        })
+    }
 
     // Render filter inputs based on type
     const renderFilterInput = (filter) => {
@@ -141,7 +206,7 @@ const List = ({
                         dir='ltr'
                         value={filterValues[filter.queryParamKey] || ''}
                         onChange={(e) => handleFilterChange(filter.queryParamKey, e.target.value)}
-                        className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        className="w-full p-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     >
                         <option value="">All {filter.label || filter.queryParamKey}</option>
                         {filter.options.map(option => (
@@ -159,12 +224,12 @@ const List = ({
     return (
         <div className="list-container flex flex-col gap-4">
             {/* Header and Search Section */}
-            <div dir="rtl" className="list-header bg-white py-4 px-4 md:px-8 rounded-lg shadow">
+            <div dir="rtl" className="list-header bg-white pb-12 pt-4 px-4 md:px-8 rounded-lg shadow">
                 <h2 className="text-xl font-semibold mb-8 pt-4">{title}</h2>
 
                 {/* General Search */}
                 <div className="mb-6">
-                    <label htmlFor="general-search" className="block text-sm font-medium text-gray-700 mb-1">
+                    <label htmlFor="general-search" className="block text-sm md:text-base font-medium text-gray-700 mb-1">
                         جستجو
                     </label>
                     <input
@@ -182,21 +247,84 @@ const List = ({
 
                 {/* Dynamic Filters */}
                 {filters.length > 0 && (
-                    <div className="filters-section mb-4">
-                        <h3 className="text-sm font-medium text-gray-700 mb-2">فیلتر</h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                            {filters.map((filter) => (
-                                <div key={filter.queryParamKey} className="filter-item">
-                                    {(filter.label && filter.type !== 'checkbox') && (
-                                        <label htmlFor={`filter-${filter.queryParamKey}`} className="block text-sm text-gray-600 mb-1">
-                                            {filter.label}
+                    <Accordion sx={{ backgroundColor: "#f0f0f0", boxShadow: "0px 10px 15px -3px rgba(0,0,0,0.1)" }} expanded={expanded} onChange={handleAccordionChange}>
+                        <AccordionSummary
+                            expandIcon={<ExpandMoreIcon />}
+                            aria-controls="filter-content"
+                            id="filter-header"
+                        >
+                            <h3 className="text-sm md:text-base font-medium text-gray-700">فیلتر</h3>
+                        </AccordionSummary>
+                        <AccordionDetails>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                {filters.map((filter) => (
+                                    <div key={filter.queryParamKey} className="filter-item">
+                                        {(filter.label && filter.type !== 'checkbox') && (
+                                            <label htmlFor={`filter-${filter.queryParamKey}`} className="block text-sm text-gray-600 mb-1">
+                                                {filter.label}
+                                            </label>
+                                        )}
+                                        {renderFilterInput(filter)}
+                                    </div>
+                                ))}
+                            </div>
+                        </AccordionDetails>
+                    </Accordion>
+                )}
+
+                {/* Date Range Filter Section */}
+                {showDateFilter && (
+                    <Accordion sx={{ backgroundColor: "#f0f0f0", boxShadow: "0px 10px 15px -3px rgba(0,0,0,0.1)" }} expanded={expandedCreatedAtDate} onChange={handleCreatedAtAccordionChange}>
+                        <AccordionSummary
+                            expandIcon={<ExpandMoreIcon />}
+                            aria-controls="filter-content"
+                            id="filter-header"
+                        >
+                            <h3 className="text-sm md:text-base font-medium text-gray-700">فیلتر بر اساس زمان </h3>
+                        </AccordionSummary>
+                        <AccordionDetails>
+                            <div className="date-filter-section mb-4 py-8 border px-4">
+                                <h3 className="text-sm md:text-base font-medium text-gray-700 mb-4">
+                                    فیلتر بر اساس تاریخ ایجاد شدن
+                                </h3>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label htmlFor="created_from_date" className="block text-sm text-gray-600 mb-1">
+                                            از تاریخ
                                         </label>
-                                    )}
-                                    {renderFilterInput(filter)}
+                                        <DatePicker
+                                            value={dateRange.created_from_date}
+                                            onChange={handleDateChange('created_from_date')}
+                                            name="created_from_date"
+                                            isGregorian={false}
+                                            timePicker={false}
+                                            className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                            inputFormat="jYYYY/jMM/jDD"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label htmlFor="created_to_date" className="block text-sm text-gray-600 mb-1">
+                                            تا تاریخ
+                                        </label>
+                                        <DatePicker
+                                            value={dateRange.created_to_date}
+                                            onChange={handleDateChange('created_to_date')}
+                                            name="created_to_date"
+                                            isGregorian={false}
+                                            timePicker={false}
+                                            className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                            inputFormat="jYYYY/jMM/jDD"
+                                        />
+                                    </div>
+                                    <div>
+                                        <button type='button' className='text-sm  px-4 py-1 bg-purple-600 text-white rounded-sm' onClick={resetDateRange}>
+                                            حذف فیلتر تاریخ
+                                        </button>
+                                    </div>
                                 </div>
-                            ))}
-                        </div>
-                    </div>
+                            </div>
+                        </AccordionDetails>
+                    </Accordion>
                 )}
             </div>
 
@@ -214,7 +342,7 @@ const List = ({
                                 data.results.map((item) => renderItem(item))
                             ) : (
                                 <div className="text-center py-10 text-gray-500">
-                                    No results found
+                                    مقداری وجود ندارد
                                 </div>
                             )}
                         </div>

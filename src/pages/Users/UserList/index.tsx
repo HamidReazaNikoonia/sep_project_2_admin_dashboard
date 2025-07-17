@@ -17,8 +17,8 @@ const UserList = () => {
                 {/* Mobile Layout (column) */}
                 <div className="md:hidden space-y-3">
                     {/* Row 1: Name + ID */}
-                    <div className="flex justify-between">
-                        <p className="font-medium">{user?.first_name} - {user?.last_name}</p>
+                    <div className="flex flex-col">
+                        <p className="font-medium mb-2">{user?.first_name} - {user?.last_name}</p>
                         <p className="text-xs text-gray-500">ID: {user.id}</p>
                     </div>
 
@@ -37,7 +37,7 @@ const UserList = () => {
                     {/* Row 4: Status + Actions */}
                     <div className="flex justify-between items-center">
                         <span className={`px-2 py-1 text-xs rounded-full ${user.isVerified ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                            {user.isVerified ? 'Active' : 'Inactive'}
+                            {user.isVerified ? 'تایید شده' : 'عدم تایید'}
                         </span>
                         <div className="flex space-x-2">
                             <Link
@@ -70,7 +70,7 @@ const UserList = () => {
 
                     <div className="col-span-2">
                         <span className={`px-2 py-1 text-xs rounded-full ${user?.isVerified ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                            {user.isVerified ? 'Active' : 'Inactive'}
+                            {user.isVerified ? 'تایید شده' : 'عدم تایید'}
                         </span>
                     </div>
 
@@ -91,21 +91,21 @@ const UserList = () => {
     );
 
     const userFilters = [
-        {
-            type: 'search',
-            queryParamKey: 'mobile',
-            label: 'موبایل بر اسسا'
-        },
-        {
-            type: 'search',
-            queryParamKey: 'mobile1',
-            label: 'موبایل بر اسسا'
-        },
-        {
-            type: 'search',
-            queryParamKey: 'mobile2',
-            label: 'موبایل بر اسسا'
-        },
+        // {
+        //     type: 'search',
+        //     queryParamKey: 'mobile',
+        //     label: 'موبایل بر اسسا'
+        // },
+        // {
+        //     type: 'search',
+        //     queryParamKey: 'mobile1',
+        //     label: 'موبایل بر اسسا'
+        // },
+        // {
+        //     type: 'search',
+        //     queryParamKey: 'mobile2',
+        //     label: 'موبایل بر اسسا'
+        // },
         {
             type: 'checkbox',
             queryParamKey: 'isVerified',
@@ -118,8 +118,8 @@ const UserList = () => {
         },
         {
             type: 'checkbox',
-            queryParamKey: 'active1',
-            label: 'Active Users 3'
+            queryParamKey: 'have_wallet_amount',
+            label: 'کاربر با موجودی کیف پول'
         },
         {
             type: 'options',
@@ -136,6 +136,7 @@ const UserList = () => {
             renderItem={renderUserItem}
             title="مدیریت کاربران"
             searchPlaceholder="جستجو بر اساس نام , شماره موبایل"
+            showDateFilter
         />
     );
 };
