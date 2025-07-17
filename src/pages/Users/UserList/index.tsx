@@ -37,7 +37,7 @@ const UserList = () => {
                     {/* Row 4: Status + Actions */}
                     <div className="flex justify-between items-center">
                         <span className={`px-2 py-1 text-xs rounded-full ${user.isVerified ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                            {user.active ? 'Active' : 'Inactive'}
+                            {user.isVerified ? 'Active' : 'Inactive'}
                         </span>
                         <div className="flex space-x-2">
                             <Link
@@ -70,7 +70,7 @@ const UserList = () => {
 
                     <div className="col-span-2">
                         <span className={`px-2 py-1 text-xs rounded-full ${user?.isVerified ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                            {user.active ? 'Active' : 'Inactive'}
+                            {user.isVerified ? 'Active' : 'Inactive'}
                         </span>
                     </div>
 
@@ -98,29 +98,35 @@ const UserList = () => {
         },
         {
             type: 'search',
-            queryParamKey: 'mobile',
+            queryParamKey: 'mobile1',
             label: 'موبایل بر اسسا'
         },
         {
             type: 'search',
-            queryParamKey: 'mobile',
+            queryParamKey: 'mobile2',
             label: 'موبایل بر اسسا'
         },
         {
             type: 'checkbox',
-            queryParamKey: 'active',
-            label: 'Active Users Only'
+            queryParamKey: 'isVerified',
+            label: 'کاربران فعال'
         },
         {
             type: 'checkbox',
-            queryParamKey: 'active',
-            label: 'Active Users Only'
+            queryParamKey: 'have_enrolled_course_session',
+            label: 'ثبت نام شده'
         },
         {
             type: 'checkbox',
-            queryParamKey: 'active',
-            label: 'Active Users Only'
-        }
+            queryParamKey: 'active1',
+            label: 'Active Users 3'
+        },
+        {
+            type: 'options',
+            queryParamKey: 'role',
+            label: 'نقش کاربر',
+            options: ['admin', 'user', 'coach']
+          }
     ];
 
     return (

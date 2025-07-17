@@ -77,7 +77,7 @@ code {
 
 .filter_on_list::placeholder {
   font-weight: 300;
-  font-size: 12px;
+  font-size: 13px;
   opacity: 0.5;
   color: gray;
 }

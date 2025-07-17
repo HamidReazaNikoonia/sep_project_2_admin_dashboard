@@ -33,6 +33,8 @@ const List = ({
         filters.forEach(filter => {
             if (filter.type === 'checkbox') {
                 initialFilters[filter.queryParamKey] = false;
+            } else if (filter.type === 'options') {
+                initialFilters[filter.queryParamKey] = ''; // Default to empty (no selection)
             } else {
                 initialFilters[filter.queryParamKey] = '';
             }
@@ -106,11 +108,59 @@ const List = ({
         setData({ ...data, page: 1 });
     };
 
+    // Render filter inputs based on type
+    const renderFilterInput = (filter) => {
+        switch (filter.type) {
+            case 'search':
+                return (
+                    <input
+                        type="text"
+                        placeholder={`${filter.label || filter.queryParamKey}`}
+                        value={filterValues[filter.queryParamKey] || ''}
+                        onChange={(e) => handleFilterChange(filter.queryParamKey, e.target.value)}
+                        className="filter_on_list w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    />
+                );
+            case 'checkbox':
+                return (
+                    <div className="flex items-center">
+                        <input
+                            type="checkbox"
+                            checked={filterValues[filter.queryParamKey] || false}
+                            onChange={(e) => handleFilterChange(filter.queryParamKey, e.target.checked)}
+                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                        />
+                        <label className="mr-2 block text-sm text-gray-600">
+                            {filter.label || filter.queryParamKey}
+                        </label>
+                    </div>
+                );
+            case 'options':
+                return (
+                    <select
+                        dir='ltr'
+                        value={filterValues[filter.queryParamKey] || ''}
+                        onChange={(e) => handleFilterChange(filter.queryParamKey, e.target.value)}
+                        className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    >
+                        <option value="">All {filter.label || filter.queryParamKey}</option>
+                        {filter.options.map(option => (
+                            <option key={option} value={option}>
+                                {option}
+                            </option>
+                        ))}
+                    </select>
+                );
+            default:
+                return null;
+        }
+    };
+
     return (
         <div className="list-container flex flex-col gap-4">
             {/* Header and Search Section */}
-            <div dir="rtl" className="list-header bg-white p-4 rounded-lg shadow">
-                <h2 className="text-xl font-semibold mb-4">{title}</h2>
+            <div dir="rtl" className="list-header bg-white py-4 px-4 md:px-8 rounded-lg shadow">
+                <h2 className="text-xl font-semibold mb-8 pt-4">{title}</h2>
 
                 {/* General Search */}
                 <div className="mb-6">
@@ -132,39 +182,17 @@ const List = ({
 
                 {/* Dynamic Filters */}
                 {filters.length > 0 && (
-                    <div className="filters-section mb-8">
-                        <h3 className="text-sm font-medium text-gray-700 mb-3">فیلتر ها</h3>
+                    <div className="filters-section mb-4">
+                        <h3 className="text-sm font-medium text-gray-700 mb-2">فیلتر</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                             {filters.map((filter) => (
                                 <div key={filter.queryParamKey} className="filter-item">
-                                    {filter.type === 'search' ? (
-                                        <div>
-                                            <label htmlFor={`filter-${filter.queryParamKey}`} className="block text-sm text-gray-600 mb-1">
-                                                {filter.label || filter.queryParamKey}
-                                            </label>
-                                            <input
-                                                id={`filter-${filter.queryParamKey}`}
-                                                type="text"
-                                                placeholder={`Filter by ${filter.queryParamKey}`}
-                                                value={filterValues[filter.queryParamKey] || ''}
-                                                onChange={(e) => handleFilterChange(filter.queryParamKey, e.target.value)}
-                                                className="filter_on_list w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                            />
-                                        </div>
-                                    ) : (
-                                        <div className="flex items-center">
-                                            <input
-                                                id={`filter-${filter.queryParamKey}`}
-                                                type="checkbox"
-                                                checked={filterValues[filter.queryParamKey] || false}
-                                                onChange={(e) => handleFilterChange(filter.queryParamKey, e.target.checked)}
-                                                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                                            />
-                                            <label htmlFor={`filter-${filter.queryParamKey}`} className="mr-2 block text-sm text-gray-600">
-                                                {filter.label || filter.queryParamKey}
-                                            </label>
-                                        </div>
+                                    {(filter.label && filter.type !== 'checkbox') && (
+                                        <label htmlFor={`filter-${filter.queryParamKey}`} className="block text-sm text-gray-600 mb-1">
+                                            {filter.label}
+                                        </label>
                                     )}
+                                    {renderFilterInput(filter)}
                                 </div>
                             ))}
                         </div>
