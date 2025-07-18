@@ -14,6 +14,7 @@ export interface User {
   }
   
   export interface UserResponse {
+    province: string;
     father_name: string;
     age: string;
     gender: string;

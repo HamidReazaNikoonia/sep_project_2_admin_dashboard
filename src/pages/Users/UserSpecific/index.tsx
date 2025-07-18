@@ -1,7 +1,9 @@
 import { useParams } from 'react-router';
 import { Box, Typography, Paper as MuiPaper, CircularProgress, Chip, Avatar } from '@mui/material';
 import { useUserById } from '../../../API/Users/users.hook';
+import { useCitiesByProvinceId } from '../../../API/SiteInfo/siteInfo.hook';
 import StyledPaper from '../../../components/StyledPaper';
+import { useState, useEffect } from 'react';
 
 
 
@@ -17,6 +19,36 @@ const UserSpecific = () => {
     isError,
     error
   } = useUserById(user_id!);
+
+  // State for province and city names
+  const [provinceName, setProvinceName] = useState<string>('');
+  const [cityName, setCityName] = useState<string>('');
+
+  // Fetch cities by province ID (only when user.province is available)
+  const {
+    data: provinceData,
+    isLoading: isProvinceLoading
+  } = useCitiesByProvinceId(user?.province?.toString() || '');
+
+  // Update province and city names when data is available
+  useEffect(() => {
+    if (provinceData && user) {
+      // Get province name
+      if (provinceData.province?.name) {
+        setProvinceName(provinceData.province.name);
+      }
+      
+      // Get city name by filtering cities array
+      if (provinceData.cities && user.city) {
+        const foundCity = provinceData.cities.find((city: any) => city.id === user.city);
+        if (foundCity) {
+          setCityName(foundCity.name);
+        }
+      }
+    }
+  }, [provinceData, user]);
+
+  
 
   if (isLoading) {
     return (
@@ -130,7 +162,9 @@ const UserSpecific = () => {
                 <Typography variant="subtitle2" color="textSecondary">
                   شهر
                 </Typography>
-                <Typography>{user?.city || 'N/A'}</Typography>
+                <Typography>
+                  {isProvinceLoading ? 'در حال بارگذاری...' : (cityName || user?.city || 'N/A')}
+                </Typography>
               </Box>
               
               <Box>
@@ -144,7 +178,9 @@ const UserSpecific = () => {
                 <Typography variant="subtitle2" color="textSecondary">
                   استان
                 </Typography>
-                <Typography>{user?.state || 'N/A'}</Typography>
+                <Typography>
+                  {isProvinceLoading ? 'در حال بارگذاری...' : (provinceName || user?.province || 'N/A')}
+                </Typography>
               </Box>
               
               <Box>
