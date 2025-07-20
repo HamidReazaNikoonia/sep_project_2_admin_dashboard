@@ -1,8 +1,7 @@
 // @ts-nocheck
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router'
 import { useDebounce } from '../../hooks/useDebounce';
-import axios from 'axios'; // or your preferred HTTP client
 import Accordion from '@mui/material/Accordion';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
@@ -12,23 +11,17 @@ import DatePicker from 'react-datepicker2'
 import moment from 'moment-jalaali'
 
 const List = ({
-    apiUrl,
+    useDataQuery, // Replace apiUrl with custom hook
     filters = [],
     renderItem,
     searchPlaceholder,
     title,
-    searchDebounceDelay = 500,  // default 500ms delay
+    searchDebounceDelay = 500,
     showDateFilter = false
 }) => {
-    // State for data and loading
-    const [data, setData] = useState({
-        results: [],
-        page: 1,
-        limit: 10,
-        totalPages: 0,
-        totalResults: 0,
-    });
-    const [loading, setLoading] = useState(false);
+    // State for pagination
+    const [page, setPage] = useState(1);
+    const [limit] = useState(10);
 
     // State for search and filters
     const [searchQuery, setSearchQuery] = useState('');
@@ -36,15 +29,66 @@ const List = ({
     const [filterValues, setFilterValues] = useState({});
 
     // Add state for accordion
-    const [expanded, setExpanded] = useState(true);
-    const [expandedCreatedAtDate, setExpandedCreatedAtDate] = useState(true);
-
+    const [expanded, setExpanded] = useState(false);
+    const [expandedCreatedAtDate, setExpandedCreatedAtDate] = useState(false);
 
     // State for date range
     const [dateRange, setDateRange] = useState({
         created_from_date: null,
         created_to_date: null
     });
+
+    // Build query parameters for the hook
+    const queryParams = useMemo(() => {
+        const params = {
+            page,
+            limit,
+        };
+
+        // Add search query
+        if (debouncedSearchQuery) {
+            params.search = debouncedSearchQuery;
+            // Also add 'q' for backward compatibility if needed
+            params.q = debouncedSearchQuery;
+        }
+
+        // Add filters
+        Object.entries(filterValues).forEach(([key, value]) => {
+            if (value !== '' && value !== false) {
+                params[key] = value;
+            }
+        });
+
+        // Add date range if enabled and dates are set
+        if (showDateFilter) {
+            if (dateRange.created_from_date) {
+                params.created_from_date = dateRange.created_from_date?.format('YYYY-MM-DD');
+            }
+            if (dateRange.created_to_date) {
+                params.created_to_date = dateRange.created_to_date?.format('YYYY-MM-DD');
+            }
+        }
+
+        return params;
+    }, [page, limit, debouncedSearchQuery, filterValues, dateRange, showDateFilter]);
+
+    // Use the custom hook passed as prop
+    const { data: queryData, isLoading, error } = useDataQuery(queryParams);
+
+    // Extract data from query result
+    const data = queryData ? {
+        results: queryData.results || [],
+        page,
+        limit,
+        totalPages: queryData.totalPages || 0,
+        totalResults: queryData.totalResults || 0,
+    } : {
+        results: [],
+        page: 1,
+        limit: 10,
+        totalPages: 0,
+        totalResults: 0,
+    };
 
     const handleAccordionChange = () => {
         setExpanded(!expanded);
@@ -69,70 +113,16 @@ const List = ({
         setFilterValues(initialFilters);
     }, [filters]);
 
-    // Fetch data when debounced search or filters change
-    useEffect(() => {
-        const fetchData = async () => {
-            setLoading(true);
-            try {
-                const params = new URLSearchParams();
-
-                // Add pagination params
-                params.append('page', data.page);
-                params.append('limit', data.limit);
-
-                // Add debounced search query if exists
-                if (debouncedSearchQuery) {
-                    params.append('q', debouncedSearchQuery);
-                }
-
-                // Add filters
-                Object.entries(filterValues).forEach(([key, value]) => {
-                    if (value !== '' && value !== false) {
-                        params.append(key, value);
-                    }
-                });
-
-                // Add date range if enabled and dates are set
-                if (showDateFilter) {
-                    if (dateRange.created_from_date) {
-                        params.append('created_from_date', dateRange.created_from_date?.format('YYYY-MM-DD'));
-                    }
-                    if (dateRange.created_to_date) {
-                        params.append('created_to_date', dateRange.created_to_date?.format('YYYY-MM-DD'));
-                    }
-                }
-
-                const response = await axios.get(`${apiUrl}?${params.toString()}`, {
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem('__token__')}`
-                    }
-                });
-                setData({
-                    ...data,
-                    results: response.data.results,
-                    totalPages: response.data.totalPages,
-                    totalResults: response.data.totalResults,
-                });
-            } catch (error) {
-                console.error('Error fetching data:', error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchData();
-    }, [data.page, data.limit, debouncedSearchQuery, dateRange, filterValues]);
-
     // Handle page change
     const handlePageChange = (newPage) => {
-        setData({ ...data, page: newPage });
+        setPage(newPage);
     };
 
     // Handle search input change
     const handleSearchChange = (e) => {
         setSearchQuery(e.target.value);
         // Reset to first page when searching
-        setData({ ...data, page: 1 });
+        setPage(1);
     };
 
     // Handle filter change
@@ -142,7 +132,7 @@ const List = ({
             [key]: value,
         });
         // Reset to first page when filtering
-        setData({ ...data, page: 1 });
+        setPage(1);
     };
 
     // Handle date range change
@@ -162,7 +152,7 @@ const List = ({
             [name]: date,
         });
         // Reset to first page when date changes
-        setData(prev => ({ ...prev, page: 1 }));
+        setPage(1);
     }
 
     // reset 
@@ -240,7 +230,7 @@ const List = ({
                         onChange={handleSearchChange}
                         className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     />
-                    {loading && debouncedSearchQuery !== searchQuery && (
+                    {isLoading && debouncedSearchQuery !== searchQuery && (
                         <p className="text-xs text-gray-500 mt-1">Typing...</p>
                     )}
                 </div>
@@ -330,7 +320,7 @@ const List = ({
 
             {/* List Content */}
             <div className="list-content bg-white p-4 rounded-lg shadow flex-1">
-                {loading ? (
+                {isLoading ? (
                     <div className="flex justify-center items-center h-64">
                         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
                     </div>

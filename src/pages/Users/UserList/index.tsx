@@ -1,6 +1,7 @@
 // @ts-ignore
 import { Link } from 'react-router'
 import GeneralList from "../../../components/GeneralList";
+import { useUsers } from '../../../API/Users/users.hook';
 
 const UserList = () => {
 
@@ -131,7 +132,7 @@ const UserList = () => {
 
     return (
         <GeneralList
-            apiUrl="http://localhost:9000/v1/users"
+            useDataQuery={useUsers}
             filters={userFilters}
             renderItem={renderUserItem}
             title="مدیریت کاربران"

@@ -1,291 +1,154 @@
-// @ts-ignore
 import { useState, useCallback } from 'react'
-import { Button, styled, Theme } from '@mui/material'
-import { Link } from 'react-router'
 import { debounce } from 'lodash'
-import {
-  DataGrid,
-  GridColDef,
-  GridFilterModel,
-  GridPaginationModel,
-  GridSortModel,
-  GridToolbar,
-} from '@mui/x-data-grid'
+import GeneralList from "../../../components/GeneralList";
+import { Link } from 'react-router'
 
 import { useGetAllCoaches } from '../../../API/Coach/coach.hook'
 
+
+
+
 const SERVER_FILE = process.env.REACT_APP_SERVER_FILE
 const SERVER_URL = process.env.REACT_APP_SERVER_URL
-const StyledDataGrid = styled(DataGrid)(({ theme }: { theme: Theme }) => ({
-  border: 0,
-  direction: 'rtl',
-  color: 'rgba(255,255,255,0.85)',
-  fontFamily: ['Samim', 'Arial', 'sans-serif'].join(','),
-  WebkitFontSmoothing: 'auto',
-  letterSpacing: 'normal',
-  '& .MuiDataGrid-columnsContainer': {
-    backgroundColor: '#1d1d1d',
-    ...theme.applyStyles('light', {
-      backgroundColor: '#fafafa',
-    }),
-  },
-  '& .MuiDataGrid-footerContainer': {
-    direction: 'ltr',
-  },
-  '& .MuiDataGrid-columnHeaders': {
-    direction: 'rtl',
-    textAlign: 'right',
-  },
-  '& .MuiDataGrid-iconSeparator': {
-    display: 'none',
-  },
-  '& .MuiDataGrid-columnHeader, .MuiDataGrid-cell': {
-    borderRight: '1px solid #303030',
-    ...theme.applyStyles('light', {
-      borderRightColor: '#f0f0f0',
-    }),
-  },
-  '& .MuiDataGrid-columnHeaderTitle': {
-    fontWeight: 'bold',
-  },
-  '& .MuiDataGrid-toolbarContainer': {
-    direction: 'rtl',
-    justifyContent: 'flex-start',
-    '& .MuiButton-root': {
-      direction: 'rtl',
-    },
-    '& .MuiButton-startIcon': {
-      marginRight: '0',
-      marginLeft: '8px',
-    },
-  },
-  '& .MuiDataGrid-row:hover': {
-    backgroundColor: 'rgba(0, 0, 0, 0.04)',
-  },
-  '& .MuiDataGrid-columnsContainer, .MuiDataGrid-cell': {
-    borderBottom: '1px solid #303030',
-    ...theme.applyStyles('light', {
-      borderBottomColor: '#f0f0f0',
-    }),
-  },
-  '& .MuiDataGrid-cell': {
-    color: 'rgba(255,255,255,0.65)',
-    direction: 'rtl',
-    textAlign: 'right',
-    ...theme.applyStyles('light', {
-      color: 'rgba(0,0,0,.85)',
-    }),
-  },
-  '& .MuiPaginationItem-root': {
-    borderRadius: 0,
-  },
-  ...theme.applyStyles('light', {
-    color: 'rgba(0,0,0,.85)',
-  }),
-  '& .MuiDataGrid-toolbarQuickFilter': {
-    direction: 'rtl',
-    '& .MuiInputBase-root': {
-      direction: 'rtl',
-      backgroundColor: '#f5f5f5',
-      borderRadius: '8px',
-      padding: '4px 12px',
-    },
-    '& .MuiInputBase-input.MuiInput-input': {
-      direction: 'rtl',
-      textAlign: 'right',
-      padding: '8px 10px',
-      fontSize: '14px',
-      color: '#333',
-      '&::placeholder': {
-        color: '#666',
-        opacity: 1,
-      },
-      '&:focus': {
-        backgroundColor: '#fff',
-      },
-    },
-  },
-}))
+
 
 const CoachList = () => {
-  const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({
-    page: 0,
-    pageSize: 10,
-  })
-  const [filterModel, setFilterModel] = useState<GridFilterModel>({
-    items: [],
-  })
-  const [sortModel, setSortModel] = useState<GridSortModel>([])
-  const [quickFilterValue, setQuickFilterValue] = useState('')
-  const [debouncedFilterValue, setDebouncedFilterValue] = useState('')
 
-  const { data, isLoading, isError } = useGetAllCoaches({
-    page: paginationModel.page + 1,
-    limit: paginationModel.pageSize,
-    ...(debouncedFilterValue && { q: debouncedFilterValue }),
-  })
 
-  // Extract the actual data and total count from the response
-  const coaches = data || []
-  const totalCount = coaches.length
+    const userRoleTitleMap = {
+        coach: "مربی",
+        user: "کاربر",
+        admin: "ادمین"
+    }
 
-  const columns: GridColDef[] = [
-    // {
-    //     field: 'role',
-    //     headerName: 'نقش',
-    //     width: 120,
-    //     renderCell: (params) => (
-    //         <div style={{
-    //             color: params.value === 'coach' ? 'green' : 'gray',
-    //             fontWeight: 'bold'
-    //         }}>
-    //             {params.value === 'coach' ? 'مربی' : 'کاربر'}
-    //         </div>
-    //     ),
-    // },
-    {
-      field: 'avatar',
-      headerName: 'تصویر',
-      width: 100,
-      renderCell: (params) => (
-        <div className="flex items-center justify-center w-full h-full">
-          {params.row.avatar?.file_name ? (
-            <img
-              src={`${SERVER_FILE}/${params.row.avatar.file_name}`}
-              alt="avatar"
-              className="w-10 h-10 rounded-full object-cover"
-            />
-          ) : (
-            <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
-              <span className="text-gray-500 text-[10px]">بدون عکس</span>
-            </div>
-          )}
+    const renderUserItem = (user) => (
+        <div dir='rtl' key={user.id} className="p-3 border-b hover:bg-gray-50">
+            <Link to={`/users/${user.id}`} className="font-medium hover:opacity-80">
+                {/* Mobile Layout (column) */}
+                <div className="md:hidden space-y-3">
+                    {/* Row 1: Name + ID */}
+                    <div className="flex flex-col">
+                        <p className="font-medium mb-2">{user?.first_name} - {user?.last_name}</p>
+                        <p className="text-xs text-gray-500">ID: {user.id}</p>
+                    </div>
+
+                    {/* Row 2: Email */}
+                    <div>
+                        <p className="text-xs text-gray-400"></p>
+                        <p className="text-sm text-gray-700">{user?.role && userRoleTitleMap[user?.role]}</p>
+                    </div>
+
+                    {/* Row 3: Mobile */}
+                    <div>
+                        <p className="text-xs text-gray-400">Mobile</p>
+                        <p className="text-sm text-gray-700">{user.mobile || 'N/A'}</p>
+                    </div>
+
+                    {/* Row 4: Status + Actions */}
+                    <div className="flex justify-between items-center">
+                        <span className={`px-2 py-1 text-xs rounded-full ${user.isVerified ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                            {user.isVerified ? 'تایید شده' : 'عدم تایید'}
+                        </span>
+                        <div className="flex space-x-2">
+                            <Link
+                                to={`/users/${user.id}/edit`}
+                                className="px-2 py-1 text-sm text-blue-600 hover:bg-blue-50 rounded"
+                            >
+                                تغییرات
+                            </Link>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Desktop Layout (grid) */}
+                <div className="hidden md:grid grid-cols-12 items-center py-4">
+                    <div className="col-span-3">
+                        <p className="font-medium">{user.first_name} - {user.last_name}</p>
+                        <p className="text-xs text-gray-500">ID: {user.id}</p>
+                    </div>
+
+                    <div className="col-span-2">
+                        <p className="text-sm text-gray-700">{user.role && userRoleTitleMap[user.role]}</p>
+                    </div>
+
+                    <div className="col-span-2">
+                        <p className="text-sm">
+                            <span className="text-xs text-gray-400 block">Mobile</span>
+                            {user.mobile || 'N/A'}
+                        </p>
+                    </div>
+
+                    <div className="col-span-2">
+                        <span className={`px-2 py-1 text-xs rounded-full ${user?.isVerified ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                            {user.isVerified ? 'تایید شده' : 'عدم تایید'}
+                        </span>
+                    </div>
+
+                    <div className="col-span-3 flex justify-end space-x-2">
+                        <Link
+                            to={`/users/${user.id}/edit`}
+                            className="px-2 py-1 text-sm text-blue-600 hover:bg-blue-50 rounded"
+                        >
+                            تغیرات
+                        </Link>
+                        {/* <button className="px-2 py-1 text-xs text-red-600 hover:bg-red-50 rounded">
+                Delete
+              </button> */}
+                    </div>
+                </div>
+            </Link>
         </div>
-      ),
-    },
-    {
-      field: 'mobile',
-      headerName: 'شماره موبایل',
-      width: 150,
-    },
-    {
-      field: 'first_name',
-      headerName: 'نام',
-      width: 150,
-    },
-    {
-      field: 'last_name',
-      headerName: 'نام خانوادگی',
-      width: 150,
-    },
-    {
-      field: 'access_level',
-      headerName: 'سطح فعال',
-      width: 150,
-      renderCell: (params) => (
-        <div
-          style={{
-            color: params.value === 'none' ? 'red' : 'green',
-            fontWeight: 'bold',
-          }}
-        >
-          {params.value === 'none' ? 'بدون دسترسی' : params.value}
-        </div>
-      ),
-    },
-    {
-      field: 'access_level_request',
-      headerName: 'سطح درخواستی',
-      width: 150,
-      renderCell: (params) => (
-        <div
-          style={{
-            color: params.value === 'none' ? 'gray' : 'blue',
-            fontWeight: 'bold',
-          }}
-        >
-          {params.value === 'none' ? 'بدون درخواست' : params.value}
-        </div>
-      ),
-    },
-    // {
-    //   field: 'enrolledCourses',
-    //   headerName: 'دوره‌های ثبت‌نام شده',
-    //   width: 200,
-    //   renderCell: (params) => <div>{params.value.length} دوره</div>,
-    // },
-    {
-      field: 'actions',
-      headerName: 'عملیات',
-      width: 160,
-      renderCell: (params) => (
-        <Button variant="outlined" color="secondary">
-          <Link
-            to={`/coach/${params.row.id}`}
-            style={{
-              color: 'inherit',
-              textDecoration: 'none',
-            }}
-          >
-            مشاهده و ویرایش
-          </Link>
-        </Button>
-      ),
-    },
-  ]
+    );
 
-  const handlePaginationModelChange = useCallback(
-    (newModel: GridPaginationModel) => {
-      setPaginationModel(newModel)
-    },
-    [],
-  )
+    const userFilters = [
+        // {
+        //     type: 'search',
+        //     queryParamKey: 'mobile',
+        //     label: 'موبایل بر اسسا'
+        // },
+        // {
+        //     type: 'search',
+        //     queryParamKey: 'mobile1',
+        //     label: 'موبایل بر اسسا'
+        // },
+        // {
+        //     type: 'search',
+        //     queryParamKey: 'mobile2',
+        //     label: 'موبایل بر اسسا'
+        // },
+        {
+            type: 'checkbox',
+            queryParamKey: 'isVerified',
+            label: 'کاربران فعال'
+        },
+        // {
+        //     type: 'checkbox',
+        //     queryParamKey: 'have_enrolled_course_session',
+        //     label: 'ثبت نام شده'
+        // },
+        // {
+        //     type: 'checkbox',
+        //     queryParamKey: 'have_wallet_amount',
+        //     label: 'کاربر با موجودی کیف پول'
+        // },
+        // {
+        //     type: 'options',
+        //     queryParamKey: 'role',
+        //     label: 'نقش کاربر',
+        //     options: ['admin', 'user', 'coach']
+        //   }
+    ];
 
-  const handleFilterModelChange = useCallback((newModel: GridFilterModel) => {
-    setFilterModel(newModel)
-  }, [])
+    return (
+        <GeneralList
+            useDataQuery={useGetAllCoaches}
+            filters={userFilters}
+            renderItem={renderUserItem}
+            title="مدیریت کاربران"
+            searchPlaceholder="جستجو بر اساس نام , شماره موبایل"
+            showDateFilter
+        />
+    );
+};
 
-  const handleSortModelChange = useCallback((newModel: GridSortModel) => {
-    setSortModel(newModel)
-  }, [])
-
-  const handleQuickFilterChange = useCallback(
-    debounce((value: string) => {
-      setDebouncedFilterValue(value)
-    }, 500),
-    [],
-  )
-
-  if (isLoading) return <div>در حال بارگذاری...</div>
-  if (isError) return <div>Error loading coaches</div>
-
-  return (
-    <div style={{ minHeight: 600, width: '100%' }}>
-      <StyledDataGrid
-        rows={coaches}
-        columns={columns}
-        rowCount={totalCount}
-        paginationModel={paginationModel}
-        onPaginationModelChange={handlePaginationModelChange}
-        filterModel={filterModel}
-        onFilterModelChange={handleFilterModelChange}
-        sortModel={sortModel}
-        onSortModelChange={handleSortModelChange}
-        pageSizeOptions={[10, 25, 50]}
-        disableRowSelectionOnClick
-        slots={{ toolbar: GridToolbar }}
-        slotProps={{
-          toolbar: {
-            quickFilterProps: { debounceMs: 500 },
-            showQuickFilter: true,
-          },
-        }}
-        onQuickFilterChange={(event) =>
-          handleQuickFilterChange(event.target.value)
-        }
-      />
-    </div>
-  )
-}
-
-export default CoachList
+export default CoachList;
