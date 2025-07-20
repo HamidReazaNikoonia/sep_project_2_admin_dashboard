@@ -1,14 +1,20 @@
 import { useParams } from 'react-router';
-import { Box, Typography, Paper as MuiPaper, CircularProgress, Chip, Avatar } from '@mui/material';
+import { Box, Typography, Paper as MuiPaper, CircularProgress, Chip, Avatar, Button, createTheme } from '@mui/material';
 import { useUserById } from '../../../API/Users/users.hook';
 import { useCitiesByProvinceId } from '../../../API/SiteInfo/siteInfo.hook';
 import StyledPaper from '../../../components/StyledPaper';
 import { useState, useEffect } from 'react';
+import { useGetAllCourseSessionsOfUser } from '../../../API/CourseSession/courseSession.hook';
 
+
+// components
+import EnrollmentsTable from './components/EnrollmentsTable';
 
 
 const SERVER_URL = process.env.REACT_APP_SERVER_URL;
 const SERVER_FILE = process.env.REACT_APP_SERVER_FILE;
+
+
 
 const UserSpecific = () => {
   const { user_id } = useParams<{ user_id: string }>();
@@ -23,12 +29,24 @@ const UserSpecific = () => {
   // State for province and city names
   const [provinceName, setProvinceName] = useState<string>('');
   const [cityName, setCityName] = useState<string>('');
+  
+  // State for showing course sessions
+  const [showCourseSessions, setShowCourseSessions] = useState<boolean>(false);
 
   // Fetch cities by province ID (only when user.province is available)
   const {
     data: provinceData,
     isLoading: isProvinceLoading
   } = useCitiesByProvinceId(user?.province?.toString() || '');
+
+  // Fetch course sessions when user clicks the button
+  const {
+    data: courseSessionsData,
+    isLoading: isLoadingCourseSessions,
+    isError: isErrorCourseSessions
+  } = useGetAllCourseSessionsOfUser(user_id!, {
+    enabled: showCourseSessions && !!user_id
+  });
 
   // Update province and city names when data is available
   useEffect(() => {
@@ -48,6 +66,9 @@ const UserSpecific = () => {
     }
   }, [provinceData, user]);
 
+  const handleShowCourseSessions = () => {
+    setShowCourseSessions(true);
+  };
 
 
   if (isLoading) {
@@ -323,6 +344,41 @@ const UserSpecific = () => {
             </div>
           </div>
         </div>
+
+
+        {/* User Course session */}
+        <div className='mt-8 px-2 md:px-6 py-6 border-t border-1 border-gray-400 rounded-lg'>
+          <div className='w-full '>
+            <Typography variant="h6" gutterBottom sx={{ mt: 1, mb: 2 }}>
+              کلاس های ثبت نام شده
+            </Typography>
+
+            <Button onClick={handleShowCourseSessions} variant="contained" color="primary">
+              نمایش کلاس ها
+            </Button>
+
+            {showCourseSessions && (
+              <div className='mt-4'>
+                {isLoadingCourseSessions ? 'در حال بارگذاری...' : (
+                  <div>
+                    <EnrollmentsTable enrollments={courseSessionsData?.course_session_program_enrollments} />
+                    {/* {courseSessionsData?.course_session_program_enrollments?.map((session: any) => (
+                      <div key={session?.program?._id}>
+                        a
+                        <Typography variant="subtitle2" color="textSecondary">
+                          {session?.program?.course?.title}
+                        </Typography>
+                      </div>
+                    ))} */}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+
+
+
       </div>
     </div>
   );

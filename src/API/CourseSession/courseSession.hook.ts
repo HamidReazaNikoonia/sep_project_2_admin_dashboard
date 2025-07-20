@@ -184,3 +184,11 @@ export const useCreateClassRoom = () => {
     },
   })
 }
+
+export const useGetAllCourseSessionsOfUser = (userId: string, options: { enabled: any }) => {
+  return useQuery({
+    queryKey: ['course-sessions-of-user', userId],
+    queryFn: () => courseSessionApi.getAllCourseSessionsOfUser(userId),
+    enabled: options?.enabled,
+  })
+}

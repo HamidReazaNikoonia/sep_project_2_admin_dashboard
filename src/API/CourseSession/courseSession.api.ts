@@ -152,6 +152,12 @@ const courseSessionApi = {
     const { data } = await axios.post(`admin/class-no`, requestData)
     return data
   },
+
+  // Get all course sessions (Program) of a user
+  getAllCourseSessionsOfUser: async (userId: string) => {
+    const { data } = await axios.get(`course-session/admin/program/${userId}`)
+    return data
+  },
 }
 
 export default courseSessionApi
