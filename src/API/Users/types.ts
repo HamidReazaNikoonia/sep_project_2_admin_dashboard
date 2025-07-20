@@ -14,6 +14,8 @@ export interface User {
   }
   
   export interface UserResponse {
+    mariage_status: any;
+    birth_date: string;
     province: string;
     father_name: string;
     age: string;
