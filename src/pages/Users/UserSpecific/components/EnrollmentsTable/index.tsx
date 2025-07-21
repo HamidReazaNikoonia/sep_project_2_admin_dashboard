@@ -1,6 +1,21 @@
 const EnrollmentsTable = ({ enrollments }: { enrollments: any[] }) => {
+    // Helper function to render status with appropriate styling
+    const renderStatus = (status: boolean | undefined, label: string) => {
+        if (status === undefined) return '---';
+        
+        return (
+            <span className={`px-2 py-1 rounded-full text-sm ${
+                status 
+                    ? 'bg-green-100 text-green-800' 
+                    : 'bg-red-100 text-red-800'
+            }`}>
+                {status ? label : `غیر ${label}`}
+            </span>
+        );
+    };
+
     return (
-      <div className="mt-8 overflow-x-auto rounded-xl" dir="rtl">
+      <div className="mt-8 overflow-x-auto rounded-xl shadow-xl" dir="rtl">
         <table className="w-full text-right border-collapse shadow-md ">
           {/* Table Header */}
           <thead className="bg-blue-500 text-white">
@@ -10,6 +25,9 @@ const EnrollmentsTable = ({ enrollments }: { enrollments: any[] }) => {
               <th className="p-3 font-bold">عنوان کلاس</th>
               <th className="p-3 font-bold">نوع دوره</th>
               <th className="p-3 font-bold">تاریخ شروع</th>
+              <th className="p-3 font-bold">وضعیت فعال</th>
+              <th className="p-3 font-bold">وضعیت اعتبار</th>
+              <th className="p-3 font-bold">وضعیت تکمیل</th>
             </tr>
           </thead>
           
@@ -18,7 +36,7 @@ const EnrollmentsTable = ({ enrollments }: { enrollments: any[] }) => {
             {enrollments?.map((session, index) => (
               <tr 
                 key={index}
-                className={`${index % 2 === 0 ? 'bg-gray-300' : 'bg-gray-400'} hover:bg-blue-50 transition-colors`}
+                className={`${index % 2 === 0 ? 'bg-gray-100' : 'bg-gray-200'} hover:bg-blue-50 transition-colors`}
               >
                 <td className="p-3 border-b border-gray-200">
                   {session?.program?.course?.title || '---'}
@@ -46,13 +64,22 @@ const EnrollmentsTable = ({ enrollments }: { enrollments: any[] }) => {
                     ? new Date(session.startedAt).toLocaleDateString('fa-IR') 
                     : '---'}
                 </td>
+                <td className="p-3 border-b border-gray-200">
+                  {renderStatus(session?.is_active, 'فعال')}
+                </td>
+                <td className="p-3 border-b border-gray-200">
+                  {renderStatus(session?.is_valid, 'معتبر')}
+                </td>
+                <td className="p-3 border-b border-gray-200">
+                  {renderStatus(session?.is_completed, 'تکمیل شده')}
+                </td>
               </tr>
             ))}
             
             {/* Empty State */}
             {enrollments?.length === 0 && (
               <tr>
-                <td colSpan="5" className="p-6 text-center text-gray-500">
+                <td colSpan="8" className="p-6 text-center text-gray-500">
                   هیچ دوره ای ثبت نام نشده است
                 </td>
               </tr>
@@ -62,6 +89,5 @@ const EnrollmentsTable = ({ enrollments }: { enrollments: any[] }) => {
       </div>
     );
   };
-
 
   export default EnrollmentsTable;

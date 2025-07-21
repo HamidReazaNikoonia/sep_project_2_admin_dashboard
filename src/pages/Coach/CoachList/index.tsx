@@ -44,14 +44,20 @@ const CoachList = () => {
                         <p className="text-sm text-gray-700">{user.mobile || 'N/A'}</p>
                     </div>
 
-                    {/* Row 4: Status + Actions */}
+                    {/* Row 4: coach_is_valid */}
+                    <div>
+                        <p className="text-xs text-gray-400">تایید استاد</p>
+                        <p className="text-sm text-gray-700">{user?.coach_is_valid ? 'تایید شده' : 'عدم تایید'}</p>
+                    </div>
+
+                    {/* Row 5: Status + Actions */}
                     <div className="flex justify-between items-center">
-                        <span className={`px-2 py-1 text-xs rounded-full ${user.isVerified ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                            {user.isVerified ? 'تایید شده' : 'عدم تایید'}
+                        <span className={`px-2 py-1 text-xs rounded-full ${user?.coach_is_valid ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                            {user?.coach_is_valid ? 'استاد تایید شده' : ' عدم تایید استاد '}
                         </span>
                         <div className="flex space-x-2">
                             <Link
-                                to={`/users/${user.id}/edit`}
+                                to={`/users/${user?.id}/edit`}
                                 className="px-2 py-1 text-sm text-blue-600 hover:bg-blue-50 rounded"
                             >
                                 تغییرات
@@ -79,8 +85,8 @@ const CoachList = () => {
                     </div>
 
                     <div className="col-span-2">
-                        <span className={`px-2 py-1 text-xs rounded-full ${user?.isVerified ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                            {user.isVerified ? 'تایید شده' : 'عدم تایید'}
+                        <span className={`px-2 py-1 text-xs rounded-full ${user?.coach_is_valid ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                            {user.coach_is_valid ? 'تایید استاد' : 'عدم تايید استاد'}
                         </span>
                     </div>
 
@@ -121,6 +127,16 @@ const CoachList = () => {
             queryParamKey: 'isVerified',
             label: 'کاربران فعال'
         },
+        {
+            type: 'checkbox',
+            queryParamKey: 'coach_is_valid',
+            label: 'استاد تایید شده'
+        },
+        {
+            type: 'checkbox',
+            queryParamKey: 'have_active_program',
+            label: 'دارای دوره فعال'
+        },
         // {
         //     type: 'checkbox',
         //     queryParamKey: 'have_enrolled_course_session',
@@ -131,12 +147,12 @@ const CoachList = () => {
         //     queryParamKey: 'have_wallet_amount',
         //     label: 'کاربر با موجودی کیف پول'
         // },
-        // {
-        //     type: 'options',
-        //     queryParamKey: 'role',
-        //     label: 'نقش کاربر',
-        //     options: ['admin', 'user', 'coach']
-        //   }
+        {
+            type: 'options',
+            queryParamKey: 'program_status',
+            label: 'وضعیت دوره',
+            options: ['active', 'inactive', 'completed']
+          }
     ];
 
     return (

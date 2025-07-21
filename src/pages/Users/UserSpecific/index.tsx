@@ -349,6 +349,8 @@ const UserSpecific = () => {
         {/* User Course session */}
         <div className='mt-8 px-2 md:px-6 py-6 border-t border-1 border-gray-400 rounded-lg'>
           <div className='w-full '>
+           <div className='flex justify-between items-center'>
+            
             <Typography variant="h6" gutterBottom sx={{ mt: 1, mb: 2 }}>
               کلاس های ثبت نام شده
             </Typography>
@@ -356,6 +358,7 @@ const UserSpecific = () => {
             <Button onClick={handleShowCourseSessions} variant="contained" color="primary">
               نمایش کلاس ها
             </Button>
+           </div>
 
             {showCourseSessions && (
               <div className='mt-4'>
