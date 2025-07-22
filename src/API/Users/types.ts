@@ -14,6 +14,7 @@ export interface User {
   }
   
   export interface UserResponse {
+    courseSessionsProgram: boolean;
     mariage_status: any;
     birth_date: string;
     province: string;

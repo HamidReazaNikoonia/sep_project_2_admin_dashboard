@@ -9,6 +9,7 @@ import { useGetAllCourseSessionsOfUser } from '../../../API/CourseSession/course
 
 // components
 import EnrollmentsTable from './components/EnrollmentsTable';
+import CoachCourseProgramList from './components/CoachCourseProgramList';
 
 
 const SERVER_URL = process.env.REACT_APP_SERVER_URL;
@@ -29,10 +30,10 @@ const UserSpecific = () => {
   // State for province and city names
   const [provinceName, setProvinceName] = useState<string>('');
   const [cityName, setCityName] = useState<string>('');
-  
+
   // State for showing course sessions
   const [showCourseSessions, setShowCourseSessions] = useState<boolean>(false);
-
+  const [showCoachPrograms, setShowCoachPrograms] = useState<boolean>(false);
   // Fetch cities by province ID (only when user.province is available)
   const {
     data: provinceData,
@@ -68,6 +69,10 @@ const UserSpecific = () => {
 
   const handleShowCourseSessions = () => {
     setShowCourseSessions(true);
+  };
+
+  const handleShowCoachPrograms = () => {
+    setShowCoachPrograms(true);
   };
 
 
@@ -347,38 +352,75 @@ const UserSpecific = () => {
 
 
         {/* User Course session */}
-        <div className='mt-8 px-2 md:px-6 py-6 border-t border-1 border-gray-400 rounded-lg'>
-          <div className='w-full '>
-           <div className='flex justify-between items-center'>
-            
-            <Typography variant="h6" gutterBottom sx={{ mt: 1, mb: 2 }}>
-              کلاس های ثبت نام شده
-            </Typography>
+        {user?.role === 'user' && (
+          <div className='mt-8 px-2 md:px-6 py-6 border-t border-1 border-gray-400 rounded-lg'>
+            <div className='w-full '>
+              <div className='flex justify-between items-center'>
 
-            <Button onClick={handleShowCourseSessions} variant="contained" color="primary">
-              نمایش کلاس ها
-            </Button>
-           </div>
+                <Typography variant="h6" gutterBottom sx={{ mt: 1, mb: 2 }}>
+                  کلاس های ثبت نام شده
+                </Typography>
 
-            {showCourseSessions && (
-              <div className='mt-4'>
-                {isLoadingCourseSessions ? 'در حال بارگذاری...' : (
-                  <div>
-                    <EnrollmentsTable enrollments={courseSessionsData?.course_session_program_enrollments} />
-                    {/* {courseSessionsData?.course_session_program_enrollments?.map((session: any) => (
-                      <div key={session?.program?._id}>
-                        a
-                        <Typography variant="subtitle2" color="textSecondary">
-                          {session?.program?.course?.title}
-                        </Typography>
-                      </div>
-                    ))} */}
-                  </div>
-                )}
+                <Button onClick={handleShowCourseSessions} variant="contained" color="primary">
+                  نمایش کلاس ها
+                </Button>
               </div>
-            )}
+
+              {showCourseSessions && (
+                <div className='mt-4'>
+                  {isLoadingCourseSessions ? 'در حال بارگذاری...' : (
+                    <div>
+                      <EnrollmentsTable enrollments={courseSessionsData?.course_session_program_enrollments} />
+                      {/* {courseSessionsData?.course_session_program_enrollments?.map((session: any) => (
+                     <div key={session?.program?._id}>
+                       a
+                       <Typography variant="subtitle2" color="textSecondary">
+                         {session?.program?.course?.title}
+                       </Typography>
+                     </div>
+                   ))} */}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
-        </div>
+        )}
+
+
+        {/* Coach Programs */}
+        {user?.role === 'coach' && user?.courseSessionsProgram && (
+          <div className='mt-8 px-2 md:px-6 py-6 border-t border-1 border-gray-400 rounded-lg'>
+            <div className='w-full '>
+              <div className='flex justify-between items-center'>
+
+                <Typography variant="h6" gutterBottom sx={{ mt: 1, mb: 2 }}>
+                  دوره های مربی
+                </Typography>
+
+                <Button onClick={handleShowCoachPrograms} variant="contained" color="primary">
+                  نمایش دوره ها
+                </Button>
+              </div>
+
+              {showCoachPrograms && (
+                <div className='mt-4'>
+                    <div>
+                      <CoachCourseProgramList programs={user?.courseSessionsProgram} />
+                      {/* {courseSessionsData?.course_session_program_enrollments?.map((session: any) => (
+                     <div key={session?.program?._id}>
+                       a
+                       <Typography variant="subtitle2" color="textSecondary">
+                         {session?.program?.course?.title}
+                       </Typography>
+                     </div>
+                   ))} */}
+                    </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
 
 
