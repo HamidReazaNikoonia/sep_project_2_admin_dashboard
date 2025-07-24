@@ -1,8 +1,10 @@
 import { useParams } from 'react-router';
 import { Box, Typography, Paper as MuiPaper, CircularProgress, Chip, Avatar, Button, createTheme } from '@mui/material';
 import { useUserById } from '../../../API/Users/users.hook';
+import VisibilityIcon from '@mui/icons-material/Visibility';
 import { useCitiesByProvinceId } from '../../../API/SiteInfo/siteInfo.hook';
-import StyledPaper from '../../../components/StyledPaper';
+import EditIcon from '@mui/icons-material/Edit';
+// import StyledPaper from '../../../components/StyledPaper';
 import { useState, useEffect } from 'react';
 import { useGetAllCourseSessionsOfUser } from '../../../API/CourseSession/courseSession.hook';
 
@@ -76,6 +78,7 @@ const UserSpecific = () => {
   };
 
 
+
   if (isLoading) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
@@ -107,19 +110,34 @@ const UserSpecific = () => {
     'F': 'زن'
   }
 
+
+  const userRoleTitleMap = {
+    coach: "مربی",
+    user: "کاربر",
+    admin: "ادمین"
+  }
+
   return (
-    <div className='bg-gray-200 pb-12 md:px-6 rounded-2xl' dir="rtl" >
+    <div className='bg-gray-200 pb-12 px-2 md:px-6 rounded-2xl' dir="rtl" >
+      <div className='flex justify-start pt-4' >
+        <Button href={`/users/${user?._id}`} variant="outlined" color="primary" startIcon={<EditIcon className='ml-4' />}>
+          عملیات
+        </Button>
+      </div>
       <div className='flex flex-col-reverse md:flex-row pt-6 justify-between items-center md:items-start w-full'>
         <div className='py-6 text-base md:text-4xl' >
-          جزئیات کاربر    <span className='text-green-800'> {`${user.first_name} ${user.last_name}`} </span>
+          جزئیات {userRoleTitleMap[user?.role as keyof typeof userRoleTitleMap]}    <span className='text-green-800 font-bold'> {`${user.first_name} ${user.last_name}`} </span>
         </div>
+
 
         <Avatar
           src={`${SERVER_FILE}/${user?.avatar?.file_name}`}
           alt={`${user.first_name} ${user.last_name}`}
-          sx={{ width: 160, height: 160, my: 1, mx: { xs: 0, md: 4 } }}
+          sx={{ width: 160, height: 160, my: 1, mx: { xs: 0, md: 4 }, border: '6px solid white', boxShadow: '0 0 10px 0 rgba(0, 0, 0, 0.1)' }}
         />
       </div>
+
+      
 
       <div className=''>
         <Box display="grid" gridTemplateColumns="1fr 1fr" gap={2}>
@@ -127,35 +145,44 @@ const UserSpecific = () => {
             <Typography variant="subtitle2" color="textSecondary">
               نام
             </Typography>
-            <Typography>{user.first_name}</Typography>
+            <Typography fontWeight={500}>{user.first_name}</Typography>
           </Box>
 
           <Box>
             <Typography variant="subtitle2" color="textSecondary">
               نام خانوادگی
             </Typography>
-            <Typography>{user.last_name}</Typography>
+            <Typography fontWeight={500}>{user.last_name}</Typography>
           </Box>
 
           <Box>
             <Typography variant="subtitle2" color="textSecondary">
-              ایمیل
+              کد دانشجویی
             </Typography>
-            <Typography>{user.email}</Typography>
+            <Typography fontWeight={500}>{user?.student_code || 'N/A'}</Typography>
           </Box>
 
           <Box>
             <Typography variant="subtitle2" color="textSecondary">
               شماره تلفن
             </Typography>
-            <Typography>{user.mobile || 'N/A'}</Typography>
+            <Typography fontWeight={500}>{user.mobile || 'N/A'}</Typography>
           </Box>
 
           <Box>
             <Typography variant="subtitle2" color="textSecondary">
               Role
             </Typography>
-            <Typography>{user.role}</Typography>
+            <Typography fontWeight={500}>{user.role}</Typography>
+          </Box>
+
+
+
+          <Box>
+            <Typography variant="subtitle2" color="textSecondary">
+              کد دعوت
+            </Typography>
+            <Typography fontWeight={500}>{user?.referral_code || 'N/A'}</Typography>
           </Box>
 
           {/* Add more user details as needed */}
@@ -173,42 +200,42 @@ const UserSpecific = () => {
                 <Typography variant="subtitle2" color="textSecondary">
                   نام پدر
                 </Typography>
-                <Typography>{user?.father_name || 'N/A'}</Typography>
+                <Typography fontWeight={500}>{user?.father_name || 'N/A'}</Typography>
               </Box>
 
               <Box>
                 <Typography variant="subtitle2" color="textSecondary">
                   سن
                 </Typography>
-                <Typography>{user?.age || 'N/A'}</Typography>
+                <Typography fontWeight={500}>{user?.age || 'N/A'}</Typography>
               </Box>
 
               <Box>
                 <Typography variant="subtitle2" color="textSecondary">
                   تاریخ تولد
                 </Typography>
-                <Typography>{user?.birth_date || 'N/A'}</Typography>
+                <Typography fontWeight={500}>{user?.birth_date || 'N/A'}</Typography>
               </Box>
 
               <Box>
                 <Typography variant="subtitle2" color="textSecondary">
                   وضعیت تاهل
                 </Typography>
-                <Typography>{user?.mariage_status ? 'متاهل' : 'مجرد'}</Typography>
+                <Typography fontWeight={500}>{user?.mariage_status ? 'متاهل' : 'مجرد'}</Typography>
               </Box>
 
               <Box>
                 <Typography variant="subtitle2" color="textSecondary">
                   جنسیت
                 </Typography>
-                <Typography>{(userGenderMap[user?.gender as keyof typeof userGenderMap] || 'N/A')}</Typography>
+                <Typography fontWeight={500}>{(userGenderMap[user?.gender as keyof typeof userGenderMap] || 'N/A')}</Typography>
               </Box>
 
               <Box>
                 <Typography variant="subtitle2" color="textSecondary">
                   شهر
                 </Typography>
-                <Typography>
+                <Typography fontWeight={500}>
                   {isProvinceLoading ? 'در حال بارگذاری...' : (cityName || user?.city || 'N/A')}
                 </Typography>
               </Box>
@@ -217,14 +244,14 @@ const UserSpecific = () => {
                 <Typography variant="subtitle2" color="textSecondary">
                   کشور
                 </Typography>
-                <Typography>{user?.country || 'N/A'}</Typography>
+                <Typography fontWeight={500}>{user?.country || 'N/A'}</Typography>
               </Box>
 
               <Box>
                 <Typography variant="subtitle2" color="textSecondary">
                   استان
                 </Typography>
-                <Typography>
+                <Typography fontWeight={500}>
                   {isProvinceLoading ? 'در حال بارگذاری...' : (provinceName || user?.province || 'N/A')}
                 </Typography>
               </Box>
@@ -233,7 +260,7 @@ const UserSpecific = () => {
                 <Typography variant="subtitle2" color="textSecondary">
                   کد ملی
                 </Typography>
-                <Typography>{user?.nationalId || 'N/A'}</Typography>
+                <Typography fontWeight={500}>{user?.nationalId || 'N/A'}</Typography>
               </Box>
 
               <Box>
@@ -366,6 +393,15 @@ const UserSpecific = () => {
                 </Button>
               </div>
 
+
+              {showCourseSessions && (
+                <Button href={`/programs?user=${user?._id}`} variant="outlined" color="primary" startIcon={<VisibilityIcon className='ml-4 text-gray-500' />}>
+                  <Typography textAlign="right" variant="subtitle2" color="textSecondary">
+                    نمایش کامل کلاس های این کاربر در قسمت مدیریت کلاس ها
+                  </Typography>
+                </Button>
+              )}
+
               {showCourseSessions && (
                 <div className='mt-4'>
                   {isLoadingCourseSessions ? 'در حال بارگذاری...' : (
@@ -403,11 +439,22 @@ const UserSpecific = () => {
                 </Button>
               </div>
 
+
+              {showCoachPrograms && (
+                <Button href={`/programs?coach=${user?._id}`} variant="outlined" color="primary">
+                  <Typography textAlign="right" variant="subtitle2" color="textSecondary">
+                    نمایش کامل دوره های این مربی در قسمت مدیریت کلاس ها
+                  </Typography>
+                </Button>
+              )}
+
+
+
               {showCoachPrograms && (
                 <div className='mt-4'>
-                    <div>
-                      <CoachCourseProgramList programs={user?.courseSessionsProgram} />
-                      {/* {courseSessionsData?.course_session_program_enrollments?.map((session: any) => (
+                  <div>
+                    <CoachCourseProgramList programs={user?.courseSessionsProgram} />
+                    {/* {courseSessionsData?.course_session_program_enrollments?.map((session: any) => (
                      <div key={session?.program?._id}>
                        a
                        <Typography variant="subtitle2" color="textSecondary">
@@ -415,7 +462,7 @@ const UserSpecific = () => {
                        </Typography>
                      </div>
                    ))} */}
-                    </div>
+                  </div>
                 </div>
               )}
             </div>

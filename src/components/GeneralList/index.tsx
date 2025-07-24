@@ -43,6 +43,7 @@ const List = ({
         const params = {
             page,
             limit,
+            sortBy: 'createdAt:desc',
         };
 
         // Add search query

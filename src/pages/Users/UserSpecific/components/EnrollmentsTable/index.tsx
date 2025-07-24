@@ -1,4 +1,19 @@
+import { useEffect, useState } from "react";
+
+    // Helper function to filter programs by status
+    const excludeProgramByStatus = (programs: any[], status: 'active' | 'inactive' | 'completed') => {
+      return programs.filter(program => program.status === status);
+  };
+
 const EnrollmentsTable = ({ enrollments }: { enrollments: any[] }) => {
+
+  const [selectedProgramStatus, setselectedPetprogramStatus] = useState('active');
+  const [filteredProgram, setFilteredProgram] = useState((enrollments && excludeProgramByStatus(enrollments, 'active')));
+
+  useEffect(() => {
+    setFilteredProgram(excludeProgramByStatus(enrollments, selectedProgramStatus as 'active' | 'inactive' | 'completed'));
+  }, [selectedProgramStatus]);
+
     // Helper function to render status with appropriate styling
     const renderStatus = (status: boolean | undefined, label: string) => {
         if (status === undefined) return '---';
@@ -16,6 +31,40 @@ const EnrollmentsTable = ({ enrollments }: { enrollments: any[] }) => {
 
     return (
       <div className="mt-8 overflow-x-auto rounded-xl shadow-xl" dir="rtl">
+
+        <div className="flex gap-4 mb-4 mr-2">
+          <label className="flex items-center space-x-2 cursor-pointer">
+            <input
+              type="checkbox" 
+              checked={selectedProgramStatus === 'active'}
+              onChange={() => setselectedPetprogramStatus('active')}
+              className="form-checkbox h-5 w-5 text-blue-600"
+            />
+            <span className="mr-2">فعال</span>
+          </label>
+
+          <label className="flex items-center space-x-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={selectedProgramStatus === 'inactive'} 
+              onChange={() => setselectedPetprogramStatus('inactive')}
+              className="form-checkbox h-5 w-5 text-blue-600"
+            />
+            <span className="mr-2">غیر فعال</span>
+          </label>
+
+
+          <label className="flex items-center space-x-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={selectedProgramStatus === 'completed'}
+              onChange={() => setselectedPetprogramStatus('completed')}
+              className="form-checkbox h-5 w-5 text-blue-600" 
+            />
+            <span className="mr-2">به اتمام رسیده</span>
+          </label>
+        </div>
+
         <table className="w-full text-right border-collapse shadow-md ">
           {/* Table Header */}
           <thead className="bg-blue-500 text-white">
@@ -33,7 +82,7 @@ const EnrollmentsTable = ({ enrollments }: { enrollments: any[] }) => {
           
           {/* Table Body */}
           <tbody>
-            {enrollments?.map((session, index) => (
+            {!!filteredProgram.length && filteredProgram?.map((session, index) => (
               <tr 
                 key={index}
                 className={`${index % 2 === 0 ? 'bg-gray-100' : 'bg-gray-200'} hover:bg-blue-50 transition-colors`}
@@ -77,9 +126,9 @@ const EnrollmentsTable = ({ enrollments }: { enrollments: any[] }) => {
             ))}
             
             {/* Empty State */}
-            {enrollments?.length === 0 && (
+            {filteredProgram?.length === 0 && (
               <tr>
-                <td colSpan="8" className="p-6 text-center text-gray-500">
+                <td colSpan={8} className="p-6 text-center text-gray-500">
                   هیچ دوره ای ثبت نام نشده است
                 </td>
               </tr>

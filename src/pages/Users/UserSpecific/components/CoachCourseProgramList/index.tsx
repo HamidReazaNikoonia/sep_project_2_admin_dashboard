@@ -1,10 +1,29 @@
+import Button from "@mui/material/Button";
+import { useEffect, useState } from "react";
+
+
+    // Helper function to filter programs by status
+    const excludeProgramByStatus = (programs: any[], status: 'active' | 'inactive' | 'completed') => {
+      return programs.filter(program => program.status === status);
+  };
+
 const CoachCourseProgramList = ({ programs }: { programs: any[] }) => {
 
-    // Helper get frist date from sessions
+const [selectedProgramStatus, setselectedPetprogramStatus] = useState('active');
+  const [filteredProgram, setFilteredProgram] = useState((programs && excludeProgramByStatus(programs, 'active')));
+  
+  useEffect(() => {
+    setFilteredProgram(excludeProgramByStatus(programs, selectedProgramStatus as 'active' | 'inactive' | 'completed'));
+  }, [selectedProgramStatus]);
+  
+  
+  
+  // Helper get frist date from sessions
     const getFirstProgramSessionDate = (sessions: any[]) => {
         return sessions.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())[0].date;
     }
 
+    
     // Helper function to render status with appropriate styling
     const renderStatus = (status: string | undefined) => {
         if (!status) return '---';
@@ -35,6 +54,39 @@ const CoachCourseProgramList = ({ programs }: { programs: any[] }) => {
 
     return (
       <div className="mt-8 overflow-x-auto rounded-xl shadow-xl" dir="rtl">
+
+        <div className="flex gap-4 mb-4 mr-2">
+          <label className="flex items-center space-x-2 cursor-pointer">
+            <input
+              type="checkbox" 
+              checked={selectedProgramStatus === 'active'}
+              onChange={() => setselectedPetprogramStatus('active')}
+              className="form-checkbox h-5 w-5 text-blue-600"
+            />
+            <span className="mr-2">فعال</span>
+          </label>
+
+          <label className="flex items-center space-x-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={selectedProgramStatus === 'inactive'} 
+              onChange={() => setselectedPetprogramStatus('inactive')}
+              className="form-checkbox h-5 w-5 text-blue-600"
+            />
+            <span className="mr-2">غیر فعال</span>
+          </label>
+
+          <label className="flex items-center space-x-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={selectedProgramStatus === 'completed'}
+              onChange={() => setselectedPetprogramStatus('completed')}
+              className="form-checkbox h-5 w-5 text-blue-600" 
+            />
+            <span className="mr-2">به اتمام رسیده</span>
+          </label>
+        </div>
+
         <table className="w-full text-right border-collapse shadow-md ">
           {/* Table Header */}
           <thead className="bg-blue-500 text-white">
@@ -46,12 +98,13 @@ const CoachCourseProgramList = ({ programs }: { programs: any[] }) => {
               <th className="p-3 font-bold">وضعیت فعال</th>
               <th className="p-3 font-bold">تعداد دانشجو</th>
               <th className="p-3 font-bold">تاریخ ایجاد</th>
+              <th className="p-3 font-bold">عملیات</th>
             </tr>
           </thead>
           
           {/* Table Body */}
           <tbody>
-            {programs?.map((session, index) => (
+            {!!filteredProgram.length && filteredProgram?.map((session, index) => (
               <tr 
                 key={index}
                 className={`${index % 2 === 0 ? 'bg-gray-100' : 'bg-gray-200'} hover:bg-blue-50 transition-colors`}
@@ -94,13 +147,19 @@ const CoachCourseProgramList = ({ programs }: { programs: any[] }) => {
                     ? session?.createdAt 
                     : '---'}
                 </td>
+
+                <td className="p-3 border-b border-gray-200">
+                  <Button href={`/programs/${session?.id}`} variant="outlined" color="primary">
+                    نمایش
+                  </Button>
+                </td>
               </tr>
             ))}
             
             {/* Empty State */}
-            {programs?.length === 0 && (
+            {filteredProgram?.length === 0 && (
               <tr>
-                <td colSpan="8" className="p-6 text-center text-gray-500">
+                <td colSpan={8} className="p-6 text-center text-gray-500">
                   هیچ دوره ای ثبت نام نشده است
                 </td>
               </tr>
