@@ -62,6 +62,20 @@ const courseSessionApi = {
     return data
   },
 
+  getAllCourseSessionPrograms: async (filters: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    first_name?: string;
+    last_name?: string;
+    role?: string;
+    mobile?: string;
+    sortBy?: string;
+  }): Promise<any> => {
+    const response = await axios.get('/course-session/admin/program', { params: filters });
+    return response?.data;
+  },
+
   // Update course
   getAllProgramsOFSpecificCourse: async (courseId: string) => {
     const { data } = await axios.get<{ course: any }>(

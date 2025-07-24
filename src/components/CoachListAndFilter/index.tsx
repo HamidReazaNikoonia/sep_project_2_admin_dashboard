@@ -62,7 +62,7 @@ const CoachListAndFilter: React.FC<CoachListAndFilterProps> = ({
       />
       <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
         {filteredCoaches &&
-          filteredCoaches.map((coach, idx) => {
+          filteredCoaches?.results.map((coach, idx) => {
             const selected = coach.id === selectedCurentCoach
             return (
               <React.Fragment key={coach.id}>

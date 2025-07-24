@@ -45,7 +45,8 @@ import NewCoach from './pages/Coach/NewCoach'
 import EditCourseSession from './pages/CourseSession/EditCourseSession'
 import ClassRoom from './pages/ClassRoom'
 import CouponList from './pages/Coupon/CouponList'
-
+import CourseSessionProgramList from './pages/CourseSessionProgram/CourseSessionProgramList'
+import CourseSessionProgramSpecific from './pages/CourseSessionProgram/CourseSessionProgramSpecific'
 
 import TestUserList from './pages/Users/UserList';
 
@@ -204,6 +205,22 @@ const router = createBrowserRouter(
       element: (
         <Layout>
           <CourseSessionPackages />
+        </Layout>
+      ),
+    },
+    {
+      path: '/course-session-program',
+      element: (
+        <Layout>
+          <CourseSessionProgramList />
+        </Layout>
+      ),
+    },
+    {
+      path: '/course-session-program/:id',
+      element: (
+        <Layout>
+          <CourseSessionProgramSpecific />
         </Layout>
       ),
     },

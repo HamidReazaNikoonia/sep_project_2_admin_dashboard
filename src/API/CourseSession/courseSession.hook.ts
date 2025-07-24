@@ -9,6 +9,25 @@ const CLASS_PROGRAM_SPECIFIC_COURSE_KEY =
   'class-program-specific-course-session'
 const COURSE_SESSION_PACKAGES = 'course-session-packages'
 
+
+// Query keys
+export const programsKeys = {
+  all: ['course-session-programs'] as const,
+  lists: () => [...programsKeys.all, 'list'] as const,
+  list: (filters: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    first_name?: string;
+    last_name?: string;
+    role?: string;
+    mobile?: string;
+    sortBy?: string;
+  }) => [...programsKeys.lists(), filters] as const,
+  details: () => [...programsKeys.all, 'detail'] as const,
+  detail: (id: number | string) => [...programsKeys.details(), id] as const,
+};
+
 // Hooks for courses
 export const useCourseSessions = (params?: {
   page?: number
@@ -71,6 +90,23 @@ export const useAssignCoachToCourseSession = (courseId: string) => {
     },
   })
 }
+
+// Get all Programs
+export const useGetAllCourseSessionPrograms = (filters: {
+  page?: number;
+  limit?: number;
+  search?: string;
+  first_name?: string;
+  last_name?: string;
+  role?: string;
+  mobile?: string;
+  sortBy?: string;
+}) => {
+  return useQuery<any>({
+    queryKey: programsKeys.list(filters),
+    queryFn: () => courseSessionApi.getAllCourseSessionPrograms(filters),
+  });
+};
 
 export const useGetAllProgramsOFSpecificCourse = (courseId: string) => {
   // const queryClient = useQueryClient();

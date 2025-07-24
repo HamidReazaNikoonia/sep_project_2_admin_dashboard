@@ -36,12 +36,14 @@ const Sidebar = ({ mobileOpen, handleDrawerToggle }) => {
     { text: 'لیست کاربران', icon: <People />, path: '/users' },
     { text: 'لیست محصولات', icon: <ShoppingCart />, path: '/products' },
     { text: 'لیست اساتید', icon: <PeopleOutline />, path: '/coach' },
-    { text: 'لیست دوره ها', icon: <School />, path: '/courses' },
+    { text: 'لیست آموزش ها', icon: <School />, path: '/courses' },
     { text: 'لیست کلاس ها', icon: <Class />, path: '/courses-sessions' },
     { text: 'لیست سفارش ها', icon: <Ballot />, path: '/orders' },
     { text: 'لیست تراکنش ها', icon: <Receipt />, path: '/transactions' },
     { text: 'کد تخفیف', icon: <Discount />, path: '/coupon' },
     { text: 'مدیریت کلاس ها ', icon: <Class />, path: '/class-room' },
+    { text: 'مدیریت دوره ها', icon: <School />, path: '/course-session-program' },
+
   ]
 
   return (
