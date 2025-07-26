@@ -22,4 +22,10 @@ export const usersApi = {
     const response = await api.get(`/users/${userId}`);
     return response.data;
   },
+
+  // Update user
+  updateUser: async (userId: string, userData: Partial<UserResponse>): Promise<UserResponse> => {
+    const response = await api.patch(`/users/${userId}`, userData);
+    return response.data;
+  },
 };

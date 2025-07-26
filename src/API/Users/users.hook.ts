@@ -1,6 +1,6 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { usersApi } from './users.api';
-import type { UserListResponse } from './types';
+import type { UserListResponse, UserResponse } from './types';
 
 // Query keys
 export const usersKeys = {
@@ -43,5 +43,21 @@ export const useUserById = (userId: string | number) => {
     queryKey: usersKeys.detail(userId.toString()),
     queryFn: () => usersApi.getUserById(userId.toString()),
     enabled: !!userId,
+  });
+};
+
+// Update user mutation
+export const useUpdateUser = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: ({ userId, userData }: { userId: string; userData: Partial<UserResponse> }) =>
+      usersApi.updateUser(userId, userData),
+    onSuccess: (data, variables) => {
+      // Invalidate and refetch user detail
+      queryClient.invalidateQueries({ queryKey: usersKeys.detail(variables.userId) });
+      // Invalidate users lists
+      queryClient.invalidateQueries({ queryKey: usersKeys.lists() });
+    },
   });
 };

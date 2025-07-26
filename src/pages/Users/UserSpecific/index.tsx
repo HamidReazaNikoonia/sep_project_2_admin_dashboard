@@ -12,6 +12,10 @@ import { useGetAllCourseSessionsOfUser } from '../../../API/CourseSession/course
 // components
 import EnrollmentsTable from './components/EnrollmentsTable';
 import CoachCourseProgramList from './components/CoachCourseProgramList';
+import { useOrders } from '@/API/Order/order.hook';
+import ClassIcon from '@mui/icons-material/Class';
+import PaidIcon from '@mui/icons-material/Paid';
+import ReceiptIcon from '@mui/icons-material/Receipt';
 
 
 const SERVER_URL = process.env.REACT_APP_SERVER_URL;
@@ -36,6 +40,8 @@ const UserSpecific = () => {
   // State for showing course sessions
   const [showCourseSessions, setShowCourseSessions] = useState<boolean>(false);
   const [showCoachPrograms, setShowCoachPrograms] = useState<boolean>(false);
+  const [showUserOrders, setShowUserOrders] = useState<boolean>(false);
+
   // Fetch cities by province ID (only when user.province is available)
   const {
     data: provinceData,
@@ -77,6 +83,10 @@ const UserSpecific = () => {
     setShowCoachPrograms(true);
   };
 
+  const handleShowUserOrders = () => {
+    setShowUserOrders(true);
+  };
+
 
 
   if (isLoading) {
@@ -107,7 +117,7 @@ const UserSpecific = () => {
 
   const userGenderMap = {
     'M': 'مرد',
-    'F': 'زن'
+    'W': 'زن'
   }
 
 
@@ -120,7 +130,7 @@ const UserSpecific = () => {
   return (
     <div className='bg-gray-200 pb-12 px-2 md:px-6 rounded-2xl' dir="rtl" >
       <div className='flex justify-start pt-4' >
-        <Button href={`/users/${user?._id}`} variant="outlined" color="primary" startIcon={<EditIcon className='ml-4' />}>
+        <Button href={`/users/${user?.id}/edit`} variant="outlined" color="primary" startIcon={<EditIcon className='ml-4' />}>
           عملیات
         </Button>
       </div>
@@ -137,7 +147,7 @@ const UserSpecific = () => {
         />
       </div>
 
-      
+
 
       <div className=''>
         <Box display="grid" gridTemplateColumns="1fr 1fr" gap={2}>
@@ -173,7 +183,18 @@ const UserSpecific = () => {
             <Typography variant="subtitle2" color="textSecondary">
               Role
             </Typography>
-            <Typography fontWeight={500}>{user.role}</Typography>
+            <Typography fontWeight={500}>
+            {userRoleTitleMap[user?.role as keyof typeof userRoleTitleMap]} 
+            </Typography>
+          </Box>
+
+          <Box>
+            <Typography variant="subtitle2" color="textSecondary">
+              موجودی کیف پول
+            </Typography>
+            <Typography fontWeight={500}>{(user?.wallet_amount ? user?.wallet_amount.toLocaleString('fa-IR') : 0)} <span className='text-xs text-gray-600'>
+              ریال
+            </span></Typography>
           </Box>
 
 
@@ -388,7 +409,7 @@ const UserSpecific = () => {
                   کلاس های ثبت نام شده
                 </Typography>
 
-                <Button onClick={handleShowCourseSessions} variant="contained" color="primary">
+                <Button startIcon={<ClassIcon className='ml-4' />} onClick={handleShowCourseSessions} variant="contained" color="primary">
                   نمایش کلاس ها
                 </Button>
               </div>
@@ -424,6 +445,7 @@ const UserSpecific = () => {
         )}
 
 
+
         {/* Coach Programs */}
         {user?.role === 'coach' && user?.courseSessionsProgram && (
           <div className='mt-8 px-2 md:px-6 py-6 border-t border-1 border-gray-400 rounded-lg'>
@@ -434,7 +456,7 @@ const UserSpecific = () => {
                   دوره های مربی
                 </Typography>
 
-                <Button onClick={handleShowCoachPrograms} variant="contained" color="primary">
+                <Button startIcon={<ClassIcon className='ml-4' />} onClick={handleShowCoachPrograms} variant="contained" color="primary">
                   نمایش دوره ها
                 </Button>
               </div>
@@ -468,6 +490,37 @@ const UserSpecific = () => {
             </div>
           </div>
         )}
+
+
+        {/* User Orders */}
+        <div className='mt-8 px-2 md:px-6 py-6 border-t border-1 border-gray-400 rounded-lg'>
+          <div className='w-full '>
+            <div className='flex justify-between items-center'>
+              <Typography variant="h6" gutterBottom sx={{ mt: 1, mb: 2 }}>
+                سفارشات
+              </Typography>
+
+              <Button startIcon={<ReceiptIcon className='ml-4' />} href={`/orders?user=${user?.id}`} onClick={handleShowUserOrders} variant="contained" color="primary">
+                نمایش سفارش ها
+              </Button>
+            </div>
+          </div>
+        </div>
+
+
+        <div className='mt-8 px-2 md:px-6 py-6 border-t border-1 border-gray-400 rounded-lg'>
+          <div className='w-full '>
+            <div className='flex justify-between items-center'>
+              <Typography variant="h6" gutterBottom sx={{ mt: 1, mb: 2 }}>
+                تراکنش ها
+              </Typography>
+
+              <Button startIcon={<PaidIcon className='ml-4' />} href={`/orders?user=${user?.id}`} onClick={handleShowUserOrders} variant="contained" color="primary">
+                نمایش تراکنش ها
+              </Button>
+            </div>
+          </div>
+        </div>
 
 
 
