@@ -1,4 +1,5 @@
 import { useParams } from 'react-router';
+import momentJalaali from 'moment-jalaali'
 import { Box, Typography, Paper as MuiPaper, CircularProgress, Chip, Avatar, Button, createTheme } from '@mui/material';
 import { useUserById } from '../../../API/Users/users.hook';
 import VisibilityIcon from '@mui/icons-material/Visibility';
@@ -86,6 +87,10 @@ const UserSpecific = () => {
   const handleShowUserOrders = () => {
     setShowUserOrders(true);
   };
+
+  const convertToJalaali = (date: string) => {
+    return momentJalaali(date).format('jYYYY/jMM/jDD').replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[d])
+  }
 
 
 
@@ -235,14 +240,21 @@ const UserSpecific = () => {
                 <Typography variant="subtitle2" color="textSecondary">
                   تاریخ تولد
                 </Typography>
-                <Typography fontWeight={500}>{user?.birth_date || 'N/A'}</Typography>
+                <Typography fontWeight={500}>
+                  {user?.birth_date ? convertToJalaali(user.birth_date) : 'N/A'}
+                </Typography>
               </Box>
 
               <Box>
                 <Typography variant="subtitle2" color="textSecondary">
                   وضعیت تاهل
                 </Typography>
-                <Typography fontWeight={500}>{user?.mariage_status ? 'متاهل' : 'مجرد'}</Typography>
+                <Typography fontWeight={500}>
+                  {user?.mariage_status === 'married' ? 'متاهل' : 
+                   user?.mariage_status === 'single' ? 'مجرد' :
+                   user?.mariage_status === 'widowed' ? 'بیوه' :
+                   user?.mariage_status === 'divorced' ? 'مطلقه' : 'N/A'}
+                </Typography>
               </Box>
 
               <Box>

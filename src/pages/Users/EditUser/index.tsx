@@ -78,6 +78,9 @@ const EditUser: React.FC = () => {
   // Add this to your component's state declarations
   const [birthDate, setBirthDate] = useState<any>(null);
 
+  // Add state for managing existing national card images
+  const [existingNationalCardImages, setExistingNationalCardImages] = useState<any[]>([]);
+
   // Set default values when user data is loaded
   useEffect(() => {
     if (user) {
@@ -86,27 +89,42 @@ const EditUser: React.FC = () => {
         last_name: user.last_name || '',
         father_name: user.father_name || '',
         mariage_status: user.mariage_status || '',
-        address: user.address || '',
+        address: (user as any).address || '',
         province: user.province || '',
         city: user.city || '',
         gender: user.gender || '',
         birth_date: user.birth_date || '',
         age: user.age || '',
-        tel: user.tel || '',
+        tel: (user as any).tel || '',
         nationalId: user.nationalId || '',
-        isVerified: user.isVerified || false,
+        isVerified: (user as any).isVerified || false,
         isNationalIdVerified: user.isNationalIdVerified || false,
-        wallet_amount: user.wallet?.amount || 0,
-        personal_img: user.personal_img?._id || '',
-        avatar: user.avatar?._id || '',
-        national_card_images: user?.national_card_images?.map((img: { _id: any; }) => img._id) || [],
+        wallet_amount: (user as any).wallet?.amount || (user as any).wallet_amount || 0,
+        personal_img: (user as any).personal_img?._id || '',
+        avatar: (user as any).avatar?._id || '',
+        national_card_images: Array.isArray((user as any).national_card_images) 
+          ? (user as any).national_card_images.map((img: { _id: any; }) => img._id) 
+          : [],
       });
-      // Add this useEffect to set initial birth date when user data loads
+      
+      // Initialize existing national card images
+      if ((user as any)?.national_card_images && Array.isArray((user as any).national_card_images)) {
+        setExistingNationalCardImages((user as any).national_card_images);
+      }
+      
+      // Set initial birth date when user data loads
       if (user?.birth_date) {
         setBirthDate(momentJalaali(user.birth_date));
       }
     }
   }, [user, reset]);
+
+  // Delete function for existing images
+  const handleDeleteExistingImage = (indexToDelete: number) => {
+    setExistingNationalCardImages(prev => 
+      prev.filter((_, index) => index !== indexToDelete)
+    );
+  };
 
   // File upload handler
   const uploadFile = async (file: File): Promise<any> => {
@@ -189,7 +207,7 @@ const EditUser: React.FC = () => {
       // data validation 
       // Validate wallet amount
       if (data.wallet_amount) {
-        const walletAmount = parseInt(data.wallet_amount, 10);
+        const walletAmount = Number(data.wallet_amount);
         if (walletAmount < 100000) {
           showToast('خطا', 'حداقل مقدار کیف پول باید ۱۰۰,۰۰۰ ریال باشد', 'error');
           return false;
@@ -199,6 +217,12 @@ const EditUser: React.FC = () => {
           return false;
         }
       }
+
+      // Combine existing (not deleted) and newly uploaded images
+      const allNationalCardImageIds = [
+        ...existingNationalCardImages.map(img => img._id),
+        ...nationalCardUploads.map(img => img._id)
+      ];
 
       // Create base update object
       const baseUpdateData = {
@@ -215,7 +239,7 @@ const EditUser: React.FC = () => {
         nationalId: data.nationalId,
         personal_img: data.personal_img,
         avatar: data.avatar,
-        national_card_images: data.national_card_images,
+        national_card_images: allNationalCardImageIds, // Use combined array
       };
 
       // Filter out empty values
@@ -237,7 +261,7 @@ const EditUser: React.FC = () => {
 
       // Handle wallet amount separately
       if (data.wallet_amount !== null && data.wallet_amount !== undefined && data.wallet_amount >= 0) {
-        updateData.wallet = data.wallet_amount ? parseInt(data.wallet_amount, 10) : 0 ;
+        updateData.wallet = data.wallet_amount ? Number(data.wallet_amount) : 0 ;
       }
 
       // Check if we have any data to update
@@ -747,6 +771,8 @@ const EditUser: React.FC = () => {
               <Typography variant="subtitle1" gutterBottom>
                 تصاویر کارت ملی
               </Typography>
+              
+              {/* Upload Section */}
               <Box sx={{ mb: 2 }}>
                 <input
                   type="file"
@@ -766,6 +792,7 @@ const EditUser: React.FC = () => {
                 </label>
               </Box>
               
+              {/* Selected Files for Upload */}
               {nationalCardFiles.length > 0 && (
                 <Box sx={{ mb: 2 }}>
                   <Typography variant="caption" gutterBottom>
@@ -794,18 +821,125 @@ const EditUser: React.FC = () => {
                 </Box>
               )}
 
-              {nationalCardUploads.length > 0 && (
-                <Box>
-                  <Typography variant="caption" gutterBottom>
-                    تصاویر آپلود شده:
+              {/* Display Existing National Card Images */}
+              {existingNationalCardImages.length > 0 && (
+                <Box sx={{ mb: 3 }}>
+                  <Typography variant="caption" gutterBottom sx={{ display: 'block', mb: 1 }}>
+                    تصاویر کارت ملی فعلی:
                   </Typography>
-                  <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+                  <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 2 }}>
+                    {existingNationalCardImages.map((image: any, index: number) => (
+                      <Box key={index} sx={{ 
+                        border: '2px solid #e0e0e0', 
+                        borderRadius: 2, 
+                        overflow: 'hidden',
+                        backgroundColor: '#fff',
+                        position: 'relative'
+                      }}>
+                        {/* Delete Button */}
+                        <IconButton
+                          sx={{
+                            position: 'absolute',
+                            top: 4,
+                            right: 4,
+                            backgroundColor: 'rgba(244, 67, 54, 0.8)',
+                            color: 'white',
+                            zIndex: 1,
+                            '&:hover': {
+                              backgroundColor: 'rgba(244, 67, 54, 1)',
+                            }
+                          }}
+                          size="small"
+                          onClick={() => handleDeleteExistingImage(index)}
+                        >
+                          <Delete fontSize="small" />
+                        </IconButton>
+                        
+                        <a 
+                          href={`${SERVER_FILE}/${image?.file_name}`} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          style={{ textDecoration: 'none' }}
+                        >
+                          <img 
+                            src={`${SERVER_FILE}/${image?.file_name}`}
+                            alt={`کارت ملی ${index + 1}`}
+                            style={{ 
+                              width: '100%', 
+                              height: '150px', 
+                              objectFit: 'cover',
+                              display: 'block'
+                            }}
+                          />
+                          <Box sx={{ p: 1, borderTop: '1px solid #e0e0e0' }}>
+                            <Typography 
+                              variant="caption" 
+                              sx={{ 
+                                fontSize: '0.75rem',
+                                color: '#666',
+                                wordBreak: 'break-all'
+                              }}
+                            >
+                              {image?.file_name}
+                            </Typography>
+                          </Box>
+                        </a>
+                      </Box>
+                    ))}
+                  </Box>
+                </Box>
+              )}
+
+              {/* Display Newly Uploaded Images */}
+              {nationalCardUploads.length > 0 && (
+                <Box sx={{ mb: 2 }}>
+                  <Typography variant="caption" gutterBottom sx={{ display: 'block', mb: 1 }}>
+                    تصاویر جدید آپلود شده:
+                  </Typography>
+                  <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 2 }}>
                     {nationalCardUploads.map((upload, index) => (
-                      <Chip
-                        key={index}
-                        label={`تصویر ${index + 1}`}
-                        color="success"
-                      />
+                      <Box key={index} sx={{ 
+                        border: '2px solid #4caf50', 
+                        borderRadius: 2, 
+                        overflow: 'hidden',
+                        backgroundColor: '#fff'
+                      }}>
+                        <a 
+                          href={`${SERVER_FILE}/${upload?.file_name}`} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          style={{ textDecoration: 'none' }}
+                        >
+                          <img 
+                            src={`${SERVER_FILE}/${upload?.file_name}`}
+                            alt={`تصویر جدید ${index + 1}`}
+                            style={{ 
+                              width: '100%', 
+                              height: '150px', 
+                              objectFit: 'cover',
+                              display: 'block'
+                            }}
+                          />
+                          <Box sx={{ p: 1, borderTop: '1px solid #4caf50', backgroundColor: '#f1f8e9' }}>
+                            <Typography 
+                              variant="caption" 
+                              sx={{ 
+                                fontSize: '0.75rem',
+                                color: '#2e7d32',
+                                wordBreak: 'break-all'
+                              }}
+                            >
+                              {upload?.file_name}
+                            </Typography>
+                            <Chip 
+                              label="جدید" 
+                              size="small" 
+                              color="success" 
+                              sx={{ ml: 1, height: '16px', fontSize: '0.6rem' }}
+                            />
+                          </Box>
+                        </a>
+                      </Box>
                     ))}
                   </Box>
                 </Box>
