@@ -26,6 +26,7 @@ import momentJalaali from 'moment-jalaali';
 import DatePicker from 'react-datepicker2'
 
 const SERVER_URL = process.env.REACT_APP_SERVER_URL;
+const SERVER_FILE = process.env.REACT_APP_SERVER_FILE;
 
 interface FormData {
   first_name: string;
@@ -576,11 +577,13 @@ const EditUser: React.FC = () => {
             </Grid>
 
             {/* Personal Image Upload */}
-            <Grid size={{ xs: 12, md: 6 }}>
-              <Typography variant="subtitle1" gutterBottom>
+            <div className="w-full flex flex-col md:flex-row items-center border-t py-12"  >
+              
+                <div className='w-full md:w-1/2 flex flex-col'>
+                <div className='text-sm md:text-base pb-4'>
                 تصویر شخصی
-              </Typography>
-              <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+              </div>
+             <div className='flex flex-col items-start md:flex-row gap-2 md:items-center'>
                 <input
                   type="file"
                   accept="image/*"
@@ -602,27 +605,67 @@ const EditUser: React.FC = () => {
                   </IconButton>
                 </label>
                 {fileUploads.personal_img.file && (
-                  <Typography variant="caption">
+                  <div className='text-[10px] md:text-sm'>
                     {fileUploads.personal_img.file.name}
-                  </Typography>
+                  </div>
                 )}
                 <Button
+                  sx={{pl: 2, mr:2}}
                   onClick={() => handleFileUpload('personal_img')}
                   disabled={!fileUploads.personal_img.file || fileUploads.personal_img.uploading}
                   variant="outlined"
                   size="small"
+                  startIcon={!fileUploads.personal_img.uploading && <Upload className='ml-2' />}
                 >
-                  {fileUploads.personal_img.uploading ? <CircularProgress size={20} /> : 'آپلود'}
+                  {fileUploads.personal_img.uploading ? <CircularProgress size={20} /> : 'آپلود فایل'}
                 </Button>
-              </Box>
-            </Grid>
+              </div></div>
+
+              <div className='pt-6 md:pt-0 flex items-center gap-4 md:gap-6'>
+             {user?.personal_img?.file_name && (
+               <div className="bg-white">
+                 <div className='text-center text-sm pb-2 md:text-base'>
+                   آواتار فعلی
+                 </div>
+                 <div className="w-24 h-24 md:w-32 md:h-32 rounded border-2 border-gray-400 overflow-hidden">
+                  <a href={`${SERVER_FILE}/${user?.personal_img?.file_name}`} target="_blank" rel="noopener noreferrer">
+                   <img 
+                     src={`${SERVER_FILE}/${user?.personal_img?.file_name}`}
+                     alt="User Avatar"
+                     className="w-full h-full object-cover"
+                   />
+                   </a>
+                 </div>
+               </div>
+             )}
+
+             {fileUploads.personal_img.uploadedFile && (
+               <div className="bg-white ">
+                 <div className='text-center text-sm pb-2 md:text-base'>
+                   تصویر شخصی جدید
+                 </div>
+                 <div className="w-24 h-24 md:w-32 md:h-32 rounded overflow-hidden">
+                   <a href={`${SERVER_FILE}/${fileUploads.personal_img.uploadedFile.file_name}`} target="_blank" rel="noopener noreferrer">
+                     <img
+                       src={`${SERVER_FILE}/${fileUploads.personal_img.uploadedFile.file_name}`}
+                       alt="New Avatar"
+                       className="w-full h-full object-cover"
+                     />
+                   </a>
+                 </div>
+               </div>
+             )}
+
+             </div>
+            </div>
 
             {/* Avatar Upload */}
-            <Grid size={{ xs: 12, md: 6 }}>
-              <Typography variant="subtitle1" gutterBottom>
+            <div className="w-full flex flex-col md:flex-row items-center border-y pt-4 pb-6"  >
+             <div className='w-full md:w-1/2'>
+             <Typography variant="subtitle1" gutterBottom>
                 آواتار
               </Typography>
-              <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+              <div className='flex flex-col items-start md:flex-row gap-2 md:items-center'>
                 <input
                   type="file"
                   accept="image/*"
@@ -644,20 +687,60 @@ const EditUser: React.FC = () => {
                   </IconButton>
                 </label>
                 {fileUploads.avatar.file && (
-                  <Typography variant="caption">
+                  <div className='text-[10px] md:text-sm'>
                     {fileUploads.avatar.file.name}
-                  </Typography>
+                  </div>
                 )}
                 <Button
+                  sx={{pl: 2, mr:2}}
                   onClick={() => handleFileUpload('avatar')}
                   disabled={!fileUploads.avatar.file || fileUploads.avatar.uploading}
                   variant="outlined"
                   size="small"
+                  startIcon={!fileUploads.avatar.uploading && <Upload className='ml-2' />}
                 >
-                  {fileUploads.avatar.uploading ? <CircularProgress size={20} /> : 'آپلود'}
+                  {fileUploads.avatar.uploading ? <CircularProgress size={20} /> : 'آپلود فایل'}
                 </Button>
-              </Box>
-            </Grid>
+              </div>
+             </div>
+
+             <div className='pt-6 md:pt-0 flex items-center gap-4 md:gap-6'>
+             {user?.avatar?.file_name && (
+               <div className="bg-white">
+                 <div className='text-center text-sm pb-2 md:text-base'>
+                   آواتار فعلی
+                 </div>
+                 <div className="w-24 h-24 md:w-32 md:h-32 rounded-full overflow-hidden">
+                  <a href={`${SERVER_FILE}/${user?.avatar?.file_name}`} target="_blank" rel="noopener noreferrer">
+                   <img 
+                     src={`${SERVER_FILE}/${user?.avatar?.file_name}`}
+                     alt="User Avatar"
+                     className="w-full h-full object-cover"
+                   />
+                   </a>
+                 </div>
+               </div>
+             )}
+
+             {fileUploads.avatar.uploadedFile && (
+               <div className="bg-white ">
+                 <div className='text-center text-sm pb-2 md:text-base'>
+                   آواتار جدید
+                 </div>
+                 <div className="w-24 h-24 md:w-32 md:h-32 rounded-full overflow-hidden">
+                   <a href={`${SERVER_FILE}/${fileUploads.avatar.uploadedFile.file_name}`} target="_blank" rel="noopener noreferrer">
+                     <img
+                       src={`${SERVER_FILE}/${fileUploads.avatar.uploadedFile.file_name}`}
+                       alt="New Avatar"
+                       className="w-full h-full object-cover"
+                     />
+                   </a>
+                 </div>
+               </div>
+             )}
+
+             </div>
+            </div>
 
             {/* National Card Images */}
             <Grid size={{ xs: 12 }}>
