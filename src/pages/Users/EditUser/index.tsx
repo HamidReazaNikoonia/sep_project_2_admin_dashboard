@@ -88,6 +88,9 @@ const EditUser: React.FC = () => {
   const { data: provinces, isLoading: provincesLoading } = useProvinces();
   const { data: citiesData, isLoading: citiesLoading } = useCitiesByProvinceId(selectedProvinceId);
 
+
+  const [isWalletEditing, setIsWalletEditing] = useState(true);
+
   const cities = citiesData?.cities || [];
 
   // Set default values when user data is loaded
@@ -583,9 +586,19 @@ const EditUser: React.FC = () => {
                     type="number"
                     fullWidth
                     variant="outlined"
+                    disabled={isWalletEditing}
                   />
                 )}
               />
+            <Box sx={{ mt: 1 }}>
+              <Button
+                variant="outlined"
+                size="small"
+                onClick={() => {setIsWalletEditing(!isWalletEditing)}}
+              >
+                ویرایش موجودی
+              </Button>
+            </Box>
             </Grid>
 
             <Grid size={{ xs: 12 }}>
