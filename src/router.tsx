@@ -50,6 +50,7 @@ import CourseSessionProgramList from './pages/CourseSessionProgram/CourseSession
 import CourseSessionProgramSpecific from './pages/CourseSessionProgram/CourseSessionProgramSpecific'
 
 import TestUserList from './pages/Users/UserList';
+import CreateUser from './pages/Users/CreateUser'
 
 const router = createBrowserRouter(
   [
@@ -70,6 +71,14 @@ const router = createBrowserRouter(
       element: (
         <Layout>
           <TestUserList />
+        </Layout>
+      ),
+    },
+    {
+      path: '/users/create',
+      element: (
+        <Layout>
+          <CreateUser />
         </Layout>
       ),
     },

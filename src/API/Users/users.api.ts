@@ -23,6 +23,12 @@ export const usersApi = {
     return response.data;
   },
 
+  // Create user
+  createUser: async (userData: Partial<UserResponse>): Promise<UserResponse> => {
+    const response = await api.post('/users', userData);
+    return response.data;
+  },
+
   // Update user
   updateUser: async (userId: string, userData: Partial<UserResponse>): Promise<UserResponse> => {
     const response = await api.patch(`/users/${userId}`, userData);

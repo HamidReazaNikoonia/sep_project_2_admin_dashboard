@@ -46,6 +46,20 @@ export const useUserById = (userId: string | number) => {
   });
 };
 
+// Create user mutation
+export const useCreateUser = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: (userData: Partial<UserResponse>) =>
+      usersApi.createUser(userData),
+    onSuccess: () => {
+      // Invalidate users lists to refetch with new user
+      queryClient.invalidateQueries({ queryKey: usersKeys.lists() });
+    },
+  });
+};
+
 // Update user mutation
 export const useUpdateUser = () => {
   const queryClient = useQueryClient();

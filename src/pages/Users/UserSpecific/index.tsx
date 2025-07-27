@@ -174,7 +174,7 @@ const UserSpecific = () => {
             <Typography variant="subtitle2" color="textSecondary">
               کد دانشجویی
             </Typography>
-            <Typography fontWeight={500}>{user?.student_code || 'N/A'}</Typography>
+            <Typography fontWeight={500}>{user?.student_id || 'N/A'}</Typography>
           </Box>
 
           <Box>
