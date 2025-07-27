@@ -20,6 +20,7 @@ import {
 } from '@mui/material';
 import { PhotoCamera, Delete, Upload } from '@mui/icons-material';
 import { useUserById, useUpdateUser } from '../../../API/Users/users.hook';
+import { useProvinces, useCitiesByProvinceId } from '../../../API/SiteInfo/siteInfo.hook';
 import { useForm, Controller } from 'react-hook-form';
 import { showToast } from '../../../utils/toast'
 import momentJalaali from 'moment-jalaali';
@@ -34,8 +35,6 @@ interface FormData {
   father_name: string;
   mariage_status: string;
   address: string;
-  province: string;
-  city: string;
   gender: string;
   birth_date: string;
   age: string;
@@ -81,6 +80,16 @@ const EditUser: React.FC = () => {
   // Add state for managing existing national card images
   const [existingNationalCardImages, setExistingNationalCardImages] = useState<any[]>([]);
 
+  // Add province and city state
+  const [selectedProvinceId, setSelectedProvinceId] = useState<string>('');
+  const [selectedCityId, setSelectedCityId] = useState<string>('');
+
+  // Add hooks for provinces and cities
+  const { data: provinces, isLoading: provincesLoading } = useProvinces();
+  const { data: citiesData, isLoading: citiesLoading } = useCitiesByProvinceId(selectedProvinceId);
+
+  const cities = citiesData?.cities || [];
+
   // Set default values when user data is loaded
   useEffect(() => {
     if (user) {
@@ -90,8 +99,6 @@ const EditUser: React.FC = () => {
         father_name: user.father_name || '',
         mariage_status: user.mariage_status || '',
         address: (user as any).address || '',
-        province: user.province || '',
-        city: user.city || '',
         gender: user.gender || '',
         birth_date: user.birth_date || '',
         age: user.age || '',
@@ -112,18 +119,45 @@ const EditUser: React.FC = () => {
         setExistingNationalCardImages((user as any).national_card_images);
       }
       
+      // Initialize province and city
+      if (user.province) {
+        // Find province ID by name
+        const foundProvince = provinces?.find(p => p.id === user.province);
+        if (foundProvince) {
+          setSelectedProvinceId(foundProvince.id.toString());
+        }
+      }
+      
+      if (user.city) {
+        // Find city ID by name when cities are loaded
+        const foundCity = cities?.find(c => c.id === user.city);
+        if (foundCity) {
+          setSelectedCityId(foundCity.id.toString());
+        }
+      }
+      
       // Set initial birth date when user data loads
       if (user?.birth_date) {
         setBirthDate(momentJalaali(user.birth_date));
       }
     }
-  }, [user, reset]);
+  }, [user, reset, provinces]);
 
   // Delete function for existing images
   const handleDeleteExistingImage = (indexToDelete: number) => {
     setExistingNationalCardImages(prev => 
       prev.filter((_, index) => index !== indexToDelete)
     );
+  };
+
+  // Add after the existing handleDeleteExistingImage function
+  const handleProvinceChange = (provinceId: string) => {
+    setSelectedProvinceId(provinceId);
+    setSelectedCityId(''); // Reset city when province changes
+  };
+
+  const handleCityChange = (cityId: string) => {
+    setSelectedCityId(cityId);
   };
 
   // File upload handler
@@ -231,15 +265,13 @@ const EditUser: React.FC = () => {
         father_name: data.father_name,
         mariage_status: data.mariage_status,
         address: data.address,
-        province: data.province,
-        city: data.city,
         gender: data.gender,
         age: data.age,
         tel: data.tel,
         nationalId: data.nationalId,
         personal_img: data.personal_img,
         avatar: data.avatar,
-        national_card_images: allNationalCardImageIds, // Use combined array
+        national_card_images: allNationalCardImageIds,
       };
 
       // Filter out empty values
@@ -253,6 +285,21 @@ const EditUser: React.FC = () => {
       // Add birth_date if exists
       if (birthDate) {
         updateData.birth_date = birthDate.format('YYYY-MM-DD');
+      }
+
+      // Add province and city if selected
+      if (selectedProvinceId) {
+        const selectedProvince = provinces?.find(p => p.id.toString() === selectedProvinceId);
+        if (selectedProvince) {
+          updateData.province = selectedProvince.id;
+        }
+      }
+
+      if (selectedCityId) {
+        const selectedCity = cities?.find(c => c.id.toString() === selectedCityId);
+        if (selectedCity) {
+          updateData.city = selectedCity.id;
+        }
       }
 
       // Always include boolean fields
@@ -466,35 +513,39 @@ const EditUser: React.FC = () => {
             </Grid>
 
             <Grid size={{ xs: 12, md: 6 }}>
-              <Controller
-                name="province"
-                control={control}
-                defaultValue=""
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    label="استان"
-                    fullWidth
-                    variant="outlined"
-                  />
-                )}
-              />
+              <FormControl fullWidth>
+                <InputLabel>استان</InputLabel>
+                <Select 
+                  value={selectedProvinceId} 
+                  label="استان"
+                  onChange={(e) => handleProvinceChange(e.target.value)}
+                  disabled={provincesLoading}
+                >
+                  {provinces?.map((province) => (
+                    <MenuItem key={province.id} value={province.id.toString()}>
+                      {province.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
             </Grid>
 
             <Grid size={{ xs: 12, md: 6 }}>
-              <Controller
-                name="city"
-                control={control}
-                defaultValue=""
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    label="شهر"
-                    fullWidth
-                    variant="outlined"
-                  />
-                )}
-              />
+              <FormControl fullWidth>
+                <InputLabel>شهر</InputLabel>
+                <Select 
+                  value={selectedCityId} 
+                  label="شهر"
+                  onChange={(e) => handleCityChange(e.target.value)}
+                  disabled={!selectedProvinceId || citiesLoading}
+                >
+                  {cities?.map((city) => (
+                    <MenuItem key={city.id} value={city.id.toString()}>
+                      {city.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
             </Grid>
 
             {/* National ID and Verification */}
