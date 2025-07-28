@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import {
   Box,
@@ -24,6 +24,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { showToast } from '../../../utils/toast'
 import momentJalaali from 'moment-jalaali';
 import DatePicker from 'react-datepicker2'
+import PromptModal from '@/components/PromptModal';
 
 const SERVER_URL = process.env.REACT_APP_SERVER_URL;
 const SERVER_FILE = process.env.REACT_APP_SERVER_FILE;
@@ -46,6 +47,7 @@ interface FormData {
   wallet_amount: number;
   personal_img: string;
   avatar: string;
+  job_title: string;
   national_card_images: string[];
 }
 
@@ -80,6 +82,7 @@ const CreateUser: React.FC = () => {
       personal_img: '',
       avatar: '',
       national_card_images: [],
+      job_title: '',
     }
   });
 
@@ -106,6 +109,47 @@ const CreateUser: React.FC = () => {
   const { data: citiesData, isLoading: citiesLoading } = useCitiesByProvinceId(selectedProvinceId);
 
   const [isWalletEditing, setIsWalletEditing] = useState(true);
+
+
+  // Prompt Model
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [pendingAction, setPendingAction] = useState(null);
+
+
+  useEffect(() => {
+    if (createUserMutation.isError) {
+      // navigate('/users')
+      console.log('error')
+      console.log(createUserMutation.error)
+      if (createUserMutation.error?.response?.data?.message) {
+        showToast('خطا', createUserMutation.error?.response?.data?.message, 'error')
+      }
+    }
+    
+    
+  }, [createUserMutation.isError ])
+  
+
+  const kir = () => {
+    setIsWalletEditing(!isWalletEditing)
+  }
+
+  const handleDeleteUser = () => {
+    // Open modal with delete action
+    setPendingAction(() => kir);
+    setIsModalOpen(true);
+  };
+
+  const deleteUser = () => {
+    console.log("User deleted!");
+    // Your actual delete logic here
+  };
+
+  const handleConfirm = () => {
+    if (pendingAction) {
+      pendingAction();
+    }
+  };
 
   const provinces = (provincesData || []) as any[];
   const cities = (citiesData?.cities || []) as any[];
@@ -188,6 +232,14 @@ const CreateUser: React.FC = () => {
     }
   };
 
+
+  const checkStringEmpty = (value: string) => {
+    if (!value || value.trim() === '') {
+      return true;
+    }
+    return false;
+  }
+
   // Handle form submission
   const onSubmit = async (data: FormData) => {
     try {
@@ -228,6 +280,28 @@ const CreateUser: React.FC = () => {
         avatar: data.avatar,
         national_card_images: nationalCardUploads.map(img => img._id),
       };
+
+      // validation
+      if (!data.first_name || checkStringEmpty(data.first_name)) {
+        showToast('خطا', 'نام الزامی است', 'error');
+        return false;
+      }
+      if (!data.last_name || checkStringEmpty(data.last_name)) {
+        showToast('خطا', 'نام خانوادگی الزامی است', 'error');
+      }
+
+      if (!data.mobile || checkStringEmpty(data.mobile)) {
+        showToast('خطا', 'شماره موبایل الزامی است', 'error');
+        return false;
+      }
+
+      if (!data.nationalId || checkStringEmpty(data.nationalId)) {
+        showToast('خطا', 'کد ملی الزامی است', 'error');
+        return false;
+      }
+      
+      
+      
 
       // Filter out empty values
       const userData = Object.entries(baseUserData)
@@ -278,6 +352,7 @@ const CreateUser: React.FC = () => {
     }
   };
 
+  
   return (
     <Box sx={{ p: 3, maxWidth: 1200, mx: 'auto' }} dir='rtl'>
       <Paper sx={{ p: 3 }}>
@@ -431,6 +506,24 @@ const CreateUser: React.FC = () => {
               />
             </Grid>
 
+
+
+            <Grid size={{ xs: 12, md: 6 }}>
+              <Controller
+                name="job_title"
+                control={control}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    label="شغل"
+                    type="number"
+                    fullWidth
+                    variant="outlined"
+                  />
+                )}
+              />
+            </Grid>
+
             <Grid size={{ xs: 12, md: 6 }}>
               <Controller
                 name="role"
@@ -559,7 +652,7 @@ const CreateUser: React.FC = () => {
               <Button
                 variant="outlined"
                 size="small"
-                onClick={() => {setIsWalletEditing(!isWalletEditing)}}
+                onClick={handleDeleteUser}
               >
                 ویرایش موجودی
               </Button>
@@ -573,7 +666,7 @@ const CreateUser: React.FC = () => {
               <Box sx={{ 
                 '& .datepicker-input': {
                   width: '100%',
-                  padding: '15px',
+                  padding: '10px',
                   zIndex: 99999,
                   border: '1px solid rgba(0, 0, 0, 0.23)',
                   borderRadius: '4px',
@@ -777,7 +870,7 @@ const CreateUser: React.FC = () => {
                   }}
                 />
                 <label htmlFor="national_cards">
-                  <Button variant="outlined" component="span" startIcon={<Upload />}>
+                  <Button className='pl-2' variant="outlined" component="span" startIcon={<Upload className='ml-2' />}>
                     انتخاب تصاویر کارت ملی
                   </Button>
                 </label>
@@ -893,6 +986,17 @@ const CreateUser: React.FC = () => {
           </Grid>
         </form>
       </Paper>
+
+      {/* Prompt Modal for Wallet */}
+      <PromptModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onConfirm={handleConfirm}
+        title="تغییر یا افزایش موجودی کیف پول"
+        message="آیا می خواهید موجودی کیف پول را تغییر دهید؟"
+        confirmText="بلی"
+        cancelText="انصراف"
+      />
     </Box>
   );
 };

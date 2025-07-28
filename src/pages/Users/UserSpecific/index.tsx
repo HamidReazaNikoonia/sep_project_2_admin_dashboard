@@ -211,6 +211,17 @@ const UserSpecific = () => {
             <Typography fontWeight={500}>{user?.referral_code || 'N/A'}</Typography>
           </Box>
 
+
+          <Box>
+            <Typography variant="subtitle2" color="textSecondary">
+              وضعیت تایید کاربر
+            </Typography>
+            <span className={`px-4 py-1 text-xs font-bold rounded-full ${user?.isVerified ? 'bg-green-200 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                            {user.isVerified ? 'تایید شده' : 'عدم تایید'}
+                        </span>
+          </Box>
+
+
           {/* Add more user details as needed */}
         </Box>
 

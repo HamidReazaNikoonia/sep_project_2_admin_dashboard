@@ -2,6 +2,8 @@
 import { Link } from 'react-router'
 import GeneralList from "../../../components/GeneralList";
 import { useUsers } from '../../../API/Users/users.hook';
+import { Button } from '@mui/material';
+import { Add } from '@mui/icons-material';
 
 const UserList = () => {
 
@@ -127,18 +129,28 @@ const UserList = () => {
             queryParamKey: 'role',
             label: 'نقش کاربر',
             options: ['admin', 'user', 'coach']
-          }
+        }
     ];
 
     return (
-        <GeneralList
-            useDataQuery={useUsers}
-            filters={userFilters}
-            renderItem={renderUserItem}
-            title="مدیریت کاربران"
-            searchPlaceholder="جستجو بر اساس نام , شماره موبایل"
-            showDateFilter
-        />
+        <div className='w-full flex flex-col'>
+
+            <div className='flex justify-end items-center mb-8'>
+                <Button href="/users/create" variant="contained" color="primary">
+                    <Add className='mr-2' />
+                    افزودن کاربر جدید
+                </Button>
+            </div>
+
+            <GeneralList
+                useDataQuery={useUsers}
+                filters={userFilters}
+                renderItem={renderUserItem}
+                title="مدیریت کاربران"
+                searchPlaceholder="جستجو بر اساس نام , شماره موبایل"
+                showDateFilter
+            />
+        </div>
     );
 };
 
