@@ -48,6 +48,7 @@ const List = ({
         // Add search query
         if (debouncedSearchQuery) {
             params.search = debouncedSearchQuery;
+            delete params.search;
             // Also add 'q' for backward compatibility if needed
             params.q = debouncedSearchQuery;
         }

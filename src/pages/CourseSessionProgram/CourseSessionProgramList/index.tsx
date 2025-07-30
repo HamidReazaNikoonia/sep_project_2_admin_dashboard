@@ -205,24 +205,47 @@ const ProgramList = () => {
         // },
         {
             type: 'checkbox',
-            queryParamKey: 'isVerified',
-            label: 'کاربران فعال'
+            queryParamKey: 'is_fire_sale',
+            label: 'تخفیف دار'
         },
         {
             type: 'checkbox',
-            queryParamKey: 'have_enrolled_course_session',
+            queryParamKey: 'have_members',
             label: 'ثبت نام شده'
         },
         {
             type: 'checkbox',
-            queryParamKey: 'have_wallet_amount',
-            label: 'کاربر با موجودی کیف پول'
+            queryParamKey: 'is_have_capacity',
+            label: 'ظرفیت تکمیل شده'
+        },
+        {
+            type: 'checkbox',
+            queryParamKey: 'is_have_capacity_in_progress',
+            label: 'ظرفیت در حال تکمیل (بیشتر از 50%)'
+        },
+         {
+            type: 'checkbox',
+            queryParamKey: 'is_have_min_capacity',
+            label: 'ظرفیت در حال تکمیل (بیشتر از 20%)'
+        },
+
+        {
+            type: 'checkbox',
+            queryParamKey: 'is_have_min_capacity',
+            label: 'ظرفیت در حال تکمیل (بیشتر از 90%)'
+        },
+        
+        {
+            type: 'options',
+            queryParamKey: 'status',
+            label: 'وضعیت دوره',
+            options: ['active', 'completed', 'inactive']
         },
         {
             type: 'options',
-            queryParamKey: 'role',
-            label: 'نقش کاربر',
-            options: ['admin', 'user', 'coach']
+            queryParamKey: 'program_type',
+            label: 'نوع دوره',
+            options: ['ON-SITE', 'ONLINE']
         }
     ];
 
@@ -232,7 +255,7 @@ const ProgramList = () => {
             filters={userFilters}
             renderItem={renderUserItem}
             title="مدیریت کلاس ها"
-            searchPlaceholder="جستجو بر اساس نام , شماره موبایل"
+            searchPlaceholder="جستجو بر اساس نام استاد, دوره, کلاس"
             showDateFilter
         />
     );

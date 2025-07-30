@@ -14,6 +14,12 @@ export interface User {
   }
   
   export interface UserResponse {
+    isVerified: string;
+    student_id: string;
+    wallet_amount: any;
+    id: any;
+    referral_code: string;
+    student_code: string;
     courseSessionsProgram: boolean;
     mariage_status: any;
     birth_date: string;
