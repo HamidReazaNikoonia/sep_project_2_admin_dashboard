@@ -4,6 +4,9 @@ import ProgramGeneralList from "./components/List";
 import { useGetAllCourseSessionPrograms } from '@/API/CourseSession/courseSession.hook';
 import { findFirstSession } from '@/utils/helper';
 
+
+const SERVER_FILE = process.env.REACT_APP_SERVER_FILE
+
 const ProgramList = () => {
 
 
@@ -102,9 +105,26 @@ const ProgramList = () => {
                         <p className="text-sm font-medium mb-2">{program?.course?.title}</p>
                     </div>
 
-                    <div className="col-span-2">
-                        <p className='text-xs text-gray-500' >مربی </p>
-                        <p className="text-sm font-medium">{program?.coach?.first_name} - {program?.coach?.last_name}</p>
+                    <div className="col-span-3">
+                        <p className='text-xs text-gray-500 mb-2' >مربی </p>
+                        <div className="flex items-center gap-2">
+                            <div className="w-12 h-12 rounded-full overflow-hidden">
+                                {program?.coach?.avatar ? (
+                                    <img 
+                                        src={`${SERVER_FILE}/${program.coach?.avatar?.file_name}`} 
+                                        alt={`${program.coach.first_name} ${program.coach.last_name}`}
+                                        className="w-full h-full object-cover"
+                                    />
+                                ) : (
+                                    <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                                        <span className="text-gray-500 text-sm">
+                                            {program?.coach?.first_name?.[0]}{program?.coach?.last_name?.[0]}
+                                        </span>
+                                    </div>
+                                )}
+                            </div>
+                            <p className="text-sm font-medium">{program?.coach?.first_name} - {program?.coach?.last_name}</p>
+                        </div>
                         {/* <p className="text-xs text-gray-500">ID: {program.id}</p> */}
                     </div>
 
