@@ -49,7 +49,7 @@
     "@tiptap/extension-highlight": "^2.12.0",
     "@tiptap/extension-history": "^2.12.0",
     "@tiptap/extension-horizontal-rule": "^2.12.0",
-    "@tiptap/extension-image": "^2.12.0",
+    "@tiptap/extension-image": "^2.26.1",
     "@tiptap/extension-italic": "^2.12.0",
     "@tiptap/extension-link": "^2.12.0",
     "@tiptap/extension-list-item": "^2.12.0",
