@@ -108,6 +108,14 @@ export const useGetAllCourseSessionPrograms = (filters: {
   });
 };
 
+export const useGetCourseSessionProgramById = (id: string) => {
+  return useQuery({
+    queryKey: ['COURSE_SESSION_PROGRAM', id],
+    queryFn: () => courseSessionApi.getCourseSessionProgramById(id),
+    enabled: !!id,
+  })
+}
+
 export const useGetAllProgramsOFSpecificCourse = (courseId: string) => {
   // const queryClient = useQueryClient();
 
