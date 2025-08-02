@@ -633,10 +633,57 @@ export default function CourseSessionProgramSpecific() {
       case 'students':
         return (
           <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-2xl font-semibold text-gray-800 mb-4 border-b-2 border-gray-300 pb-2">
-              اطلاعات دانشجویان
+            <h2 className="text-2xl font-semibold text-gray-800 mb-4 border-b-2 border-indigo-500 pb-2">
+              لیست اعضا
             </h2>
-            <p className="text-gray-500">این بخش در حال تکمیل است...</p>
+            {data?.members && data.members.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {data.members.map((member: any) => (
+                  <div 
+                    key={member._id} 
+                    className="bg-gray-50 p-4 rounded-lg hover:shadow-md transition-shadow border"
+                  >
+                    <div className="flex items-center space-x-3 space-x-reverse">
+                      {/* Avatar */}
+                      <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0">
+                        {member.user?.avatar?.file_name ? (
+                          <img
+                            src={`${SERVER_FILE}/${member.user.avatar.file_name}`}
+                            alt={`${member.user.first_name} ${member.user.last_name}`}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-gray-300 flex items-center justify-center">
+                            <span className="text-gray-600 text-lg font-medium">
+                              {member.user.first_name?.[0]}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                      
+                      {/* Member Info */}
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-medium text-gray-800 truncate">
+                          {member.user.first_name} {member.user.last_name}
+                        </h3>
+                        {member.user.mobile && (
+                          <p className="text-sm text-gray-600 mt-1">
+                            {convertToPersianDigits(member.user.mobile)}
+                          </p>
+                        )}
+                        {member.enrolledAt && (
+                          <p className="text-xs text-gray-500 mt-1">
+                            تاریخ ثبت نام: {convertToPersianDigits(moment(member.enrolledAt).format('jYYYY/jM/jD'))}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-gray-500 text-center py-8">عضوی برای این برنامه ثبت نشده است</p>
+            )}
           </div>
         )
       default:
