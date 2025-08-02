@@ -116,6 +116,36 @@ export const useGetCourseSessionProgramById = (id: string) => {
   })
 }
 
+export const useGetProgramMembers = (id: string) => {
+  return useQuery({
+    queryKey: ['COURSE_SESSION_PROGRAM_MEMBERS', id],
+    queryFn: () => courseSessionApi.getProgramMembers(id),
+    enabled: !!id,
+  })
+}
+
+export const useCompleteProgramSession = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (data: { programId: string, sessionId: string, presentUsers: any[], description: string }) => courseSessionApi.completeProgram(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['COURSE_SESSION_PROGRAM'] })
+    },
+  })
+}
+
+export const useCancelProgramSession = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (data: { programId: string, sessionId: string }) => courseSessionApi.cancelProgram(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['COURSE_SESSION_PROGRAM'] })
+    },
+  })
+}
+
+
 export const useGetAllProgramsOFSpecificCourse = (courseId: string) => {
   // const queryClient = useQueryClient();
 

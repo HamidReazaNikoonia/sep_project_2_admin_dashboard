@@ -82,6 +82,23 @@ const courseSessionApi = {
     return response?.data;
   },
 
+
+  getProgramMembers: async (id: string): Promise<any> => {
+    const response = await axios.get(`/course-session/admin/program/${id}/members`);
+    return response?.data;
+  },
+
+  completeProgram: async ({ programId, sessionId, presentUsers, description }: { programId: string, sessionId: string, presentUsers: any[], description: string }): Promise<any> => {
+    const response = await axios.post(`/course-session/admin/program/${programId}/complete-session/${sessionId}`, { present_users: presentUsers, report_description: description });
+    return response?.data;
+  },
+
+  // Cancel program
+  cancelProgram: async ({ programId, sessionId }: { programId: string, sessionId: string }): Promise<any> => {
+    const response = await axios.post(`/course-session/admin/program/${programId}/cancel-session/${sessionId}`);
+    return response?.data;
+  },
+
   // Update course
   getAllProgramsOFSpecificCourse: async (courseId: string) => {
     const { data } = await axios.get<{ course: any }>(

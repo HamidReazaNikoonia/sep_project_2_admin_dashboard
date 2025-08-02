@@ -1,9 +1,12 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router'
-import { useGetCourseSessionProgramById } from '../../../API/CourseSession/courseSession.hook'
+import { useCancelProgramSession, useCompleteProgramSession, useGetCourseSessionProgramById } from '../../../API/CourseSession/courseSession.hook'
 import { Link } from 'react-router'
 import PromptModal from '@/components/PromptModal';
 import moment from 'moment-jalaali'
+import CompleteModal from '@/components/CompleteModal';
+import { showToast } from '@/utils/toast';
+import DetailModal from '@/components/DetailModal';
 
 const SERVER_FILE = process.env.REACT_APP_SERVER_FILE
 
@@ -21,6 +24,12 @@ const sessionStatusMap = {
   'cancelled': 'کنسل شده'
 } as const
 
+const sessionCancelMessage = {
+  'scheduled': 'آیا مطمئن هستید که می‌خواهید این جلسه را کنسل کنید؟ با کنسل کردن این جلسه به تمامی دانش جو ها پیام کنسل شدن ارسال خواهد شد و این عملیات بدون بازگشت است',
+  'completed': 'آیا مطمئن هستید که می‌خواهید این جلسه را کنسل کنید؟',
+  'cancelled': 'آیا مطمئن هستید که می‌خواهید این جلسه را کنسل کنید؟'
+} as const
+
 type SessionStatus = keyof typeof sessionStatusMap
 
 const getStatusColor = (status: SessionStatus) => {
@@ -30,7 +39,7 @@ const getStatusColor = (status: SessionStatus) => {
     case 'completed':
       return 'bg-green-100 text-green-800'
     case 'cancelled':
-      return 'bg-red-500 text-red-800'
+      return 'bg-red-200 text-red-800'
     default:
       return 'bg-gray-100 text-gray-800'
   }
@@ -42,9 +51,9 @@ const getStatusCardContainerColor = (status: SessionStatus) => {
     case 'scheduled':
       return 'bg-[#483d8b] text-white'
     case 'completed':
-      return 'bg-green-400 text-white'
+      return 'bg-green-500 text-white'
     case 'cancelled':
-      return 'bg-red-400 text-white'
+      return 'bg-red-500 text-white'
     default:
       return 'bg-gray-100 text-gray-800'
   }
@@ -56,12 +65,54 @@ interface SessionCardProps {
   endTime: string
   status: SessionStatus
   id: string
+  programId: string
 }
 
-const SessionCard: React.FC<SessionCardProps> = ({ date, startTime, endTime, status, id }) => {
+const SessionCard: React.FC<SessionCardProps> = ({ date, startTime, endTime, status, id, programId }) => {
   const [showCancelModal, setShowCancelModal] = useState(false)
-  const weekDay = moment(date, 'jYYYY/jM/jD').format('dddd')
+  const [showCompleteModal, setShowCompleteModal] = useState(false)
+  const [showDetailModal, setShowDetailModal] = useState(false)
   
+  // API Calls
+  const { mutate: completeProgramMutation, isSuccess: isCompleteProgramSuccess, isPending: isCompleteProgramLoading, isError: isCompleteProgramError } = useCompleteProgramSession()
+  const { mutate: cancelProgramMutation, isSuccess: isCancelProgramSuccess, isPending: isCancelProgramLoading, isError: isCancelProgramError } = useCancelProgramSession()
+  
+  // helpers var
+  const weekDay = moment(date, 'jYYYY/jM/jD').format('dddd');
+  const month = moment(date, 'jYYYY/jM/jD').format('jMMMM');
+  const day = moment(date, 'jYYYY/jM/jD').format('jD');
+
+
+  /**
+   * Complete Program Session Side Effect
+   */
+  useEffect(() => {
+    if (isCompleteProgramSuccess) {
+      showToast('success', 'جلسه با موفقیت تکمیل شد')
+    }
+  }, [isCompleteProgramSuccess])
+
+  useEffect(() => {
+    if (isCompleteProgramError) {
+      showToast('error', 'خطا در تکمیل جلسه')
+    }
+  }, [isCompleteProgramError])
+
+  /**
+   * Cancel Program Session Side Effect
+   */
+  useEffect(() => {
+    if (isCancelProgramSuccess) {
+      showToast('success', 'جلسه با موفقیت کنسل شد')
+    }
+  }, [isCancelProgramSuccess])
+
+  useEffect(() => {
+    if (isCancelProgramError) {
+      showToast('error', 'خطا در کنسل کردن جلسه')
+    }
+  }, [isCancelProgramError])
+
   // Convert date and times to Persian digits
   const persianDate = convertToPersianDigits(date)
   const persianStartTime = convertToPersianDigits(startTime)
@@ -74,22 +125,51 @@ const SessionCard: React.FC<SessionCardProps> = ({ date, startTime, endTime, sta
   const handleConfirmCancel = () => {
     // TODO: Implement cancel session mutation
     console.log('Cancelling session:', id)
-    // cancelSessionMutation.mutate(id)
+    cancelProgramMutation({
+      programId: programId,
+      sessionId: id
+    })
   }
 
   const handleCompleteSession = () => {
-    // TODO: Implement complete session functionality
-    console.log('Completing session:', id)
+    setShowCompleteModal(true)
+  }
+
+  const handleCompleteSubmit = (data: { presentUsers: string[], description: string }) => {
+    // TODO: Implement complete session mutation
+    console.log('Completing session with data:', {
+      sessionId: id,
+      ...data
+    })
+
+    completeProgramMutation({
+      programId: programId,
+      sessionId: id,
+      presentUsers: data.presentUsers,
+      description: data.description
+    })
+
+    setShowCompleteModal(false)
   }
 
   const handleViewDetails = () => {
     // TODO: Implement view details functionality
     console.log('Viewing details for session:', id)
+    setShowDetailModal(true)
+  }
+
+  // Loading state
+  if (isCompleteProgramLoading || isCancelProgramLoading) {
+    return (
+      <div className="flex justify-center items-center h-full">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    )
   }
   
   return (
     <>
-      <div className={`rounded-lg shadow-md p-4 relative ${getStatusCardContainerColor(status)}`}>
+      <div className={`rounded-lg shadow-md p-4 relative ${getStatusCardContainerColor(status)} ${status === 'cancelled' ? 'opacity-70' : ''}`}>
         {/* Status Badge */}
         <div className={`absolute left-3 top-3 px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(status)}`}>
           {sessionStatusMap[status]}
@@ -98,7 +178,7 @@ const SessionCard: React.FC<SessionCardProps> = ({ date, startTime, endTime, sta
         {/* Date and Week Day */}
         <div className="mt-6">
           <h3 className="text-lg font-semibold text-white">{persianDate}</h3>
-          <p className="text-sm text-gray-200 mt-1">{weekDay}</p>
+          <p className="text-sm text-gray-200 mt-1">{weekDay} - {(day && convertToPersianDigits(day)) || ''} {month}</p>
         </div>
 
         {/* Time Range */}
@@ -117,7 +197,7 @@ const SessionCard: React.FC<SessionCardProps> = ({ date, startTime, endTime, sta
             {status === 'scheduled' && (
               <button
                 onClick={handleCancelSession}
-                className="w-full px-3 py-2 text-sm font-medium text-red-100 border border-red-200 rounded-md hover:bg-red-600 cursor-pointer transition-colors"
+                className="w-full px-3 py-1.5 text-sm font-medium text-red-100 border border-red-200 rounded-md hover:bg-red-600 cursor-pointer transition-colors"
               >
                 کنسل کردن
               </button>
@@ -127,19 +207,21 @@ const SessionCard: React.FC<SessionCardProps> = ({ date, startTime, endTime, sta
             {status === 'scheduled' && (
               <button
                 onClick={handleCompleteSession}
-                className="w-full px-3 py-2 text-sm font-medium text-green-100  border border-green-200 rounded-md hover:bg-green-600 cursor-pointer transition-colors"
+                className="w-full px-3 py-1.5 text-sm font-medium text-green-100  border border-green-200 rounded-md hover:bg-green-600 cursor-pointer transition-colors"
               >
                 تکمیل
               </button>
             )}
 
             {/* Details Button - Always show */}
-            <button
-              onClick={handleViewDetails}
-              className="col-span-2 w-full px-3 py-2 text-sm font-medium text-blue-100 border border-blue-200 rounded-md hover:bg-blue-900 cursor-pointer transition-colors"
-            >
-              جزییات
-            </button>
+            {status === 'completed' && (
+              <button
+                onClick={handleViewDetails}
+                className="col-span-2 w-full px-3 py-1.5 text-sm font-medium text-blue-100 border border-blue-200 rounded-md hover:opacity-80 cursor-pointer transition-colors"
+              >
+                جزییات
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -150,9 +232,27 @@ const SessionCard: React.FC<SessionCardProps> = ({ date, startTime, endTime, sta
         onClose={() => setShowCancelModal(false)}
         onConfirm={handleConfirmCancel}
         title="کنسل کردن جلسه"
-        message="آیا مطمئن هستید که می‌خواهید این جلسه را کنسل کنید؟"
+        message={sessionCancelMessage[status]}
         confirmText="بله، کنسل کن"
         cancelText="انصراف"
+      />
+
+      {/* Complete Modal */}
+      <CompleteModal
+        isOpen={showCompleteModal}
+        onClose={() => setShowCompleteModal(false)}
+        onSubmit={handleCompleteSubmit}
+        programId={programId}
+      />
+
+      {/* Detail Modal */}
+      <DetailModal
+        isOpen={showDetailModal}
+        onClose={() => {
+          setShowDetailModal(false)
+        }}
+        sessionId={id}
+        programId={programId}
       />
     </>
   )
@@ -477,6 +577,8 @@ export default function CourseSessionProgramSpecific() {
           </div>
         )
       case 'schedule':
+        const cancelledSessions = data?.sessions?.filter(session => session.status === 'cancelled') || []
+        const otherSessions = data?.sessions?.filter(session => session.status !== 'cancelled') || []
         return (
           <div className="space-y-6">
             <div className="bg-white rounded-lg shadow-md p-6">
@@ -484,7 +586,7 @@ export default function CourseSessionProgramSpecific() {
                 جلسات دوره
               </h2>
               
-              {data?.sessions && data.sessions.length > 0 ? (
+              {otherSessions && otherSessions.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   {data.sessions.map((session: any) => (
                     <SessionCard
@@ -494,6 +596,7 @@ export default function CourseSessionProgramSpecific() {
                       startTime={session.startTime}
                       endTime={session.endTime}
                       status={session.status as SessionStatus}
+                      programId={data._id}
                     />
                   ))}
                 </div>
@@ -501,6 +604,30 @@ export default function CourseSessionProgramSpecific() {
                 <p className="text-gray-500 text-center py-8">هیچ جلسه‌ای برای این دوره تعریف نشده است</p>
               )}
             </div>
+
+
+      {/* Cancelled Sessions */}
+      {cancelledSessions.length > 0 && (
+        <div className="bg-white mt-8 rounded-lg shadow-md p-6">
+          <h2 className="text-2xl font-semibold text-red-800 mb-4 border-b-2 border-red-300 pb-2">
+            جلسات کنسل شده
+          </h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {cancelledSessions.map((session: any) => (
+              <SessionCard
+                key={session._id}
+                id={session._id}
+                date={session.date}
+                startTime={session.startTime}
+                endTime={session.endTime}
+                status={session.status as SessionStatus}
+                programId={data._id}
+              />
+            ))}
+          </div>
+        </div>
+      )}
           </div>
         )
       case 'students':
@@ -518,7 +645,7 @@ export default function CourseSessionProgramSpecific() {
   }
 
   return (
-    <div className="p-6 bg-[#dcdcdc] min-h-screen" dir="rtl">
+    <div className="p-2 md:p-6 bg-[#dcdcdc] min-h-screen" dir="rtl">
       {/* Tab Container */}
       <div className="max-w-6xl mx-auto">
         {/* Tab Headers */}
@@ -528,7 +655,7 @@ export default function CourseSessionProgramSpecific() {
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
               className={`
-                px-6 py-3 text-lg font-medium transition-colors duration-200
+                px-6 py-3 text-xs md:text-lg cursor-pointer font-medium transition-colors duration-200
                 ${activeTab === tab.id
                   ? 'text-blue-600 border-b-2 border-blue-600 -mb-[2px]'
                   : 'text-gray-600 hover:text-gray-800'

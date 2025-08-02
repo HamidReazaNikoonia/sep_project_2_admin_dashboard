@@ -24,6 +24,13 @@ export const validateIranianNationalId = (nationalId: string) => {
   return parseInt(nationalId[9], 10) === checkDigit;
 };
 
+// Persian digits conversion
+export const convertToPersianDigits = (text: string) => {
+  const persianDigits = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹']
+  return text.replace(/[0-9]/g, (d) => persianDigits[parseInt(d)])
+}
+
+
 
 export const findFirstSession = (sessions: any) => {
   if (!sessions || sessions.length === 0) {
