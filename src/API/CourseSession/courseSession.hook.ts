@@ -168,6 +168,37 @@ export const useDeleteCourseSession = () => {
   })
 }
 
+// Course Session Program Orders
+export const useGetAllCourseSessionProgramOrders = (filters: {
+  coach_id?: string,
+  course_id?: string,
+  program_id?: string,
+  class_id?: string,
+  user_id?: string,
+  order_status?: string,
+  payment_status?: string,
+  transaction_id?: string,
+  reference?: string,
+  is_have_package?: string,
+  with_coupon?: string,
+  with_discound?: string,
+  program_discounted?: string,
+  user_search?: string,
+  program_search?: string,
+  created_from_date?: string,
+  created_to_date?: string,
+  page?: number,
+  limit?: number,
+  sortBy?: string,
+  sortOrder?: string,
+  q?: string,
+}) => {
+  return useQuery({
+    queryKey: ['course-session-program-orders', filters],
+    queryFn: () => courseSessionApi.getAllCourseSessionProgramOrders(filters),
+  })
+}
+
 // Hooks for course categories
 export const useCourseSessionCategories = () => {
   return useQuery({

@@ -195,6 +195,35 @@ const courseSessionApi = {
     const { data } = await axios.get(`course-session/admin/program/${userId}`)
     return data
   },
+
+  // Course Session Program Order
+  getAllCourseSessionProgramOrders: async (filters: {
+    coach_id?: string,
+    course_id?: string,
+    program_id?: string,
+    class_id?: string,
+    user_id?: string,
+    order_status?: string,
+    payment_status?: string,
+    transaction_id?: string,
+    reference?: string,
+    is_have_package?: string,
+    with_coupon?: string,
+    with_discound?: string,
+    program_discounted?: string,
+    user_search?: string,
+    program_search?: string,
+    created_from_date?: string,
+    created_to_date?: string,
+    page?: number,
+    limit?: number,
+    sortBy?: string,
+    sortOrder?: string,
+    q?: string,
+  }) => {
+    const { data } = await axios.get(`course-session/admin/program-orders`, { params: filters });
+    return data;
+  },
 }
 
 export default courseSessionApi

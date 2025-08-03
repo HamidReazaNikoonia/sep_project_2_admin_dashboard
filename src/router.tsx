@@ -49,6 +49,10 @@ import CouponList from './pages/Coupon/CouponList'
 import CourseSessionProgramList from './pages/CourseSessionProgram/CourseSessionProgramList'
 import CourseSessionProgramSpecific from './pages/CourseSessionProgram/CourseSessionProgramSpecific'
 
+
+// Course Session Program Orders
+import CourseSessionProgramOrdersList from './pages/CourseSessionProgramOrder/ProgramOrderList';
+
 import TestUserList from './pages/Users/UserList';
 import CreateUser from './pages/Users/CreateUser'
 
@@ -239,6 +243,14 @@ const router = createBrowserRouter(
       element: (
         <Layout>
           <CourseSessionProgramSpecific />
+        </Layout>
+      ),
+    },
+    {
+      path: '/course-session-program/orders',
+      element: (
+        <Layout>
+          <CourseSessionProgramOrdersList />
         </Layout>
       ),
     },

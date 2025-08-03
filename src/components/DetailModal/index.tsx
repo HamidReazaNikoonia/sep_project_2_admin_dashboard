@@ -73,7 +73,7 @@ const DetailModal: React.FC<DetailModalProps> = ({
     }
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
+        <div style={{ zIndex: 999999 }} className="fixed inset-0 flex items-center justify-center">
             {/* Backdrop */}
             <div
                 className="absolute inset-0 bg-gray-300 opacity-80"

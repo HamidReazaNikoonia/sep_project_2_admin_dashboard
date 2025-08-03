@@ -72,11 +72,11 @@ const SessionCard: React.FC<SessionCardProps> = ({ date, startTime, endTime, sta
   const [showCancelModal, setShowCancelModal] = useState(false)
   const [showCompleteModal, setShowCompleteModal] = useState(false)
   const [showDetailModal, setShowDetailModal] = useState(false)
-  
+
   // API Calls
   const { mutate: completeProgramMutation, isSuccess: isCompleteProgramSuccess, isPending: isCompleteProgramLoading, isError: isCompleteProgramError } = useCompleteProgramSession()
   const { mutate: cancelProgramMutation, isSuccess: isCancelProgramSuccess, isPending: isCancelProgramLoading, isError: isCancelProgramError } = useCancelProgramSession()
-  
+
   // helpers var
   const weekDay = moment(date, 'jYYYY/jM/jD').format('dddd');
   const month = moment(date, 'jYYYY/jM/jD').format('jMMMM');
@@ -166,7 +166,7 @@ const SessionCard: React.FC<SessionCardProps> = ({ date, startTime, endTime, sta
       </div>
     )
   }
-  
+
   return (
     <>
       <div className={`rounded-lg shadow-md p-4 relative ${getStatusCardContainerColor(status)} ${status === 'cancelled' ? 'opacity-70' : ''}`}>
@@ -202,7 +202,7 @@ const SessionCard: React.FC<SessionCardProps> = ({ date, startTime, endTime, sta
                 کنسل کردن
               </button>
             )}
-            
+
             {/* Complete Button - Only show if session is scheduled */}
             {status === 'scheduled' && (
               <button
@@ -264,13 +264,13 @@ export default function CourseSessionProgramSpecific() {
   const [subjectsExpanded, setSubjectsExpanded] = useState(false)
   const [activeTab, setActiveTab] = useState<TabType>('general')
   const [expandedMembers, setExpandedMembers] = useState<Record<string, boolean>>({})
-  
+
   const { data, isLoading, isError, error } = useGetCourseSessionProgramById(id!)
 
   const getUserSessionStatus = (sessionId: string, userId: string) => {
     const session = data?.sessions?.find((s: any) => s._id === sessionId)
     if (!session?.attendance) return null
-    
+
     const userAttendance = session.attendance.find((att: any) => att.user._id === userId)
     return userAttendance?.status || null
   }
@@ -314,9 +314,12 @@ export default function CourseSessionProgramSpecific() {
 
   const tabs = [
     { id: 'general' as TabType, label: 'اطلاعات عمومی' },
-    { id: 'schedule' as TabType, label: 'اطلاعات زمانبندی' },
+    { id: 'schedule' as TabType, label: 'اطلاعات زمان بندی' },
     { id: 'students' as TabType, label: 'اطلاعات دانشجویان' },
   ]
+
+  const cancelledSessions = data?.sessions?.filter(session => session.status === 'cancelled') || []
+  const otherSessions = data?.sessions?.filter(session => session.status !== 'cancelled') || []
 
   const renderTabContent = () => {
     switch (activeTab) {
@@ -593,18 +596,16 @@ export default function CourseSessionProgramSpecific() {
           </div>
         )
       case 'schedule':
-        const cancelledSessions = data?.sessions?.filter(session => session.status === 'cancelled') || []
-        const otherSessions = data?.sessions?.filter(session => session.status !== 'cancelled') || []
         return (
           <div className="space-y-6">
             <div className="bg-white rounded-lg shadow-md p-6">
               <h2 className="text-2xl font-semibold text-gray-800 mb-4 border-b-2 border-gray-300 pb-2">
                 جلسات دوره
               </h2>
-              
+
               {otherSessions && otherSessions.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  {data.sessions.map((session: any) => (
+                  {otherSessions.map((session: any) => (
                     <SessionCard
                       key={session._id}
                       id={session._id}
@@ -622,28 +623,28 @@ export default function CourseSessionProgramSpecific() {
             </div>
 
 
-      {/* Cancelled Sessions */}
-      {cancelledSessions.length > 0 && (
-        <div className="bg-white mt-8 rounded-lg shadow-md p-6">
-          <h2 className="text-2xl font-semibold text-red-800 mb-4 border-b-2 border-red-300 pb-2">
-            جلسات کنسل شده
-          </h2>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {cancelledSessions.map((session: any) => (
-              <SessionCard
-                key={session._id}
-                id={session._id}
-                date={session.date}
-                startTime={session.startTime}
-                endTime={session.endTime}
-                status={session.status as SessionStatus}
-                programId={data._id}
-              />
-            ))}
-          </div>
-        </div>
-      )}
+            {/* Cancelled Sessions */}
+            {cancelledSessions.length > 0 && (
+              <div className="bg-white mt-8 rounded-lg shadow-md p-6">
+                <h2 className="text-2xl font-semibold text-red-800 mb-4 border-b-2 border-red-300 pb-2">
+                  جلسات کنسل شده
+                </h2>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {cancelledSessions.map((session: any) => (
+                    <SessionCard
+                      key={session._id}
+                      id={session._id}
+                      date={session.date}
+                      startTime={session.startTime}
+                      endTime={session.endTime}
+                      status={session.status as SessionStatus}
+                      programId={data._id}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )
       case 'students':
@@ -657,7 +658,7 @@ export default function CourseSessionProgramSpecific() {
                 {data.members.map((member: any) => (
                   <div key={member._id} className="bg-gray-50 rounded-lg border">
                     {/* Member Header */}
-                    <div 
+                    <div
                       className="p-4 cursor-pointer hover:bg-gray-100 transition-colors"
                       onClick={() => toggleMemberAccordion(member._id)}
                     >
@@ -679,7 +680,7 @@ export default function CourseSessionProgramSpecific() {
                               </div>
                             )}
                           </div>
-                          
+
                           {/* Member Info */}
                           <div className="flex-1 min-w-0 mr-2 md:mr-4">
                             <h3 className="font-medium text-gray-800 truncate">
@@ -699,12 +700,11 @@ export default function CourseSessionProgramSpecific() {
                         </div>
 
                         {/* Accordion Arrow */}
-                        <svg 
-                          className={`w-5 h-5 transform transition-transform ${
-                            expandedMembers[member._id] ? 'rotate-180' : ''
-                          }`}
-                          fill="none" 
-                          stroke="currentColor" 
+                        <svg
+                          className={`w-5 h-5 transform transition-transform ${expandedMembers[member._id] ? 'rotate-180' : ''
+                            }`}
+                          fill="none"
+                          stroke="currentColor"
                           viewBox="0 0 24 24"
                         >
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -717,15 +717,15 @@ export default function CourseSessionProgramSpecific() {
                       <div className="px-4 pb-4">
                         <div className="bg-white rounded-lg p-4 border-t">
                           <h4 className="font-medium text-gray-700 mb-3">سوابق حضور و غیاب</h4>
-                          
+
                           {data?.sessions && data.sessions.length > 0 ? (
                             <div className="space-y-2">
                               {data.sessions.map((session: any) => {
                                 const userStatus = getUserSessionStatus(session._id, member.user._id)
-                                
+
                                 return (
-                                  <div 
-                                    key={session._id} 
+                                  <div
+                                    key={session._id}
                                     className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
                                   >
                                     {/* Session Info */}
