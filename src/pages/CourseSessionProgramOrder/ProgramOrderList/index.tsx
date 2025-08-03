@@ -118,7 +118,14 @@ const ProgramOrderList = () => {
                 {/* Desktop Layout (grid) */}
                 <div className="hidden md:grid grid-cols-12 items-center py-2">
                     <div className="col-span-3">
-                        <p className="font-medium">{order?.userId?.first_name} - {order?.userId?.last_name}</p>
+                        <div className="flex items-center gap-2">
+                            <img 
+                                src={order?.userId?.avatar ?`${SERVER_FILE}/${order?.userId?.avatar?.file_name}` : '/default-avatar.png'} 
+                                alt="User avatar"
+                                className="w-12 h-12 rounded-full object-cover"
+                            />
+                            <p className="font-medium">{order?.userId?.first_name} - {order?.userId?.last_name}</p>
+                        </div>
                         <p className="text-xs text-gray-500 pt-1">موبایل {order?.userId?.mobile ? convertToPersianDigits(order?.userId?.mobile) : 'N/A'}</p>
                         <p className="text-[11px] text-gray-400">ID: {order?.userId?.id}</p>
                     </div>
@@ -210,59 +217,10 @@ const ProgramOrderList = () => {
         </div>
     );
 
-    const userFilters = [
-        // {
-        //     type: 'search',
-        //     queryParamKey: 'mobile',
-        //     label: 'موبایل بر اسسا'
-        // },
-        // {
-        //     type: 'search',
-        //     queryParamKey: 'mobile1',
-        //     label: 'موبایل بر اسسا'
-        // },
-        // {
-        //     type: 'search',
-        //     queryParamKey: 'mobile2',
-        //     label: 'موبایل بر اسسا'
-        // },
-        {
-            type: 'checkbox',
-            queryParamKey: 'isVerified',
-            label: 'کاربران فعال'
-        },
-        {
-            type: 'checkbox',
-            queryParamKey: 'coach_is_valid',
-            label: 'استاد تایید شده'
-        },
-        {
-            type: 'checkbox',
-            queryParamKey: 'have_active_program',
-            label: 'دارای دوره فعال'
-        },
-        // {
-        //     type: 'checkbox',
-        //     queryParamKey: 'have_enrolled_course_session',
-        //     label: 'ثبت نام شده'
-        // },
-        // {
-        //     type: 'checkbox',
-        //     queryParamKey: 'have_wallet_amount',
-        //     label: 'کاربر با موجودی کیف پول'
-        // },
-        {
-            type: 'options',
-            queryParamKey: 'program_status',
-            label: 'وضعیت دوره',
-            options: ['active', 'inactive', 'completed']
-        }
-    ];
 
     return (
         <List
             useDataQuery={useGetAllCourseSessionProgramOrders}
-            filters={userFilters}
             renderItem={renderUserItem}
             title="مدیریت ثبت نام ها"
             searchPlaceholder="جستجو بر اساس نام , شماره موبایل"

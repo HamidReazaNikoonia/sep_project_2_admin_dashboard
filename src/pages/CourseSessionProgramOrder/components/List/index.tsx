@@ -2,19 +2,26 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router'
 import { useDebounce } from '../../../../hooks/useDebounce';
+import { useGetAllCoaches } from '../../../../API/Coach/coach.hook';
 import Accordion from '@mui/material/Accordion';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+// Add these MUI imports
+import { 
+    FormControl, 
+    InputLabel, 
+    Select, 
+    MenuItem, 
+    CircularProgress 
+} from '@mui/material';
 
 import DatePicker from 'react-datepicker2'
 import moment from 'moment-jalaali'
 
 const List = ({
     useDataQuery, // Replace apiUrl with custom hook
-    filters = [],
     renderItem,
-    searchPlaceholder,
     title,
     searchDebounceDelay = 500,
     showDateFilter = false
@@ -23,19 +30,41 @@ const List = ({
     const [page, setPage] = useState(1);
     const [limit] = useState(10);
 
-    // State for search and filters
-    const [searchQuery, setSearchQuery] = useState('');
-    const debouncedSearchQuery = useDebounce(searchQuery, searchDebounceDelay);
-    const [filterValues, setFilterValues] = useState({});
+    // State for search queries
+    const [userSearch, setUserSearch] = useState('');
+    const [programSearch, setProgramSearch] = useState('');
+    const [referenceSearch, setReferenceSearch] = useState('');
+    
+    // Debounced search values
+    const debouncedUserSearch = useDebounce(userSearch, searchDebounceDelay);
+    const debouncedProgramSearch = useDebounce(programSearch, searchDebounceDelay);
+    const debouncedReferenceSearch = useDebounce(referenceSearch, searchDebounceDelay);
 
-    // Add state for accordion
-    const [expanded, setExpanded] = useState(false);
+    // State for accordions
+    const [expandedCoach, setExpandedCoach] = useState(false);
+    const [expandedFilters, setExpandedFilters] = useState(false);
     const [expandedCreatedAtDate, setExpandedCreatedAtDate] = useState(false);
+
+    // State for filters
+    const [selectedCoachId, setSelectedCoachId] = useState('');
+    const [filterValues, setFilterValues] = useState({
+        is_have_package: false,
+        with_coupon: false,
+        with_discound: false,
+        program_discounted: false,
+        order_status: '',
+        payment_status: ''
+    });
 
     // State for date range
     const [dateRange, setDateRange] = useState({
         created_from_date: null,
         created_to_date: null
+    });
+
+    // Get coaches for the select dropdown
+    const { data: coachesData, isLoading: isLoadingCoaches } = useGetAllCoaches({
+        limit: 1000 // Get all coaches
     });
 
     // Build query parameters for the hook
@@ -46,16 +75,27 @@ const List = ({
             sortBy: 'createdAt:desc',
         };
 
-        // Add search query
-        if (debouncedSearchQuery) {
-            params.search = debouncedSearchQuery;
-            // Also add 'q' for backward compatibility if needed
-            params.q = debouncedSearchQuery;
+        // Add search queries
+        if (debouncedUserSearch) {
+            params.user_search = debouncedUserSearch;
+        }
+        if (debouncedProgramSearch) {
+            params.program_search = debouncedProgramSearch;
+        }
+        if (debouncedReferenceSearch) {
+            params.reference = debouncedReferenceSearch;
         }
 
-        // Add filters
+        // Add coach filter
+        if (selectedCoachId) {
+            params.coach_id = selectedCoachId;
+        }
+
+        // Add checkbox and select filters
         Object.entries(filterValues).forEach(([key, value]) => {
-            if (value !== '' && value !== false) {
+            if (typeof value === 'boolean' && value) {
+                params[key] = value;
+            } else if (typeof value === 'string' && value !== '') {
                 params[key] = value;
             }
         });
@@ -71,7 +111,7 @@ const List = ({
         }
 
         return params;
-    }, [page, limit, debouncedSearchQuery, filterValues, dateRange, showDateFilter]);
+    }, [page, limit, debouncedUserSearch, debouncedProgramSearch, debouncedReferenceSearch, selectedCoachId, filterValues, dateRange, showDateFilter]);
 
     // Use the custom hook passed as prop
     const { data: queryData, isLoading, error } = useDataQuery(queryParams);
@@ -91,72 +131,64 @@ const List = ({
         totalResults: 0,
     };
 
-    const handleAccordionChange = () => {
-        setExpanded(!expanded);
+    // Accordion handlers
+    const handleCoachAccordionChange = () => {
+        setExpandedCoach(!expandedCoach);
+    };
+
+    const handleFiltersAccordionChange = () => {
+        setExpandedFilters(!expandedFilters);
     };
 
     const handleCreatedAtAccordionChange = () => {
         setExpandedCreatedAtDate(!expandedCreatedAtDate);
     };
 
-    // Initialize filter values
-    useEffect(() => {
-        const initialFilters = {};
-        filters.forEach(filter => {
-            if (filter.type === 'checkbox') {
-                initialFilters[filter.queryParamKey] = false;
-            } else if (filter.type === 'options') {
-                initialFilters[filter.queryParamKey] = ''; // Default to empty (no selection)
-            } else {
-                initialFilters[filter.queryParamKey] = '';
-            }
-        });
-        setFilterValues(initialFilters);
-    }, [filters]);
-
     // Handle page change
     const handlePageChange = (newPage) => {
         setPage(newPage);
     };
 
-    // Handle search input change
-    const handleSearchChange = (e) => {
-        setSearchQuery(e.target.value);
-        // Reset to first page when searching
+    // Handle search input changes
+    const handleUserSearchChange = (e) => {
+        setUserSearch(e.target.value);
         setPage(1);
     };
 
-    // Handle filter change
+    const handleProgramSearchChange = (e) => {
+        setProgramSearch(e.target.value);
+        setPage(1);
+    };
+
+    const handleReferenceSearchChange = (e) => {
+        setReferenceSearch(e.target.value);
+        setPage(1);
+    };
+
+    // Handle filter changes
+    const handleCoachChange = (event) => {
+        setSelectedCoachId(event.target.value);
+        setPage(1);
+    };
+
     const handleFilterChange = (key, value) => {
         setFilterValues({
             ...filterValues,
             [key]: value,
         });
-        // Reset to first page when filtering
         setPage(1);
     };
 
     // Handle date range change
-    // const handleDateChange = (e) => {
-    //     const { name, value } = e.target;
-    //     setDateRange(prev => ({
-    //         ...prev,
-    //         [name]: value
-    //     }));
-    //     // Reset to first page when date changes
-    //     setData(prev => ({ ...prev, page: 1 }));
-    // };
-
     const handleDateChange = (name: string) => (date: any) => {
         setDateRange({
             ...dateRange,
             [name]: date,
         });
-        // Reset to first page when date changes
         setPage(1);
     }
 
-    // reset 
+    // Reset date range
     const resetDateRange = () => {
         setDateRange({
             created_from_date: null,
@@ -164,114 +196,267 @@ const List = ({
         })
     }
 
-    // Render filter inputs based on type
-    const renderFilterInput = (filter) => {
-        switch (filter.type) {
-            case 'search':
-                return (
-                    <input
-                        type="text"
-                        placeholder={`${filter.label || filter.queryParamKey}`}
-                        value={filterValues[filter.queryParamKey] || ''}
-                        onChange={(e) => handleFilterChange(filter.queryParamKey, e.target.value)}
-                        className="filter_on_list w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    />
-                );
-            case 'checkbox':
-                return (
-                    <div className="flex items-center">
-                        <input
-                            type="checkbox"
-                            checked={filterValues[filter.queryParamKey] || false}
-                            onChange={(e) => handleFilterChange(filter.queryParamKey, e.target.checked)}
-                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                        />
-                        <label className="mr-2 block text-sm text-gray-600">
-                            {filter.label || filter.queryParamKey}
-                        </label>
-                    </div>
-                );
-            case 'options':
-                return (
-                    <select
-                        dir='ltr'
-                        value={filterValues[filter.queryParamKey] || ''}
-                        onChange={(e) => handleFilterChange(filter.queryParamKey, e.target.value)}
-                        className="w-full p-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    >
-                        <option value="">All {filter.label || filter.queryParamKey}</option>
-                        {filter.options.map(option => (
-                            <option key={option} value={option}>
-                                {option}
-                            </option>
-                        ))}
-                    </select>
-                );
-            default:
-                return null;
-        }
-    };
-
     return (
         <div className="list-container flex flex-col gap-4">
             {/* Header and Search Section */}
             <div dir="rtl" className="list-header bg-white pb-12 pt-4 px-4 md:px-8 rounded-lg shadow">
                 <h2 className="text-xl font-semibold mb-8 pt-4">{title}</h2>
 
-                {/* General Search */}
-                <div className="mb-6">
-                    <label htmlFor="general-search" className="block text-sm md:text-base font-medium text-gray-700 mb-1">
-                        جستجو
-                    </label>
-                    <input
-                        id="general-search"
-                        type="text"
-                        placeholder={searchPlaceholder}
-                        value={searchQuery}
-                        onChange={handleSearchChange}
-                        className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    />
-                    {isLoading && debouncedSearchQuery !== searchQuery && (
-                        <p className="text-xs text-gray-500 mt-1">Typing...</p>
-                    )}
+                {/* Search Sections */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    {/* Student Search */}
+                    <div>
+                        <label htmlFor="user-search" className="block text-sm font-medium text-gray-600 mb-1">
+                            جستجو بر اساس نام و موبایل دانشجو
+                        </label>
+                        <input
+                            id="user-search"
+                            type="text"
+                            placeholder="نام یا شماره موبایل دانشجو..."
+                            value={userSearch}
+                            onChange={handleUserSearchChange}
+                            className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        />
+                    </div>
+
+                    {/* Coach Search */}
+                    <div>
+                        <label htmlFor="program-search" className="block text-sm font-medium text-gray-600 mb-1">
+                            جستجو بر اساس نام استاد و شماره موبایل
+                        </label>
+                        <input
+                            id="program-search"
+                            type="text"
+                            placeholder="نام یا شماره موبایل استاد..."
+                            value={programSearch}
+                            onChange={handleProgramSearchChange}
+                            className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        />
+                    </div>
+
+                    {/* Reference Search */}
+                    <div>
+                        <label htmlFor="reference-search" className="block text-sm font-medium text-gray-600 mb-1">
+                            جستجو بر اساس کد رهگیری
+                        </label>
+                        <input
+                            id="reference-search"
+                            type="text"
+                            placeholder="کد رهگیری..."
+                            value={referenceSearch}
+                            onChange={handleReferenceSearchChange}
+                            className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        />
+                    </div>
                 </div>
 
-                {/* Dynamic Filters */}
-                {filters.length > 0 && (
-                    <Accordion sx={{ backgroundColor: "#f0f0f0", boxShadow: "0px 10px 15px -3px rgba(0,0,0,0.1)" }} expanded={expanded} onChange={handleAccordionChange}>
-                        <AccordionSummary
-                            expandIcon={<ExpandMoreIcon />}
-                            aria-controls="filter-content"
-                            id="filter-header"
-                        >
-                            <h3 className="text-sm md:text-base font-medium text-gray-700">فیلتر</h3>
-                        </AccordionSummary>
-                        <AccordionDetails>
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                {filters.map((filter) => (
-                                    <div key={filter.queryParamKey} className="filter-item">
-                                        {(filter.label && filter.type !== 'checkbox') && (
-                                            <label htmlFor={`filter-${filter.queryParamKey}`} className="block text-sm text-gray-600 mb-1">
-                                                {filter.label}
-                                            </label>
-                                        )}
-                                        {renderFilterInput(filter)}
-                                    </div>
-                                ))}
+                {/* Coach Selection Accordion */}
+                <Accordion sx={{ backgroundColor: "#f0f0f0", boxShadow: "0px 10px 15px -3px rgba(0,0,0,0.1)", mb: 2 }} expanded={expandedCoach} onChange={handleCoachAccordionChange}>
+                    <AccordionSummary
+                        expandIcon={<ExpandMoreIcon />}
+                        aria-controls="coach-content"
+                        id="coach-header"
+                    >
+                        <h3 className="text-sm md:text-base font-medium text-gray-700">انتخاب استاد</h3>
+                    </AccordionSummary>
+                    <AccordionDetails>
+                        <div className="w-full">
+                            <FormControl fullWidth variant="outlined" size="medium">
+                                <InputLabel id="coach-select-label">انتخاب استاد</InputLabel>
+                                <Select
+                                    labelId="coach-select-label"
+                                    id="coach-select"
+                                    value={selectedCoachId}
+                                    onChange={handleCoachChange}
+                                    label="انتخاب استاد"
+                                    disabled={isLoadingCoaches}
+                                    dir="rtl"
+                                    sx={{
+                                        '& .MuiSelect-select': {
+                                            textAlign: 'right',
+                                        },
+                                        '& .MuiInputLabel-root': {
+                                            right: 14,
+                                            left: 'auto',
+                                            transformOrigin: 'top right',
+                                        },
+                                        '& .MuiInputLabel-shrink': {
+                                            transform: 'translate(-14px, -9px) scale(0.75)',
+                                        },
+                                    }}
+                                >
+                                    <MenuItem value="">
+                                        <em>همه استادها</em>
+                                    </MenuItem>
+                                    {isLoadingCoaches ? (
+                                        <MenuItem disabled>
+                                            <CircularProgress size={20} sx={{ mr: 1 }} />
+                                            در حال بارگذاری...
+                                        </MenuItem>
+                                    ) : (
+                                        coachesData?.results?.map((coach) => (
+                                            <MenuItem key={coach?.id} value={coach?.id}>
+                                                {coach?.first_name} {coach?.last_name}
+                                            </MenuItem>
+                                        ))
+                                    )}
+                                </Select>
+                            </FormControl>
+                        </div>
+                    </AccordionDetails>
+                </Accordion>
+
+                {/* Filters Accordion */}
+                <Accordion sx={{ backgroundColor: "#f0f0f0", boxShadow: "0px 10px 15px -3px rgba(0,0,0,0.1)", mb: 2 }} expanded={expandedFilters} onChange={handleFiltersAccordionChange}>
+                    <AccordionSummary
+                        expandIcon={<ExpandMoreIcon />}
+                        aria-controls="filters-content"
+                        id="filters-header"
+                    >
+                        <h3 className="text-sm md:text-base font-medium text-gray-700">فیلتر</h3>
+                    </AccordionSummary>
+                    <AccordionDetails>
+                        <div className="space-y-4">
+                            {/* Checkbox Filters */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="flex items-center">
+                                    <input
+                                        type="checkbox"
+                                        id="is_have_package"
+                                        checked={filterValues.is_have_package}
+                                        onChange={(e) => handleFilterChange('is_have_package', e.target.checked)}
+                                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                    />
+                                    <label htmlFor="is_have_package" className="mr-2 block text-sm text-gray-600">
+                                        ثبت نام های همراه با پیکیج (مدرک)
+                                    </label>
+                                </div>
+
+                                <div className="flex items-center">
+                                    <input
+                                        type="checkbox"
+                                        id="with_coupon"
+                                        checked={filterValues.with_coupon}
+                                        onChange={(e) => handleFilterChange('with_coupon', e.target.checked)}
+                                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                    />
+                                    <label htmlFor="with_coupon" className="mr-2 block text-sm text-gray-600">
+                                        ثبت نام با کد تخفیف
+                                    </label>
+                                </div>
+
+                                <div className="flex items-center">
+                                    <input
+                                        type="checkbox"
+                                        id="with_discound"
+                                        checked={filterValues.with_discound}
+                                        onChange={(e) => handleFilterChange('with_discound', e.target.checked)}
+                                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                    />
+                                    <label htmlFor="with_discound" className="mr-2 block text-sm text-gray-600">
+                                        ثبت نام های تخفیف دار
+                                    </label>
+                                </div>
+
+                                <div className="flex items-center">
+                                    <input
+                                        type="checkbox"
+                                        id="program_discounted"
+                                        checked={filterValues.program_discounted}
+                                        onChange={(e) => handleFilterChange('program_discounted', e.target.checked)}
+                                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                    />
+                                    <label htmlFor="program_discounted" className="mr-2 block text-sm text-gray-600">
+                                        کلاس های تخفیف خورده
+                                    </label>
+                                </div>
                             </div>
-                        </AccordionDetails>
-                    </Accordion>
-                )}
+
+                            {/* Select Filters */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t">
+                                {/* Order Status */}
+                                <div>
+                                    <FormControl fullWidth variant="outlined" size="medium">
+                                        <InputLabel id="order-status-label">وضعیت سفارش</InputLabel>
+                                        <Select
+                                            labelId="order-status-label"
+                                            id="order_status"
+                                            value={filterValues.order_status}
+                                            onChange={(e) => handleFilterChange('order_status', e.target.value)}
+                                            label="وضعیت سفارش"
+                                            dir="rtl"
+                                            sx={{
+                                                '& .MuiSelect-select': {
+                                                    textAlign: 'right',
+                                                },
+                                                '& .MuiInputLabel-root': {
+                                                    right: 14,
+                                                    left: 'auto',
+                                                    transformOrigin: 'top right',
+                                                },
+                                                '& .MuiInputLabel-shrink': {
+                                                    transform: 'translate(-14px, -9px) scale(0.75)',
+                                                },
+                                            }}
+                                        >
+                                            <MenuItem value="">
+                                                <em>همه</em>
+                                            </MenuItem>
+                                            <MenuItem value="pending">در انتظار</MenuItem>
+                                            <MenuItem value="completed">تکمیل شده</MenuItem>
+                                            <MenuItem value="cancelled">کنسل شده</MenuItem>
+                                        </Select>
+                                    </FormControl>
+                                </div>
+
+                                {/* Payment Status */}
+                                <div>
+                                    <FormControl fullWidth variant="outlined" size="medium">
+                                        <InputLabel id="payment-status-label">وضعیت پرداخت</InputLabel>
+                                        <Select
+                                            labelId="payment-status-label"
+                                            id="payment_status"
+                                            value={filterValues.payment_status}
+                                            onChange={(e) => handleFilterChange('payment_status', e.target.value)}
+                                            label="وضعیت پرداخت"
+                                            dir="rtl"
+                                            sx={{
+                                                '& .MuiSelect-select': {
+                                                    textAlign: 'right',
+                                                },
+                                                '& .MuiInputLabel-root': {
+                                                    right: 14,
+                                                    left: 'auto',
+                                                    transformOrigin: 'top right',
+                                                },
+                                                '& .MuiInputLabel-shrink': {
+                                                    transform: 'translate(-14px, -9px) scale(0.75)',
+                                                },
+                                            }}
+                                        >
+                                            <MenuItem value="">
+                                                <em>همه</em>
+                                            </MenuItem>
+                                            <MenuItem value="unpaid">پرداخت نشده</MenuItem>
+                                            <MenuItem value="paid">پرداخت شده</MenuItem>
+                                            <MenuItem value="refunded">بازگشت داده شده</MenuItem>
+                                        </Select>
+                                    </FormControl>
+                                </div>
+                            </div>
+                        </div>
+                    </AccordionDetails>
+                </Accordion>
 
                 {/* Date Range Filter Section */}
                 {showDateFilter && (
                     <Accordion sx={{ backgroundColor: "#f0f0f0", boxShadow: "0px 10px 15px -3px rgba(0,0,0,0.1)" }} expanded={expandedCreatedAtDate} onChange={handleCreatedAtAccordionChange}>
                         <AccordionSummary
                             expandIcon={<ExpandMoreIcon />}
-                            aria-controls="filter-content"
-                            id="filter-header"
+                            aria-controls="date-filter-content"
+                            id="date-filter-header"
                         >
-                            <h3 className="text-sm md:text-base font-medium text-gray-700">فیلتر بر اساس زمان </h3>
+                            <h3 className="text-sm md:text-base font-medium text-gray-700">فیلتر بر اساس زمان</h3>
                         </AccordionSummary>
                         <AccordionDetails>
                             <div className="date-filter-section mb-4 py-8 border px-4">
@@ -308,7 +493,7 @@ const List = ({
                                         />
                                     </div>
                                     <div>
-                                        <button type='button' className='text-sm  px-4 py-1 bg-purple-600 text-white rounded-sm' onClick={resetDateRange}>
+                                        <button type='button' className='text-sm px-4 py-1 bg-purple-600 text-white rounded-sm' onClick={resetDateRange}>
                                             حذف فیلتر تاریخ
                                         </button>
                                     </div>
@@ -353,7 +538,6 @@ const List = ({
                                         Previous
                                     </button>
                                     {Array.from({ length: Math.min(5, data.totalPages) }, (_, i) => {
-                                        // Show pages around current page
                                         let pageNum;
                                         if (data.totalPages <= 5) {
                                             pageNum = i + 1;
