@@ -77,13 +77,30 @@ const ProgramOrderList = () => {
                     </div>
 
                     {/* Row 4: coach_is_valid */}
-                    <div>
-                        <p className="text-xs text-gray-400">تایید استاد</p>
-                        <p className="text-sm text-gray-700">{order?.user?.coach_is_valid ? 'تایید شده' : 'عدم تایید'}</p>
+                    <div className='flex flex-row justify-between'>
+                    <p className="text-xs text-gray-400">هزینه پرداخت شده</p>
+                    <p className="text-xs text-gray-700">{order?.final_order_price ? (order?.final_order_price).toLocaleString('fa-IR') : '0'} ریال</p>
                     </div>
 
+                    {/* Status */}
+                    <div className='flex flex-row-reverse justify-between'>
+                            <div>
+                            <p className="text-xs mb-1 text-gray-400">وضعیت پرداخت</p>
+                        <span className={`px-2 py-1 text-xs rounded-full ${order?.paymentStatus === 'paid' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                            {order?.paymentStatus === 'paid' ? 'پرداخت شده' : 'پرداخت نشده'}
+                        </span>
+                            </div>
+
+                            <div>
+                            <p className="text-xs mb-1 text-gray-400">وضعیت ثبت نام</p>
+                        <span className={`px-2 py-1 text-xs rounded-full ${order?.orderStatus === 'pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'}`}>
+                            {order?.orderStatus === 'pending' ? 'درحال انتظار' : 'تایید شده'}
+                        </span>
+                            </div>
+                        </div>
+
                     {/* Row 5: Status + Actions */}
-                    <div className="flex justify-between items-center">
+                    {/* <div className="flex justify-between items-center">
                         <span className={`px-2 py-1 text-xs rounded-full ${order?.user?.coach_is_valid ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
                             {order?.user?.coach_is_valid ? 'استاد تایید شده' : ' عدم تایید استاد '}
                         </span>
@@ -95,7 +112,7 @@ const ProgramOrderList = () => {
                                 تغییرات
                             </Link>
                         </div>
-                    </div>
+                    </div> */}
                 </div>
 
                 {/* Desktop Layout (grid) */}
