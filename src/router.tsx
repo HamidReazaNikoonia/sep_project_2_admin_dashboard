@@ -52,9 +52,11 @@ import CourseSessionProgramSpecific from './pages/CourseSessionProgram/CourseSes
 
 // Course Session Program Orders
 import CourseSessionProgramOrdersList from './pages/CourseSessionProgramOrder/ProgramOrderList';
+import ProgramOrderSpecific from './pages/CourseSessionProgramOrder/ProgramOrderSpecific'
 
 import TestUserList from './pages/Users/UserList';
 import CreateUser from './pages/Users/CreateUser'
+
 
 const router = createBrowserRouter(
   [
@@ -251,6 +253,14 @@ const router = createBrowserRouter(
       element: (
         <Layout>
           <CourseSessionProgramOrdersList />
+        </Layout>
+      ),
+    },
+    {
+      path: '/course-session-program/orders/:order_id',
+      element: (
+        <Layout>
+          <ProgramOrderSpecific />
         </Layout>
       ),
     },

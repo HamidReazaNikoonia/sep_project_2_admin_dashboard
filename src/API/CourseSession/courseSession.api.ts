@@ -224,6 +224,11 @@ const courseSessionApi = {
     const { data } = await axios.get(`course-session/admin/program-orders`, { params: filters });
     return data;
   },
+
+  getCourseSessionProgramOrderById: async (orderId: string) => {
+    const { data } = await axios.get(`course-session/admin/program-orders/${orderId}`);
+    return data;
+  },
 }
 
 export default courseSessionApi

@@ -31,7 +31,7 @@ const ProgramOrderList = () => {
 
     const renderUserItem = (order) => (
         <div dir='rtl' key={order?.id} className="p-3 border-b hover:bg-gray-50">
-            <Link to={`/users/${order?.id}`} className="font-medium hover:opacity-80">
+            <Link to={`/course-session-program/orders/${order?.id}`} className="font-medium hover:opacity-80">
                 {/* Mobile Layout (column) */}
                 <div className="md:hidden space-y-3">
                     {/* Row 1: Name + ID */}

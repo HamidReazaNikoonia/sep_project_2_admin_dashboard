@@ -199,6 +199,15 @@ export const useGetAllCourseSessionProgramOrders = (filters: {
   })
 }
 
+
+export const useGetCourseSessionProgramOrderById = (orderId: string) => {
+  return useQuery({
+    queryKey: ['course-session-program-order', orderId],
+    queryFn: () => courseSessionApi.getCourseSessionProgramOrderById(orderId),
+    enabled: !!orderId,
+  })
+}
+
 // Hooks for course categories
 export const useCourseSessionCategories = () => {
   return useQuery({
