@@ -1,6 +1,7 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router'
-import { useGetCourseSessionProgramOrderById } from '../../../API/CourseSession/courseSession.hook'
+import { Button } from '@mui/material'
+import { useGetCourseSessionProgramOrderById, useUpdateCourseSessionProgramOrderStatus } from '../../../API/CourseSession/courseSession.hook'
 import Spinner from '../../../components/Spinner'
 import { findFirstSession } from '../../../utils/helper'
 import { convertToPersianDigits } from '../../../utils/helper'
@@ -11,11 +12,39 @@ const SERVER_FILE = process.env.REACT_APP_SERVER_FILE
 export default function ProgramOrderSpecific() {
     const { order_id } = useParams<{ order_id: string }>()
 
+    const [updateOrderStatusHelperText, setupdateOrderStatusHelperText] = useState(false)
+
     const {
         data: programOrder,
         isLoading,
         error
     } = useGetCourseSessionProgramOrderById(order_id || '')
+
+
+
+    const { mutate: updateProgramOrderStatusMutation, isPending: isUpdatingOrderStatus } = useUpdateCourseSessionProgramOrderStatus(order_id || '')
+
+    // State for order status toggle
+    const [orderStatusConfirmed, setOrderStatusConfirmed] = useState(false)
+
+    // Sync toggle state with order data
+    useEffect(() => {
+        if (programOrder) {
+            setOrderStatusConfirmed(programOrder.orderStatus === 'completed')
+        }
+    }, [programOrder])
+
+    // Handler for updating program order status
+    const updateProgramOrderStatusHandler = async (isConfirmed: boolean) => {
+        try {
+            setupdateOrderStatusHelperText(true);
+            console.log('isConfirmed', isConfirmed)
+            await updateProgramOrderStatusMutation(isConfirmed ? 'completed' : 'pending')
+            // setOrderStatusConfirmed(isConfirmed)
+        } catch (error) {
+            console.error('Error updating order status:', error)
+        }
+    }
 
     if (isLoading) {
         return (
@@ -134,7 +163,7 @@ export default function ProgramOrderSpecific() {
                         {order?.classProgramId?.sessions && (
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">شروع دوره</label>
-                                <p className="text-gray-900">{convertToPersianDigits(findFirstSession(order.classProgramId.sessions))}</p>
+                                <p className="text-gray-900">{convertToPersianDigits(findFirstSession(order.classProgramId.sessions) || '')}</p>
                             </div>
                         )}
                     </div>
@@ -164,8 +193,10 @@ export default function ProgramOrderSpecific() {
                 </div>
             )}
 
+            
+
             {/* Order Section */}
-            <div className="bg-white shadow rounded-lg p-6">
+            <div className="bg-white shadow rounded-lg p-6 mt-8">
                 <h2 className="text-xl font-bold text-gray-900 mb-4">اطلاعات سفارش</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-4">
@@ -363,6 +394,43 @@ export default function ProgramOrderSpecific() {
                     </div>
                 </div>
             )}
+
+            {/* Order Status Control Section */}
+            <div className="bg-white shadow flex flex-col items-center justify-between md:flex-row rounded-lg p-6">
+               <div className='flex flex-col mb-5 md:mb-0'>
+               <h2 className="text-xl font-bold text-gray-900 mb-4">کنترل وضعیت سفارش</h2>
+                <div className="flex items-center justify-between">
+                    <div>
+                        <p className="text-gray-700 mb-2">وضعیت فعلی سفارش: {getStatusBadge(order?.orderStatus || '')}</p>
+                        <p className="text-sm text-gray-500">
+                            با کلیک روی دکمه، وضعیت سفارش تغییر می‌کند
+                        </p>
+                    </div>
+               </div>
+                </div>
+                <div className='flex flex-col'>
+                <Button
+                        disabled={isUpdatingOrderStatus || isLoading}
+                        loading={isUpdatingOrderStatus || isLoading}
+                        variant={orderStatusConfirmed ? "contained" : "outlined"}
+                        color={orderStatusConfirmed ? "success" : "primary"}
+                        onClick={() => updateProgramOrderStatusHandler(!orderStatusConfirmed)}
+                        sx={{
+                            fontWeight: 'bold',
+                            fontSize: '1rem',
+                            minWidth: '150px',
+                            height: '48px'
+                        }}
+                    >
+                        {isUpdatingOrderStatus ? "در حال انتظار..." : orderStatusConfirmed ? "لغو تایید" : "تایید ثبت نام"}
+                    </Button>
+                    {updateOrderStatusHelperText && (
+                        <p className="text-sm text-gray-500 mt-2">
+                                برای تغییر وضعیت کمی صبر کنید
+                        </p>
+                    )}
+                </div>
+            </div>
         </div>
     )
 }

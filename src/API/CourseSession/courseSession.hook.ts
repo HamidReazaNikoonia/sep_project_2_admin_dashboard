@@ -208,6 +208,17 @@ export const useGetCourseSessionProgramOrderById = (orderId: string) => {
   })
 }
 
+export const useUpdateCourseSessionProgramOrderStatus = (orderId: string) => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (status: string) => courseSessionApi.updateCourseSessionProgramOrderStatus(orderId, status),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['course-session-program-order', orderId] })
+    },
+  })
+}
+
 // Hooks for course categories
 export const useCourseSessionCategories = () => {
   return useQuery({
