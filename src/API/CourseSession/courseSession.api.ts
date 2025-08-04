@@ -234,6 +234,11 @@ const courseSessionApi = {
     const { data } = await axios.patch(`course-session/admin/program-orders/${orderId}`, { order_status: status });
     return data;
   },
+
+  addNewSessionToProgram: async (programId: string, requestData: any) => {
+    const { data } = await axios.post(`course-session/admin/program/update-session/${programId}`, requestData);
+    return data;
+  },
 }
 
 export default courseSessionApi

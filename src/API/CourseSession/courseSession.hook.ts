@@ -219,6 +219,17 @@ export const useUpdateCourseSessionProgramOrderStatus = (orderId: string) => {
   })
 }
 
+// Add new session to program
+export const useAddNewSessionToProgram = (programId: string) => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (requestData: any) => courseSessionApi.addNewSessionToProgram(programId, requestData),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['COURSE_SESSION_PROGRAM', programId] })
+    },
+  })
+}
+
 // Hooks for course categories
 export const useCourseSessionCategories = () => {
   return useQuery({

@@ -7,6 +7,10 @@ import moment from 'moment-jalaali'
 import CompleteModal from '@/components/CompleteModal';
 import { showToast } from '@/utils/toast';
 import DetailModal from '@/components/DetailModal';
+import { Button } from '@mui/material';
+import AddIcon from '@mui/icons-material/Add';
+import EditSessionModal from '../components/EditSessionModal';
+
 
 const SERVER_FILE = process.env.REACT_APP_SERVER_FILE
 
@@ -264,6 +268,7 @@ export default function CourseSessionProgramSpecific() {
   const [subjectsExpanded, setSubjectsExpanded] = useState(false)
   const [activeTab, setActiveTab] = useState<TabType>('general')
   const [expandedMembers, setExpandedMembers] = useState<Record<string, boolean>>({})
+  const [showEditSessionModal, setShowEditSessionModal] = useState(false)
 
   const { data, isLoading, isError, error } = useGetCourseSessionProgramById(id!)
 
@@ -599,9 +604,20 @@ export default function CourseSessionProgramSpecific() {
         return (
           <div className="space-y-6">
             <div className="bg-white rounded-lg shadow-md p-6">
-              <h2 className="text-2xl font-semibold text-gray-800 mb-4 border-b-2 border-gray-300 pb-2">
+              <div className='flex justify-between items-center mb-4 border-b-2 border-gray-300 pb-2'>
+              <h2 className="text-2xl font-semibold text-gray-800 ">
                 جلسات دوره
               </h2>
+
+              <Button
+                variant="outlined"
+                startIcon={<AddIcon className='text-blue-600 ml-2' />}
+                color="primary"
+                onClick={() => setShowEditSessionModal(true)}
+              >
+                 جلسه جدید
+              </Button>
+              </div>
 
               {otherSessions && otherSessions.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -837,6 +853,18 @@ export default function CourseSessionProgramSpecific() {
           {renderTabContent()}
         </div>
       </div>
+
+      {/* Add the EditSessionModal at the end of the component, before closing */}
+      <EditSessionModal
+        isOpen={showEditSessionModal}
+        onClose={() => setShowEditSessionModal(false)}
+        programId={id || ''}
+        onSuccess={() => {
+          setShowEditSessionModal(false)
+          // Optionally refresh the data here
+          // window.location.reload() // or use a proper refetch method
+        }}
+      />
     </div>
   )
 }
