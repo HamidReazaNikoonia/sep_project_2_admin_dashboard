@@ -4,6 +4,8 @@ import { useCourseSessions } from '@/API/CourseSession/courseSession.hook'
 import { convertToPersianDigits, findFirstSession } from '@/utils/helper';
 import GeneralList from '@/components/GeneralList';
 import ArticleIcon from '@mui/icons-material/Article';
+import Button from '@mui/material/Button';
+import AddIcon from '@mui/icons-material/Add';
 
 
 const SERVER_FILE = process.env.REACT_APP_SERVER_FILE
@@ -25,15 +27,15 @@ const ProgramList = () => {
                     <div className='flex flex-row justify-start'>
 
                         <div>
-                            {courseSession?.thumbnail ? (
+                            {courseSession?.tumbnail ? (
                                 <img
-                                    src={`${SERVER_FILE}${courseSession.thumbnail}`}
+                                    src={`${SERVER_FILE}/${courseSession.tumbnail?.file_name}`}
                                     alt={courseSession.title}
-                                    className="w-12 h-12 object-cover rounded"
+                                    className="w-16 h-16 object-cover rounded"
                                 />
                             ) : (
                                 <div className="w-24 h-24  bg-gray-200 flex items-center justify-center">
-                                        <ArticleIcon sx={{ color: '#9ca3af', fontSize: 24 }} />
+                                    <ArticleIcon sx={{ color: '#9ca3af', fontSize: 24 }} />
                                 </div>
                             )}
 
@@ -76,16 +78,16 @@ const ProgramList = () => {
                 </div>
 
                 {/* Desktop Layout (grid) */}
-                <div className="hidden md:grid grid-cols-12 text-right items-center py-4">
+                <div className="hidden md:grid grid-cols-12 text-right items-center py-1">
 
-                <div className="col-span-1">
+                    <div className="col-span-1">
                         <div className="flex items-center gap-2">
                             <div className="w-24 h-24 overflow-hidden">
-                                {courseSession?.thumbnail ? (
+                                {courseSession?.tumbnail ? (
                                     <img
-                                        src={`${SERVER_FILE}/${courseSession?.thumbnail?.file_name}`}
-                                        alt={`${courseSession?.thumbnail?.file_name}`}
-                                        className="w-full h-full object-cover"
+                                        src={`${SERVER_FILE}/${courseSession?.tumbnail?.file_name}`}
+                                        alt={`${courseSession?.tumbnail?.file_name}`}
+                                        className="w-full h-full object-cover rounded-xl"
                                     />
                                 ) : (
                                     <div className="w-full h-full bg-gray-200 flex items-center justify-center">
@@ -126,24 +128,24 @@ const ProgramList = () => {
 
                     <div className="col-span-6">
                         <div className='flex flex-row space-x-8'>
-                        <div className='flex flex-col'>
-                            <p className="text-xs text-gray-600" > کلاس های فعال</p>
-                            <p className="text-sm text-gray-900">{courseSession?.program_on_this_course?.active_program && convertToPersianDigits(courseSession?.program_on_this_course?.active_program)}</p>
-                        </div>
+                            <div className='flex flex-col'>
+                                <p className="text-xs text-gray-600" > کلاس های فعال</p>
+                                <p className="text-sm text-gray-900">{courseSession?.program_on_this_course?.active_program && convertToPersianDigits(courseSession?.program_on_this_course?.active_program)}</p>
+                            </div>
 
 
-                        <div className='flex flex-col'>
-                            <p className="text-xs text-gray-600" > کلاس های غیر فعال</p>
-                            <p className="text-sm text-gray-900">{courseSession?.program_on_this_course?.inactive_program && convertToPersianDigits(courseSession?.program_on_this_course?.inactive_program)}</p>
-                        </div>
+                            <div className='flex flex-col'>
+                                <p className="text-xs text-gray-600" > کلاس های غیر فعال</p>
+                                <p className="text-sm text-gray-900">{courseSession?.program_on_this_course?.inactive_program && convertToPersianDigits(courseSession?.program_on_this_course?.inactive_program)}</p>
+                            </div>
 
 
-                        <div className='flex flex-col'>
-                            <p className="text-xs text-gray-600" > کلاس های  برگذار شده</p>
-                            <p className="text-sm text-gray-900">{courseSession?.program_on_this_course?.completed_program && convertToPersianDigits(courseSession?.program_on_this_course?.completed_program)}</p>
+                            <div className='flex flex-col'>
+                                <p className="text-xs text-gray-600" > کلاس های  برگذار شده</p>
+                                <p className="text-sm text-gray-900">{courseSession?.program_on_this_course?.completed_program && convertToPersianDigits(courseSession?.program_on_this_course?.completed_program)}</p>
+                            </div>
                         </div>
-                        </div>
-                       
+
                     </div>
 
                     {/* <div className="col-span-1">
@@ -233,14 +235,31 @@ const ProgramList = () => {
     ];
 
     return (
-        <GeneralList
-            useDataQuery={useCourseSessions}
-            filters={userFilters}
-            renderItem={renderUserItem}
-            title="مدیریت  دوره ها"
-            searchPlaceholder="جستجو بر اساس نام استاد, دوره, کلاس"
-            showDateFilter
-        />
+        <>
+            <div dir='rtl' className='flex  text-right mb-6'>
+                <Link
+                    to="/courses-sessions/create"
+                    style={{
+                        textDecoration: 'none',
+                        color: 'inherit',
+                    }}
+                >
+                    <Button startIcon={<AddIcon className='ml-3' />} variant="contained" color="primary">
+                        افزودن دوره جدید
+                    </Button>
+                </Link>
+            </div>
+
+            <GeneralList
+                useDataQuery={useCourseSessions}
+                filters={userFilters}
+                renderItem={renderUserItem}
+                title="مدیریت  دوره ها"
+                searchPlaceholder="جستجو بر اساس نام استاد, دوره, کلاس"
+                showDateFilter
+            />
+        </>
+
     );
 };
 

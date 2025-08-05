@@ -6,7 +6,7 @@ import Header from '../Header';
 import Sidebar from '../Sidebar';
 
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [mobileOpen, setMobileOpen] = useState(true);
+  const [mobileOpen, setMobileOpen] = useState(false); // Changed to false by default
 
   const handleDrawerToggle = () => {
     console.log('handleDrawerToggle', mobileOpen);
@@ -14,25 +14,23 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   };
 
   return (
-    <Box sx={{ display: 'flex', backgroundColor: '#f3f3f3', minHeight: '100vh' }}>
+    <Box sx={{ display: 'flex', backgroundColor: '#f3f3f3', minHeight: '100vh', direction: 'rtl' }}>
       <CssBaseline />
       <Header position="fixed" sx={{ zIndex: 99999 }}>
-        
+        <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
+          <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1, textAlign: 'right' }}>
+            پنل مدیریت
+          </Typography>
           <IconButton
             color="inherit"
-            edge="start"
+            edge="end"
             onClick={handleDrawerToggle}
-            sx={{ mr: 2 }}
+            sx={{ ml: 2 }}
           >
             <Menu />
           </IconButton>
-          <Typography variant="h6" noWrap component="div">
-            پنل مدیریت
-          </Typography>
-        
+        </Box>
       </Header>
-      
-      <Sidebar mobileOpen={mobileOpen} handleDrawerToggle={handleDrawerToggle} />
       
       <Box
         component="main"
@@ -41,11 +39,14 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
           p: {xs: 2, md: 4},
           width: '100%',
           overflowX: 'hidden',
+          // Removed marginRight since we're using temporary drawer
         }}
       >
-        <Toolbar /> {/* Offset content below app bar */}
+        <Toolbar />
         {children}
       </Box>
+      
+      <Sidebar mobileOpen={mobileOpen} handleDrawerToggle={handleDrawerToggle} />
     </Box>
   );
 };
