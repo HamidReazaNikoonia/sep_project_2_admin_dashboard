@@ -26,6 +26,9 @@ export const validateIranianNationalId = (nationalId: string) => {
 
 // Persian digits conversion
 export const convertToPersianDigits = (text: string) => {
+  if (text && typeof text === 'number') {
+    text = text.toString();
+  }
   const persianDigits = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹']
   return text.replace(/[0-9]/g, (d) => persianDigits[parseInt(d)])
 }

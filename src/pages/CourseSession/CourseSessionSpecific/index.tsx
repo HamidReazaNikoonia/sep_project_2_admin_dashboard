@@ -48,8 +48,8 @@ const CourseSessionSpecific = () => {
 
   useEffect(() => {
     if (data) {
-      if (data?.data?.results[0]) {
-        setChecked(data?.data?.results[0]?.course_status)
+      if (data?.results[0]) {
+        setChecked(data?.results[0]?.course_status)
       }
     }
   }, [data])
@@ -59,7 +59,7 @@ const CourseSessionSpecific = () => {
     window.open(fileUrl, '_blank')
   }
 
-  const course = data?.data?.results[0]
+  const course = data?.results[0]
 
   if (isLoading) {
     return (
@@ -346,7 +346,7 @@ const CourseSessionSpecific = () => {
             </Typography>
             <Grid container spacing={2}>
               {course ? (
-                <ScheduleCoachTimeView courseId={course.id} />
+                <ScheduleCoachTimeView courseId={course._id} />
               ) : (
                 <div>اطلاعاتی وجود ندارد</div>
               )}

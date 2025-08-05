@@ -1,373 +1,249 @@
-import { useState, useCallback } from 'react'
-import { Box, Button, styled, Theme, Typography } from '@mui/material'
+// @ts-ignore
 import { Link } from 'react-router'
-import { debounce } from 'lodash'
-import {
-  DataGrid,
-  GridColDef,
-  GridFilterModel,
-  GridPaginationModel,
-  GridSortModel,
-  GridToolbar,
-} from '@mui/x-data-grid'
 import { useCourseSessions } from '@/API/CourseSession/courseSession.hook'
+import { convertToPersianDigits, findFirstSession } from '@/utils/helper';
+import GeneralList from '@/components/GeneralList';
+import ArticleIcon from '@mui/icons-material/Article';
 
-const StyledDataGrid = styled(DataGrid)(({ theme }: { theme: Theme }) => ({
-  border: 0,
-  direction: 'rtl',
-  color: 'rgba(255,255,255,0.85)',
-  fontFamily: ['Samim', 'Arial', 'sans-serif'].join(','),
-  WebkitFontSmoothing: 'auto',
-  letterSpacing: 'normal',
-  '& .MuiDataGrid-columnsContainer': {
-    backgroundColor: '#1d1d1d',
-    ...theme.applyStyles('light', {
-      backgroundColor: '#fafafa',
-    }),
-  },
-  // Change footer direction
-  '& .MuiDataGrid-footerContainer': {
-    direction: 'ltr',
-  },
-  '& .MuiDataGrid-columnHeaders': {
-    direction: 'rtl', // Ensure column headers are RTL
-    textAlign: 'right', // Align header text to the right
-  },
-  '& .MuiDataGrid-iconSeparator': {
-    display: 'none',
-  },
-  '& .MuiDataGrid-columnHeader, .MuiDataGrid-cell': {
-    borderRight: '1px solid #303030',
-    ...theme.applyStyles('light', {
-      borderRightColor: '#f0f0f0',
-    }),
-  },
-  '& .MuiDataGrid-columnHeaderTitle': {
-    fontWeight: 'bold', // Optional: Make header text bold
-  },
-  // Custom styles for the toolbar icons and text
-  '& .MuiDataGrid-toolbarContainer': {
-    direction: 'rtl', // Set RTL direction for the toolbar
-    justifyContent: 'flex-start',
-    '& .MuiButton-root': {
-      direction: 'rtl',
-    },
-    '& .MuiButton-startIcon': {
-      marginRight: '0',
-      marginLeft: '8px',
-    },
-  },
-  '& .MuiDataGrid-row:hover': {
-    backgroundColor: 'rgba(0, 0, 0, 0.04)', // Optional: add hover effect
-  },
-  '& .MuiDataGrid-columnsContainer, .MuiDataGrid-cell': {
-    borderBottom: '1px solid #303030',
-    ...theme.applyStyles('light', {
-      borderBottomColor: '#f0f0f0',
-    }),
-  },
-  '& .MuiDataGrid-cell': {
-    color: 'rgba(255,255,255,0.65)',
-    direction: 'rtl', // Ensure cell content is RTL
-    textAlign: 'right', // Align cell text to the right
-    ...theme.applyStyles('light', {
-      color: 'rgba(0,0,0,.85)',
-    }),
-  },
-  '& .MuiPaginationItem-root': {
-    borderRadius: 0,
-  },
-  ...theme.applyStyles('light', {
-    color: 'rgba(0,0,0,.85)',
-  }),
-  // Add styles for the search input
-  '& .MuiDataGrid-toolbarQuickFilter': {
-    direction: 'rtl',
-    '& .MuiInputBase-root': {
-      direction: 'rtl',
-      backgroundColor: '#f5f5f5',
-      borderRadius: '8px',
-      padding: '4px 12px',
-    },
-    '& .MuiInputBase-input.MuiInput-input': {
-      direction: 'rtl',
-      textAlign: 'right',
-      padding: '8px 10px',
-      fontSize: '14px',
-      color: '#333',
-      '&::placeholder': {
-        color: '#666',
-        opacity: 1,
-      },
-      '&:focus': {
-        backgroundColor: '#fff',
-      },
-    },
-    '& .MuiInputBase-inputAdornedStart': {
-      paddingRight: '8px',
-    },
-    '& .MuiInputBase-inputAdornedEnd': {
-      paddingLeft: '8px',
-    },
-    '& .MuiInputBase-inputTypeSearch': {
-      // Add specific styles for search type input if needed
-    },
-    '& .MuiInputAdornment-root': {
-      marginLeft: '8px',
-      marginRight: '-8px',
-      '& .MuiSvgIcon-root': {
-        fontSize: '20px',
-        color: '#666',
-      },
-    },
-  },
-}))
 
-const CourseSessionList = () => {
-  const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({
-    page: 0,
-    pageSize: 10,
-  })
-  const [filterModel, setFilterModel] = useState<GridFilterModel>({
-    items: [],
-  })
-  const [sortModel, setSortModel] = useState<GridSortModel>([])
-  const [quickFilterValue, setQuickFilterValue] = useState('')
-  const [debouncedFilterValue, setDebouncedFilterValue] = useState('')
+const SERVER_FILE = process.env.REACT_APP_SERVER_FILE
 
-  const { data, isLoading } = useCourseSessions({
-    page: paginationModel.page + 1,
-    limit: paginationModel.pageSize,
-    ...(debouncedFilterValue && { q: debouncedFilterValue }),
-    ...(filterModel.items.length > 0 && {
-      title: filterModel.items.find((item) => item.field === 'title')?.value,
-      sub_title: filterModel.items.find((item) => item.field === 'sub_title')
-        ?.value,
-      course_type: filterModel.items.find(
-        (item) => item.field === 'course_type',
-      )?.value,
-      price: filterModel.items.find((item) => item.field === 'price')?.value,
-      category: filterModel.items.find((item) => item.field === 'category')
-        ?.value,
-    }),
-    ...(sortModel.length > 0 && {
-      sortBy: `${sortModel[0].field}:${sortModel[0].sort}`,
-    }),
-  })
+const ProgramList = () => {
 
-  const courses = data?.data?.results || []
-  const totalCount = data?.data?.totalResults || 0
 
-  const columns: GridColDef[] = [
-    {
-      field: 'title',
-      headerName: 'عنوان دوره',
-      width: 200,
-      renderCell: (params) => (
-        <Link
-          to={`/courses-sessions/${params.row.id}`}
-          style={{
-            color: 'inherit',
-            textDecoration: 'none',
-          }}
-        >
-          {params.value}
-        </Link>
-      ),
-    },
-    // {
-    //     field: 'course_type',
-    //     headerName: 'نوع دوره',
-    //     width: 80,
-    //     renderCell: (params) => (
-    //         <div>
-    //             {params.value === 'HOZORI' ? 'حضوری' : 'آنلاین'}
-    //         </div>
-    //     ),
-    // },
-    // {
-    //     field: 'price',
-    //     headerName: 'قیمت',
-    //     width: 150,
-    //     renderCell: (params) => (
-    //         <div className='font-bold'>
-    //             {params.value.toLocaleString('fa-IR')} تومان
-    //         </div>
-    //     ),
-    // },
-    {
-      field: 'course_category_combined',
-      headerName: 'دسته‌بندی',
-      width: 200,
-      sortable: false,
-      renderCell: (params) => {
-        const category = params.row?.course_session_category[0]?.name
-        // const subCategory = params.row.course_session_sub_category?.name
+    const programTypeMap = {
+        "ON-SITE": "حضوری",
+        "ONLINE": "آنلاین"
+    }
 
-        return <div>{category || '-'}</div>
-      },
-    },
-    // {
-    //     field: 'coach_id',
-    //     headerName: 'مدرس',
-    //     width: 200,
-    //     renderCell: (params) => {
-    //         const coaches = params.row.coaches || [];
+    const renderUserItem = (courseSession: any) => (
+        <div dir='rtl' key={courseSession.id} className="p-3 border-b hover:bg-gray-50">
+            <Link to={`/courses-sessions/${courseSession._id}`} className="font-medium hover:opacity-80">
+                {/* Mobile Layout (column) */}
+                <div className="md:hidden space-y-3">
 
-    //         if (coaches.length === 0) return <div>-</div>;
+                    <div className='flex flex-row justify-start'>
 
-    //         return (
-    //           <div style={{ whiteSpace: 'normal', fontSize: '11px' }}>
-    //             {[...coaches, ...coaches].map((coach: any, index: any) => {
-    //               const fullName = `${coach.first_name || ''} ${coach.last_name || ''}`.trim();
-    //               return (
-    //                 <span key={coach.id || index}>
-    //                   {fullName}
-    //                   {index !== coaches.length - 1 ? ' | ' : ''}
-    //                 </span>
-    //               );
-    //             })}
-    //           </div>
-    //         );
-    //       },
-    // },
-    // {
-    //     field: 'member',
-    //     headerName: 'تعداد دانشجو',
-    //     width: 120,
-    //     renderCell: (params) => (
-    //         <div>
-    //             {params.value?.length || 0} / {params.row.max_member_accept}
-    //         </div>
-    //     ),
-    // },
-    // {
-    //     field: 'course_duration',
-    //     headerName: 'مدت دوره',
-    //     width: 120,
-    //     renderCell: (params) => (
-    //         <div>
-    //             {params.value ? `${params.value} ساعت` : '-'}
-    //         </div>
-    //     ),
-    // },
-    {
-      field: 'course_status',
-      headerName: 'وضعیت',
-      width: 100,
-      renderCell: (params) => (
-        <div
-          style={{
-            color: params.value ? 'green' : 'red',
-            fontWeight: 'bold',
-          }}
-        >
-          {params.value ? 'فعال' : 'غیرفعال'}
+                        <div>
+                            {courseSession?.thumbnail ? (
+                                <img
+                                    src={`${SERVER_FILE}${courseSession.thumbnail}`}
+                                    alt={courseSession.title}
+                                    className="w-12 h-12 object-cover rounded"
+                                />
+                            ) : (
+                                <div className="w-24 h-24  bg-gray-200 flex items-center justify-center">
+                                        <ArticleIcon sx={{ color: '#9ca3af', fontSize: 24 }} />
+                                </div>
+                            )}
+
+                        </div>
+
+                        <div>
+                            {/* Row 1: Name + ID */}
+                            <div className="flex flex-col mr-4">
+                                <p className='text-xs text-gray-500 mb-2' >دوره </p>
+                                <p className="font-medium mb-1">{courseSession?.title}</p>
+                                <p className=" text-xs font-medium text-gray-500">{courseSession?.sub_title}</p>
+
+                            </div>
+
+
+                            {/* Row 2: Name + ID */}
+                            {/* <div className="flex flex-col">
+                                <p className='text-xs text-gray-500' >مربی </p>
+                                <p className="font-medium mb-2">{program?.coach?.first_name} - {program?.coach?.last_name}</p>
+                            </div> */}
+
+                            {/* <div className="flex flex-row items-center mt-1">
+                                <div style={{ maxWidth: '60px' }} className={`px-2 py-1 text-xs text-center rounded-full ${program?.status === 'active' ? 'bg-green-100 text-green-800' :
+                                    program?.status === 'completed' ? 'bg-blue-100 text-blue-800' :
+                                        'bg-red-100 text-red-800'
+                                    }`}>
+                                    {program?.status === 'active' ? 'فعال' :
+                                        program?.status === 'completed' ? 'تکمیل شده' :
+                                            'غیرفعال'}
+                                </div>
+                            </div> */}
+                        </div>
+
+                    </div>
+
+
+
+
+
+                </div>
+
+                {/* Desktop Layout (grid) */}
+                <div className="hidden md:grid grid-cols-12 text-right items-center py-4">
+
+                <div className="col-span-1">
+                        <div className="flex items-center gap-2">
+                            <div className="w-24 h-24 overflow-hidden">
+                                {courseSession?.thumbnail ? (
+                                    <img
+                                        src={`${SERVER_FILE}/${courseSession?.thumbnail?.file_name}`}
+                                        alt={`${courseSession?.thumbnail?.file_name}`}
+                                        className="w-full h-full object-cover"
+                                    />
+                                ) : (
+                                    <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                                        <ArticleIcon sx={{ color: '#9ca3af', fontSize: 24 }} />
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+
+
+                    {/* Row 1: Name + ID */}
+                    <div className="col-span-3">
+                        <p className='text-xs text-gray-700' >دوره </p>
+                        <p className="font-medium mb-2">{courseSession?.title}</p>
+                        <p className="font-medium mb-2 text-xs text-gray-400">{courseSession?.sub_title}</p>
+                    </div>
+
+
+
+
+                    {/* <div className="col-span-1">
+                        <p className="text-xs text-gray-500">تعداد ثبت نام</p>
+                        <p className="text-sm text-gray-700">{courseSession?.members?.length && (courseSession?.members?.length).toLocaleString('fa-IR')} / {courseSession?.max_member_accept?.toLocaleString('fa-IR')}</p>
+                    </div> */}
+
+                    {/* <div className="col-span-1">
+                        <p className="text-sm">
+                            <span className="text-xs text-gray-500 block">نوع دوره</span>
+                            {programTypeMap[program.courseSession] || 'N/A'}
+                        </p>
+                    </div> */}
+
+                    <div className="col-span-2">
+                        <p className="text-xs text-gray-600"> مربی های این دوره</p>
+                        <p className="text-sm text-gray-900">{(courseSession?.coaches?.length && courseSession?.coaches?.length.toLocaleString('fa-IR'))}</p>
+                    </div>
+
+                    <div className="col-span-6">
+                        <div className='flex flex-row space-x-8'>
+                        <div className='flex flex-col'>
+                            <p className="text-xs text-gray-600" > کلاس های فعال</p>
+                            <p className="text-sm text-gray-900">{courseSession?.program_on_this_course?.active_program && convertToPersianDigits(courseSession?.program_on_this_course?.active_program)}</p>
+                        </div>
+
+
+                        <div className='flex flex-col'>
+                            <p className="text-xs text-gray-600" > کلاس های غیر فعال</p>
+                            <p className="text-sm text-gray-900">{courseSession?.program_on_this_course?.inactive_program && convertToPersianDigits(courseSession?.program_on_this_course?.inactive_program)}</p>
+                        </div>
+
+
+                        <div className='flex flex-col'>
+                            <p className="text-xs text-gray-600" > کلاس های  برگذار شده</p>
+                            <p className="text-sm text-gray-900">{courseSession?.program_on_this_course?.completed_program && convertToPersianDigits(courseSession?.program_on_this_course?.completed_program)}</p>
+                        </div>
+                        </div>
+                       
+                    </div>
+
+                    {/* <div className="col-span-1">
+                        <p className="text-xs text-gray-500">قیمت</p>
+                        <div className="flex items-center gap-1">
+                            {courseSession?.price_discounted ? (
+                                <div className='flex flex-col'>
+                                    <p className="text-sm font-medium text-gray-700">
+                                        {courseSession.price_discounted.toLocaleString('fa-IR')} ریال
+                                    </p>
+                                    <p className="text-xs text-gray-400 line-through">
+                                        {courseSession.price_real.toLocaleString('fa-IR')}
+                                    </p>
+                                </div>
+                            ) : (
+                                <p className="text-sm text-gray-700">
+                                    {courseSession.price_real.toLocaleString('fa-IR')} ریال
+                                </p>
+                            )}
+                        </div>
+                    </div> */}
+                </div>
+            </Link>
         </div>
-      ),
-    },
-    {
-      field: 'actions',
-      headerName: 'عملیات',
-      width: 160,
-      renderCell: (params) => (
-        <Button variant="outlined" color="secondary">
-          <Link
-            to={`/courses-sessions/${params.row.id}`}
-            style={{
-              color: 'primary.main',
-              textDecoration: 'none',
-            }}
-          >
-            مشاهده و ویرایش
-          </Link>
-        </Button>
-      ),
-    },
-  ]
+    );
 
-  const handlePaginationModelChange = useCallback(
-    (newModel: GridPaginationModel) => {
-      setPaginationModel(newModel)
-    },
-    [],
-  )
+    const userFilters = [
+        // {
+        //     type: 'search',
+        //     queryParamKey: 'mobile',
+        //     label: 'موبایل بر اسسا'
+        // },
+        // {
+        //     type: 'search',
+        //     queryParamKey: 'mobile1',
+        //     label: 'موبایل بر اسسا'
+        // },
+        // {
+        //     type: 'search',
+        //     queryParamKey: 'mobile2',
+        //     label: 'موبایل بر اسسا'
+        // },
+        {
+            type: 'checkbox',
+            queryParamKey: 'is_fire_sale',
+            label: 'تخفیف دار'
+        },
+        {
+            type: 'checkbox',
+            queryParamKey: 'have_members',
+            label: 'ثبت نام شده'
+        },
+        {
+            type: 'checkbox',
+            queryParamKey: 'is_have_capacity',
+            label: 'ظرفیت تکمیل شده'
+        },
+        {
+            type: 'checkbox',
+            queryParamKey: 'is_have_capacity_in_progress',
+            label: 'ظرفیت در حال تکمیل (بیشتر از 50%)'
+        },
+        {
+            type: 'checkbox',
+            queryParamKey: 'is_have_min_capacity',
+            label: 'ظرفیت در حال تکمیل (بیشتر از 20%)'
+        },
 
-  const handleFilterModelChange = useCallback((newModel: GridFilterModel) => {
-    setFilterModel(newModel)
-  }, [])
+        {
+            type: 'checkbox',
+            queryParamKey: 'is_have_min_capacity',
+            label: 'ظرفیت در حال تکمیل (بیشتر از 90%)'
+        },
 
-  const handleSortModelChange = useCallback((newModel: GridSortModel) => {
-    setSortModel(newModel)
-  }, [])
+        {
+            type: 'options',
+            queryParamKey: 'status',
+            label: 'وضعیت دوره',
+            options: ['active', 'completed', 'inactive']
+        },
+        {
+            type: 'options',
+            queryParamKey: 'program_type',
+            label: 'نوع دوره',
+            options: ['ON-SITE', 'ONLINE']
+        }
+    ];
 
-  const debouncedSetFilter = useCallback(
-    debounce((value: string) => {
-      setDebouncedFilterValue(value)
-    }, 500),
-    [],
-  )
+    return (
+        <GeneralList
+            useDataQuery={useCourseSessions}
+            filters={userFilters}
+            renderItem={renderUserItem}
+            title="مدیریت  دوره ها"
+            searchPlaceholder="جستجو بر اساس نام استاد, دوره, کلاس"
+            showDateFilter
+        />
+    );
+};
 
-  const handleQuickFilterChange = (
-    event: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    const newValue = event.target.value
-    setQuickFilterValue(newValue)
-    debouncedSetFilter(newValue)
-  }
+export default ProgramList;
 
-  return (
-    <Box sx={{ width: '100%', p: 3 }}>
-      <Box
-        display="flex"
-        justifyContent="space-between"
-        alignItems="center"
-        mb={3}
-      >
-        <Link
-          to="/courses-sessions/create"
-          style={{
-            textDecoration: 'none',
-            color: 'inherit',
-          }}
-        >
-          <Button variant="contained" color="primary">
-            افزودن (کلاس) دوره جدید
-          </Button>
-        </Link>
-        <Typography variant="h4">لیست کلاس ها</Typography>
-      </Box>
-
-      <StyledDataGrid
-        rows={courses}
-        columns={columns}
-        rowCount={totalCount}
-        loading={isLoading}
-        pageSizeOptions={[10, 25, 50]}
-        paginationMode="server"
-        filterMode="server"
-        paginationModel={paginationModel}
-        onPaginationModelChange={handlePaginationModelChange}
-        filterModel={filterModel}
-        sortModel={sortModel}
-        onFilterModelChange={handleFilterModelChange}
-        onSortModelChange={handleSortModelChange}
-        getRowId={(row) => row.id}
-        slots={{ toolbar: GridToolbar }}
-        disableRowSelectionOnClick
-        slotProps={{
-          toolbar: {
-            showQuickFilter: true,
-            quickFilterProps: {
-              value: quickFilterValue,
-              debounceMs: 0,
-              onChange: handleQuickFilterChange,
-            },
-          },
-        }}
-      />
-    </Box>
-  )
-}
-
-export default CourseSessionList
+// export default List;
