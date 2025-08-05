@@ -98,7 +98,7 @@ const CourseSessionSpecific = () => {
         <Typography className="text-right" variant="h4" gutterBottom>
           جزئیات دوره
         </Typography>
-        <div className="flex flex-col md:flex-row w-auto md:w-80 justify-around space-y-3 md:space-y-0  ">
+        <div className="flex flex-col md:flex-row w-auto  justify-around   ">
           {/* <Link to={`/courses/${course_id}/edit`}>
             <Button endIcon={<EditIcon />} variant="contained" color="warning">
               ویرایش دوره&nbsp;&nbsp;
@@ -111,7 +111,7 @@ const CourseSessionSpecific = () => {
               variant="contained"
               color="info"
             >
-              افزودن استاد&nbsp;&nbsp;
+              افزودن کلاس&nbsp;&nbsp;
             </Button>
           </Link>
         </div>

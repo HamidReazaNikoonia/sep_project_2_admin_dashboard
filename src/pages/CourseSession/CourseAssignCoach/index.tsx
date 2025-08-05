@@ -37,6 +37,10 @@ import clsx from 'clsx'
 import { StyledTableContainer } from '@/components/StyledTableContainer'
 // import * as momentJalaali from 'moment-jalaali';
 
+// Icons
+import Person2Icon from '@mui/icons-material/Person2';
+import ClassIcon from '@mui/icons-material/Class';
+
 const SERVER_URL = process.env.REACT_APP_SERVER_URL
 const SERVER_FILE = process.env.REACT_APP_SERVER_FILE
 
@@ -451,12 +455,17 @@ const CourseAssignCoach: React.FC = () => {
     )
   }
 
+
+
+  console.log({ data });
+  const currentCourse = data?.results[0];
+
   return (
     <div dir="rtl" className="py-8 px-4 min-h-screen">
       <Typography fontWeight={600} variant="h5" gutterBottom>
-        انتساب مربی به دوره
+        ساخت کلاس جدید برای دوره {currentCourse?.title}
       </Typography>
-      <Typography dir="ltr">Course ID: {courseId}</Typography>
+      <Typography dir="ltr"> ID: {courseId}</Typography>
 
       <div className="flex flex-col w-full bg-white rounded-2xl shadow-md py-12">
         {/* Header */}
@@ -466,6 +475,16 @@ const CourseAssignCoach: React.FC = () => {
         <div className="flex justify-around items-center flex-col">
           {/* CoachList*/}
           <div dir="rtl" className="w-full px-8 md:px-12">
+            <div className='mb-1 text-base font-semibold md:text-xl flex items-center gap-2'>
+              <Person2Icon className='' />
+              <div className='mt-0.5'>
+                انتخاب استاد
+
+              </div>
+            </div>
+            <div className='mb-4 text-sm text-gray-500'>
+              لطفا استاد مورد نظر خود را انتخاب کنید
+            </div>
             {coachesIsLoading && (
               <div className="w-full p-12">
                 <CircularProgress />
@@ -484,7 +503,16 @@ const CourseAssignCoach: React.FC = () => {
           {/* Select Specific Class */}
           {/* Select Specific Class */}
           <div className="w-full px-8 md:px-12 my-8 border-t py-8">
-            <h2 className="font-semibold text-lg mb-4">انتخاب کلاس</h2>
+            <div className='mb-1 text-base font-semibold md:text-xl flex items-center gap-2'>
+              <ClassIcon className='' />
+              <div className='mt-0.5'>
+                انتخاب کلاس
+
+              </div>
+            </div>
+            <div className='mb-6 text-sm text-gray-500'>
+              لطفا کلاس مورد نظر خود را انتخاب کنید, برای کلاس های مجازی میتوانید این قسمت را انتخاب نکنید یا گزینه کلاس مجازی را انتخاب کنید
+            </div>
             <div className="flex flex-wrap gap-4">
               {ClassesIsLoading && (
                 <div className="w-full p-8 flex justify-center">
@@ -501,42 +529,41 @@ const CourseAssignCoach: React.FC = () => {
               )}
               {ClassesData && ClassesData.length > 0
                 ? ClassesData.map((cls) => (
-                    <div
-                      key={cls._id}
-                      className={`cursor-pointer border rounded-lg p-4 flex-1 min-w-[200px] max-w-xs transition-all
-                                        ${
-                                          selectedClassId === cls._id
-                                            ? 'border-blue-600 bg-blue-50 shadow-lg'
-                                            : 'border-gray-200 bg-white hover:border-blue-400'
-                                        }
+                  <div
+                    key={cls._id}
+                    className={`cursor-pointer border rounded-lg p-4 flex-1 min-w-[200px] max-w-xs transition-all
+                                        ${selectedClassId === cls._id
+                        ? 'border-blue-600 bg-blue-50 shadow-lg'
+                        : 'border-gray-200 bg-white hover:border-blue-400'
+                      }
                                     `}
-                      onClick={() => setSelectedClassId(cls._id)}
+                    onClick={() => setSelectedClassId(cls._id)}
+                  >
+                    <h3
+                      className={clsx(
+                        'font-bold text-base mb-2',
+                        cls.class_status === 'ACTIVE'
+                          ? 'text-green-800'
+                          : 'text-red-600',
+                      )}
                     >
-                      <h3
-                        className={clsx(
-                          'font-bold text-base mb-2',
-                          cls.class_status === 'ACTIVE'
-                            ? 'text-green-800'
-                            : 'text-red-600',
-                        )}
-                      >
-                        وضعیت کلاس :{' '}
-                        {cls.class_status === 'ACTIVE' ? 'فعال' : 'غیر فعال'}
-                      </h3>
-                      <h3 className="font-semibold text-sm mb-2">
-                        {' '}
-                        کلاس : {cls.class_title}
-                      </h3>
-                      <h3 className="font-semibold text-sm mb-2">
-                        ظرفیت : {cls.class_max_student_number} نفر
-                      </h3>
+                      وضعیت کلاس :{' '}
+                      {cls.class_status === 'ACTIVE' ? 'فعال' : 'غیر فعال'}
+                    </h3>
+                    <h3 className="font-semibold text-sm mb-2">
+                      {' '}
+                      کلاس : {cls.class_title}
+                    </h3>
+                    <h3 className="font-semibold text-sm mb-2">
+                      ظرفیت : {cls.class_max_student_number} نفر
+                    </h3>
 
-                      {/* Add more class info here if needed */}
-                      <p className="text-sm text-gray-600">
-                        کد کلاس: {cls._id}
-                      </p>
-                    </div>
-                  ))
+                    {/* Add more class info here if needed */}
+                    <p className="text-sm text-gray-600">
+                      کد کلاس: {cls._id}
+                    </p>
+                  </div>
+                ))
                 : !ClassesIsLoading && <Typography>کلاسی یافت نشد.</Typography>}
             </div>
           </div>
@@ -848,10 +875,10 @@ const CourseAssignCoach: React.FC = () => {
 
                           {fileUploads[`sample_media_${index}`]
                             ?.uploadedFile && (
-                            <Alert severity="success" sx={{ mt: 1 }}>
-                              &nbsp; فایل با موفقیت آپلود شد&nbsp;
-                            </Alert>
-                          )}
+                              <Alert severity="success" sx={{ mt: 1 }}>
+                                &nbsp; فایل با موفقیت آپلود شد&nbsp;
+                              </Alert>
+                            )}
 
                           {fileUploads[`sample_media_${index}`]?.error && (
                             <Alert severity="error" sx={{ mt: 1 }}>

@@ -9,11 +9,15 @@ import {
   Paper,
   Divider,
 } from '@mui/material' // Import your types
+import { Class } from '@mui/icons-material'
 import { useGetAllProgramsOFSpecificCourse } from '@/API/CourseSession/courseSession.hook'
+import { Link } from 'react-router'
 
 interface ScheduleCoachTimeViewProps {
   courseId: string
 }
+
+const SERVER_FILE = process.env.REACT_APP_SERVER_FILE
 
 const ScheduleCoachTimeView: React.FC<ScheduleCoachTimeViewProps> = ({
   courseId,
@@ -62,51 +66,6 @@ const ScheduleCoachTimeView: React.FC<ScheduleCoachTimeViewProps> = ({
   return (
     <div className="flex flex-col md:flex-row h-full w-full gap-4 p-4">
       {/* Coaches List - Left Side */}
-      <div className="w-full md:w-2/6">
-        <div className="h-full p-2 bg-white border border-gray-200 rounded-lg shadow-md">
-          <Typography variant="h6" className="p-2 text-right">
-            مربیان
-          </Typography>
-          <Divider />
-          <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
-            {Array.isArray(coaches) && coaches.length === 0 && (
-              <div className="p-4 text-red-600">مدرس ثبت نشده است</div>
-            )}
-            {coaches.map((coach: any) => (
-              <ListItem
-                key={coach._id}
-                alignItems="flex-start"
-                className="hover:bg-gray-100 cursor-pointer items-center"
-              >
-                <ListItemAvatar>
-                  <Avatar
-                    alt={`${coach.first_name} ${coach.last_name}`}
-                    sx={{
-                      bgcolor: stringToColor(
-                        coach.first_name + ' ' + coach.last_name,
-                      ),
-                    }}
-                  >
-                    {coach.first_name && coach.first_name.charAt(0)}
-                    {coach.last_name && coach.last_name.charAt(0)}
-                  </Avatar>
-                </ListItemAvatar>
-                <ListItemText
-                  primary={`${coach.first_name} ${coach.last_name}`}
-                  secondary={
-                    <React.Fragment>
-                      {/* No mobile in new data, remove or replace */}
-                      <br />
-                      {programsByCoach[coach._id]?.length || 0} برنامه
-                    </React.Fragment>
-                  }
-                  sx={{ textAlign: 'right' }}
-                />
-              </ListItem>
-            ))}
-          </List>
-        </div>
-      </div>
 
       {/* Schedule - Right Side */}
       <div className="w-full">
@@ -118,24 +77,42 @@ const ScheduleCoachTimeView: React.FC<ScheduleCoachTimeViewProps> = ({
           <div className="mt-4 space-y-4 py-4">
             {coaches.map((coach: any) => (
               <div key={coach._id} className="pb-6 border-b last:border-b-0">
-                <Typography
-                  variant="h6"
-                  sx={{ fontWeight: 800 }}
-                  className="text-right"
+                <div
+                  className="text-right flex items-center gap-2"
                 >
-                  نام استاد :‌ {`${coach.first_name} ${coach.last_name}`}
-                </Typography>
+                  <div className="flex items-center gap-2 mb-2">
+                    <Avatar
+                      src={coach?.avatar?.file_name ? `${SERVER_FILE}/${coach.avatar.file_name}` : undefined}
+                      alt={`${coach.first_name} ${coach.last_name}`}
+                      sx={{ width: 48, height: 48 }}
+                    >
+                      {coach.first_name?.[0]}
+                      {coach.last_name?.[0]}
+                    </Avatar>
+                  </div>
+                  <div className="text-lg font-semibold text-gray-900">
+                    نام استاد :‌ {`${coach.first_name} ${coach.last_name}`}
+
+                  </div>
+                </div>
+
                 {/* For each program of this coach */}
                 {programsByCoach[coach._id]?.map((program: any) => (
                   <div
                     key={program._id}
                     className="my-4 bg-amber-300 px-4 py-6 rounded-2xl shadow-md"
                   >
+                    <Link to={`/course-session-program/${program._id}`}>
+                      <div className="flex items-center gap-1 mb-2"  >
+                        <Class fontSize="small" className="inline-block ml-1 text-xs text-gray-600" />
+                        مشاهده جزئیات کلاس
+                      </div>
+                    </Link>
                     <Typography
                       variant="body"
                       className="text-right pb-2 text-gray-600"
                     >
-                      نوع برنامه:{' '}
+                      نوع کلاس:{' '}
                       {program.program_type === 'ONLINE'
                         ? 'آنلاین مجازی'
                         : 'حضوری'}
@@ -156,13 +133,12 @@ const ScheduleCoachTimeView: React.FC<ScheduleCoachTimeViewProps> = ({
                           </Typography>
                           <Typography
                             variant="caption"
-                            className={`inline-block px-2 py-1 rounded-full mt-1 ${
-                              session.status === 'scheduled'
+                            className={`inline-block px-2 py-1 rounded-full mt-1 ${session.status === 'scheduled'
                                 ? 'bg-blue-100 text-blue-800'
                                 : session.status === 'completed'
                                   ? 'bg-green-100 text-green-800'
                                   : 'bg-red-100 text-red-800'
-                            }`}
+                              }`}
                           >
                             {session.status === 'scheduled'
                               ? 'برنامه ریزی شده'
