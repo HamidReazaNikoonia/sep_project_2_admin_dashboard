@@ -201,8 +201,8 @@ importers:
         specifier: ^6.3.7
         version: 6.3.7
       yup:
-        specifier: ^1.6.1
-        version: 1.6.1
+        specifier: ^1.7.0
+        version: 1.7.0
     devDependencies:
       '@eslint/compat':
         specifier: ^1.2.7
@@ -4500,8 +4500,8 @@ packages:
     resolution: {integrity: sha512-cYVsTjKl8b+FrnidjibDWskAv7UKOfcwaVZdp/it9n1s9fU3IkgDbhdIRKCW4JDsAlECJY0ytoVPT3sK6kideA==}
     engines: {node: '>=18'}
 
-  yup@1.6.1:
-    resolution: {integrity: sha512-JED8pB50qbA4FOkDol0bYF/p60qSEDQqBD0/qeIrUCG1KbPBIQ776fCUNb9ldbPcSTxA69g/47XTo4TqWiuXOA==}
+  yup@1.7.0:
+    resolution: {integrity: sha512-VJce62dBd+JQvoc+fCVq+KZfPHr+hXaxCcVgotfwWvlR0Ja3ffYKaJBT8rptPOSKOGJDCUnW2C2JWpud7aRP6Q==}
 
 snapshots:
 
@@ -8828,7 +8828,7 @@ snapshots:
 
   yoctocolors-cjs@2.1.2: {}
 
-  yup@1.6.1:
+  yup@1.7.0:
     dependencies:
       property-expr: 2.0.6
       tiny-case: 1.0.3
