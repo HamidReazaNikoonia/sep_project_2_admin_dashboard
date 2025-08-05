@@ -5,6 +5,8 @@ import { Calendar } from 'react-datepicker2'
 
 import { CircularProgress, Typography } from '@mui/material'
 import { showToast } from '@/utils/toast'
+import { convertToPersianDigits } from '@/utils/helper'
+import CustomTimePicker from '../CustomTimePicker'
 
 // TEST
 const timeSlotIsError = false
@@ -115,6 +117,11 @@ const CustomDataPickerCalendar = forwardRef(
       startTime: '',
       endTime: '',
     })
+    const [errors, setErrors] = useState<{
+      startTime?: string
+      endTime?: string
+      date?: string
+  }>({})
 
     // Expose the reset function to parent via ref
     useImperativeHandle(ref, () => ({
@@ -155,8 +162,42 @@ const CustomDataPickerCalendar = forwardRef(
     }
 
     // ... existing code ...
-    const startTimeAndEndTimeChangeHandler = (e, key) => {
-      const newSessionTime = { ...sessionTime, [key]: e.target.value }
+    const endTimeChangeHandler = (time: string) => {
+
+      // Validate end time
+      if (sessionTime.startTime && time <= sessionTime.startTime) {
+        setErrors(prev => ({
+            ...prev,
+            endTime: 'ساعت پایان باید بعد از ساعت شروع باشد'
+        }))
+    } else {
+        setErrors(prev => ({ ...prev, endTime: undefined }))
+    }
+
+      const newSessionTime = { ...sessionTime, endTime: time }
+      setsessionTime(newSessionTime)
+      timeSlotChangeHandler(newSessionTime)
+    }
+
+
+    const startTimeChangeHandler = (time: string) => {
+
+      // Clear start time error if exists
+      if (errors.startTime) {
+        setErrors(prev => ({ ...prev, startTime: undefined }))
+    }
+
+    // Validate end time if it exists
+    if (sessionTime.endTime  && time >= sessionTime.endTime ) {
+        setErrors(prev => ({
+            ...prev,
+            endTime: 'ساعت پایان باید بعد از ساعت شروع باشد'
+        }))
+    } else if (sessionTime.endTime && errors.endTime) {
+        setErrors(prev => ({ ...prev, endTime: undefined }))
+    }
+
+      const newSessionTime = { ...sessionTime, startTime: time }
       setsessionTime(newSessionTime)
       timeSlotChangeHandler(newSessionTime)
     }
@@ -171,67 +212,70 @@ const CustomDataPickerCalendar = forwardRef(
       setcalendarValue(momentJalaali())
     }
 
+    const kir = convertToPersianDigits(selectedDateState)
+
     return (
       <div className="w-full flex flex-col">
         {/* Time Slot Inputs */}
         <div className="w-full flex flex-col px-8">
-          <Typography variant="h5" className="text-center pb-2">
-            {sessionTime.startTime} - {sessionTime.endTime}
-          </Typography>
 
-          <div>
-            <div className="flex flex-col gap-2 mb-2">
-              <label className="flex flex-col text-sm">
-                ساعت شروع:
-                <input
-                  type="time"
-                  value={sessionTime.startTime}
-                  onChange={(e) => {
-                    setsessionTime({
-                      ...sessionTime,
-                      startTime: e.target.value,
-                    })
-                    startTimeAndEndTimeChangeHandler(e, 'startTime')
-                    // You can implement a handler to update session.startTime here
-                    // For now, just log the value
-                    console.log(
-                      'New start time:',
-                      e.target.value,
-                      'for session',
-                    )
-                  }}
-                  className="border rounded px-2 py-1 mt-1"
-                />
-              </label>
-              <label className="flex flex-col text-sm">
-                ساعت پایان:
-                <input
-                  type="time"
-                  value={sessionTime.endTime}
-                  onChange={(e) => {
-                    setsessionTime({ ...sessionTime, endTime: e.target.value })
-                    startTimeAndEndTimeChangeHandler(e, 'endTime')
-                    // You can implement a handler to update session.endTime here
-                    // For now, just log the value
-                    console.log('New end time:', e.target.value, 'for session')
-                  }}
-                  className="border rounded px-2 py-1 mt-1"
-                />
-              </label>
+          {/* Time Display */}
+          <div className="bg-gray-300 p-4 mb-8 rounded-lg text-center">
+            {/* Date */}
+            <div className='text-gray-800 text-xl'>{kir}</div>
+            
+            <div dir='rtl' className="text-gray-800 flex flex-row justify-center space-x-10">
+              <div className='flex flex-col gap-2'>
+                <div className='text-gray-500 text-xs'>زمان شروع</div>
+                <div className='text-gray-800 text-xl'>{sessionTime.startTime && convertToPersianDigits(sessionTime.startTime)}</div>
+              </div>
+
+
+              <div className='flex flex-col gap-2'>
+                <div className='text-gray-500 text-xs'>زمان پایان</div>
+                <div className='text-gray-800 text-xl'>{sessionTime.endTime && convertToPersianDigits(sessionTime.endTime)}</div>
+              </div>
+            </div>
+          </div>
+
+          <div className='w-full flex flex-col justify-between md:flex-row gap-4'>
+            {/* Time Picker */}
+
+            <div className='flex flex-col gap-6 w-full px-4 md:px-8'>
+                        {/* Start Time Picker */}
+                        <CustomTimePicker
+                            label="ساعت شروع"
+                            value={sessionTime.startTime}
+                            onChange={startTimeChangeHandler}
+                            error={!!errors.startTime}
+                            helperText={errors.startTime}
+                        />
+
+                        {/* End Time Picker */}
+                        <CustomTimePicker
+                            label="ساعت پایان"
+                            value={sessionTime.endTime}
+                            onChange={endTimeChangeHandler}
+                            error={!!errors.endTime}
+                            helperText={errors.endTime}
+                        />
+                    </div>
+
+            {/* Date Picker */}
+            <div className='flex'>
+              <Calendar
+                value={calendarValue}
+                isGregorian={false}
+                min={enabledRange.min}
+                onChange={(value) => calendarHandler(value)}
+              />
             </div>
           </div>
         </div>
 
         {/* Calendar Wrapper */}
         <div className="w-full flex flex-col md:flex-row pt-8 justify-around px-0 md:px-8 items-center md:items-start">
-          <div>
-            <Calendar
-              value={calendarValue}
-              isGregorian={false}
-              min={enabledRange.min}
-              onChange={(value) => calendarHandler(value)}
-            />
-          </div>
+
 
           {/* Time Slot Wrapper */}
           <div className="w-full mt-10 md:mt-0">

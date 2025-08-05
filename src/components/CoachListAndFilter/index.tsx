@@ -11,6 +11,8 @@ import InputAdornment from '@mui/material/InputAdornment'
 import SearchIcon from '@mui/icons-material/Search'
 import Box from '@mui/material/Box'
 
+const SERVER_FILE = process.env.REACT_APP_SERVER_FILE
+
 type Coach = {
   _id?: string
   id: string
@@ -85,7 +87,7 @@ const CoachListAndFilter: React.FC<CoachListAndFilterProps> = ({
                   <ListItemAvatar>
                     <Avatar
                       alt={`${coach.first_name} ${coach.last_name}`}
-                      src={coach.avatar_url || undefined}
+                      src={coach?.avatar?.file_name ? `${SERVER_FILE}/${coach?.avatar?.file_name}` : undefined}
                     />
                   </ListItemAvatar>
                   <ListItemText

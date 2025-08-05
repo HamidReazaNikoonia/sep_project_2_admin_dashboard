@@ -18,6 +18,10 @@ import {
   TableBody,
   TableRow,
   TableCell,
+  Stepper,
+  Step,
+  StepLabel,
+  StepContent,
 } from '@mui/material'
 import UploadIcon from '@mui/icons-material/Upload'
 import AddIcon from '@mui/icons-material/Add'
@@ -40,6 +44,7 @@ import { StyledTableContainer } from '@/components/StyledTableContainer'
 // Icons
 import Person2Icon from '@mui/icons-material/Person2';
 import ClassIcon from '@mui/icons-material/Class';
+import { convertToPersianDigits } from '@/utils/helper'
 
 const SERVER_URL = process.env.REACT_APP_SERVER_URL
 const SERVER_FILE = process.env.REACT_APP_SERVER_FILE
@@ -49,6 +54,10 @@ const CourseAssignCoach: React.FC = () => {
   const navigate = useNavigate()
   // Get course_id from route params
   const { course_id } = useParams<{ course_id: string }>()
+
+  // Stepper state
+  const [activeStep, setActiveStep] = useState(0)
+
   // Store course_id in state
   const [courseId, setCourseId] = useState<string | null>(null)
   const [selectedClassId, setSelectedClassId] = useState<string | null>(null)
@@ -121,6 +130,53 @@ const CourseAssignCoach: React.FC = () => {
     isError: packagesIsError,
   } = useGetAllPackages()
 
+  // Stepper steps
+  const steps = [
+    'انتخاب استاد',
+    'انتخاب کلاس',
+    'انتخاب تاریخ و ساعت',
+    'تکمیل اطلاعات'
+  ]
+
+  // Stepper navigation functions
+  const handleNext = () => {
+    if (activeStep === 0 && (!selectedCurentCoach || selectedCurentCoach === '')) {
+      showToast('خطا', 'لطفا استاد را انتخاب کنید', 'error')
+      return
+    }
+    if (activeStep === 1 && (!selectedClassId || selectedClassId === '')) {
+      showToast('خطا', 'لطفا کلاس را انتخاب کنید', 'error')
+      return
+    }
+    if (activeStep === 2 && selectedSession.length === 0) {
+      showToast('خطا', 'حداقل یک جلسه (‌بازه زمانی ) وارد کنید', 'error')
+      return
+    }
+
+    setActiveStep((prevActiveStep) => prevActiveStep + 1)
+  }
+
+  const handleBack = () => {
+    setActiveStep((prevActiveStep) => prevActiveStep - 1)
+  }
+
+  const handleReset = () => {
+    setActiveStep(0)
+    setSelectedCurentCoach(null)
+    setSelectedClassId(null)
+    setselectedSession([])
+    setformData({
+      course_type: 'ON-SITE',
+      price_real: 0,
+      price_discounted: 0,
+      max_member_accept: 0,
+      course_duration: 0,
+    })
+    setSampleMedias([{ media_type: '', media_title: '' }])
+    setCourseSubjects([{ title: '', sub_title: '' }])
+    setSelectedPackages([])
+  }
+
   useEffect(() => {
     console.log('error from use effect')
     console.log(assignCoachMutation.error)
@@ -135,10 +191,20 @@ const CourseAssignCoach: React.FC = () => {
         if (assignCoachMutation.error?.response) {
           const errMsg = assignCoachMutation.error?.response?.data?.message
           if (errMsg) {
-            showToast('SERVER ERROR', errMsg, 'error')
+
+            if (errMsg.includes('Coach has scheduling conflict on')) {
+              const errorMessage = errMsg.replace('Coach has scheduling conflict on', 'این بازه زمانی رزرو شده است');
+              showToast('error', errorMessage);
+            } else if (errMsg.includes('ClassProgram validation failed: sessions.3.date:')) {
+              showToast('خطا', 'تاریخ و ساعت باید در آینده باشد ( تاریخ های امروز قابل قبول نیست )', 'error')
+            } else {
+              showToast('SERVER ERROR', errMsg, 'error')
+            }
           }
         }
       }
+
+      showToast('SERVER ERROR', 'خطایی رخ داده است', 'error')
     }
   }, [assignCoachMutation.isError])
 
@@ -176,7 +242,7 @@ const CourseAssignCoach: React.FC = () => {
     }
   }, [course_id])
 
-  const handleReset = () => {
+  const handleResetCalendar = () => {
     if (childRef.current) {
       childRef.current.reset()
     }
@@ -192,11 +258,6 @@ const CourseAssignCoach: React.FC = () => {
       showToast('خطا', 'لطفا بازه زمانی را انتخاب کنید', 'error')
       return false
     }
-    // ------------------------
-    // const selectedTimeSlotVar = timeSlotItem && timeSlotItem[0]
-    // const selectedDateVar = selectedDateState
-    // console.log({ selectedTimeSlotVar })
-    // console.log({ selectedDateVar })
 
     // add session to list
     const _session = {
@@ -215,7 +276,7 @@ const CourseAssignCoach: React.FC = () => {
     // Reset Time Slot and Calendar
     setSelectedDateState(momentJalaali().locale('fa').format('jYYYY/jM/jD'))
     settimeSlotItem(null)
-    handleReset()
+    handleResetCalendar()
   }
 
   // sample media handler
@@ -432,8 +493,6 @@ const CourseAssignCoach: React.FC = () => {
       // @ts-expect-error
       console.error('Error submitting form:', error?.response?.data?.message)
     }
-
-    // handleAssignCoach()
   }
 
   if (isLoading) {
@@ -455,32 +514,18 @@ const CourseAssignCoach: React.FC = () => {
     )
   }
 
-
-
   console.log({ data });
   const currentCourse = data?.results[0];
 
-  return (
-    <div dir="rtl" className="py-8 px-4 min-h-screen">
-      <Typography fontWeight={600} variant="h5" gutterBottom>
-        ساخت کلاس جدید برای دوره {currentCourse?.title}
-      </Typography>
-      <Typography dir="ltr"> ID: {courseId}</Typography>
-
-      <div className="flex flex-col w-full bg-white rounded-2xl shadow-md py-12">
-        {/* Header */}
-        <div></div>
-
-        {/* CoachList and coach time-slot */}
-        <div className="flex justify-around items-center flex-col">
-          {/* CoachList*/}
+  // Step content components
+  const renderStepContent = (step: number) => {
+    switch (step) {
+      case 0:
+        return (
           <div dir="rtl" className="w-full px-8 md:px-12">
             <div className='mb-1 text-base font-semibold md:text-xl flex items-center gap-2'>
               <Person2Icon className='' />
-              <div className='mt-0.5'>
-                انتخاب استاد
-
-              </div>
+              <div className='mt-0.5'>انتخاب استاد</div>
             </div>
             <div className='mb-4 text-sm text-gray-500'>
               لطفا استاد مورد نظر خود را انتخاب کنید
@@ -499,16 +544,14 @@ const CourseAssignCoach: React.FC = () => {
               changeCurentCoach={setSelectedCurentCoach}
             />
           </div>
+        )
 
-          {/* Select Specific Class */}
-          {/* Select Specific Class */}
-          <div className="w-full px-8 md:px-12 my-8 border-t py-8">
+      case 1:
+        return (
+          <div className="w-full px-8 md:px-12 my-8 py-8">
             <div className='mb-1 text-base font-semibold md:text-xl flex items-center gap-2'>
               <ClassIcon className='' />
-              <div className='mt-0.5'>
-                انتخاب کلاس
-
-              </div>
+              <div className='mt-0.5'>انتخاب کلاس</div>
             </div>
             <div className='mb-6 text-sm text-gray-500'>
               لطفا کلاس مورد نظر خود را انتخاب کنید, برای کلاس های مجازی میتوانید این قسمت را انتخاب نکنید یا گزینه کلاس مجازی را انتخاب کنید
@@ -557,8 +600,6 @@ const CourseAssignCoach: React.FC = () => {
                     <h3 className="font-semibold text-sm mb-2">
                       ظرفیت : {cls.class_max_student_number} نفر
                     </h3>
-
-                    {/* Add more class info here if needed */}
                     <p className="text-sm text-gray-600">
                       کد کلاس: {cls._id}
                     </p>
@@ -567,62 +608,71 @@ const CourseAssignCoach: React.FC = () => {
                 : !ClassesIsLoading && <Typography>کلاسی یافت نشد.</Typography>}
             </div>
           </div>
+        )
 
-          {/* Coach Time Slot Calendar */}
-          {/* Select Time/Date Section */}
-          <div
-            dir="ltr"
-            className="flex w-full flex-col border-y-2 px-8 pt-16 pb-12"
-          >
-            <h2 className="text-center font-semibold text-lg">
-              لطفا تاریخ و ساعت مورد نظر خود را انتخاب کنید
-            </h2>
+      case 2:
+        return (
+          <div>
+            <div
+              dir="ltr"
+              className="flex min-w-5xl w-full flex-col px-8 pt-16 pb-12"
+            >
+              <h2 className="text-center font-semibold text-lg">
+                لطفا تاریخ و ساعت مورد نظر خود را انتخاب کنید
+              </h2>
 
-            <div className="flex justify-center mt-8">
-              <Button variant="outlined" onClick={addProgramTimeSlot}>
-                اضافه کردن جلسه +
-              </Button>
+
+
+              <div className="py-14 border">
+                <CustomDataPickerCalendar
+                  timeSlotChangeHandler={timeSlotChangeHandler}
+                  dateChangeHandler={dateChangeHandler}
+                  ref={childRef}
+                />
+
+                <div className="flex justify-center mt-8">
+                  <Button variant="outlined" onClick={addProgramTimeSlot}>
+                    اضافه کردن جلسه +
+                  </Button>
+                </div>
+              </div>
             </div>
 
-            {/* Calendar Wrapper */}
-            <div className="py-14">
-              <CustomDataPickerCalendar
-                timeSlotChangeHandler={timeSlotChangeHandler}
-                dateChangeHandler={dateChangeHandler}
-                ref={childRef}
-              />
+            <div className="flex w-full flex-col px-8 py-12">
+              <h2 className="text-center font-bold text-lg mb-8">
+                لیست جلسات انتخاب شده
+              </h2>
+
+              <div className="w-full flex flex-col space-y-2">
+                {selectedSession &&
+                  selectedSession.map((item, index) => (
+                    <div key={index} className="w-full flex justify-between items-center px-2 md:px-8 py-4 bg-[#385773] border rounded-xl">
+                      <div className="flex flex-1 space-x-5 font-bold text-white">
+                        <div>{item.date && convertToPersianDigits(item.date)}</div>
+                        <div className='border-r pr-4' dir='ltr'>{`${item.startTime && convertToPersianDigits(item.startTime)} - ${item.endTime && convertToPersianDigits(item.endTime)}`}</div>
+                      </div>
+                      <div>
+                        <Button
+                          variant="contained"
+                          color="error"
+                          onClick={() => {
+                            const newSessions = [...selectedSession]
+                            newSessions.splice(index, 1)
+                            setselectedSession(newSessions)
+                          }}
+                        >
+                          حذف
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+              </div>
             </div>
           </div>
+        )
 
-          {/* Selected Time Slot Program List */}
-          <div className="flex w-full flex-col border-y-2 px-8 py-12">
-            <h2 className="text-center font-bold text-lg mb-8">
-              لیست جلسات انتخاب شده
-            </h2>
-
-            <div className="w-full flex flex-col space-y-2">
-              {selectedSession &&
-                selectedSession.map((item) => (
-                  <div className="w-full flex justify-between items-center px-2 md:px-8 py-4 bg-[#385773] border rounded-xl">
-                    {/* Letf Side */}
-                    <div className="flex flex-1 space-x-5 font-bold text-white">
-                      <div>{item.date}</div>
-
-                      <div>{`${item.startTime} - ${item.endTime}`}</div>
-                    </div>
-
-                    {/* Rigth Side */}
-                    <div>
-                      <Button variant="contained" color="error">
-                        حذف
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-            </div>
-          </div>
-
-          {/* Program Form Section */}
+      case 3:
+        return (
           <div
             dir="rtl"
             className="flex flex-col items-start w-full px-12 py-12"
@@ -648,8 +698,6 @@ const CourseAssignCoach: React.FC = () => {
                   <MenuItem value="ONLINE">آنلاین</MenuItem>
                 </TextField>
               </div>
-
-              {/* Course Max Member */}
               <div className=""></div>
             </div>
 
@@ -757,7 +805,6 @@ const CourseAssignCoach: React.FC = () => {
 
             <div className="w-full pt-16 border-t">
               {/* Sample Media Fields */}
-
               <div className="p-3">
                 <Box sx={{ mt: 3 }}>
                   <Typography variant="h6" gutterBottom>
@@ -1082,22 +1129,73 @@ const CourseAssignCoach: React.FC = () => {
               </Box>
             </div>
           </div>
-          {/* Next: Add coach/class selection and time slot form here */}
+        )
 
-          <div className="w-full text-center mt-12">
-            <Button
-              sx={{ minWidth: '90%' }}
-              loading={assignCoachMutation.isPending}
-              disabled={assignCoachMutation.isPending}
-              size="large"
-              variant="contained"
-              color="primary"
-              onClick={submitFormHandler}
-            >
-              ثبت
-            </Button>
-          </div>
+      default:
+        return 'Unknown step';
+    }
+  }
+
+  return (
+    <div dir="rtl" className="py-8 px-4 min-h-screen">
+      <Typography fontWeight={600} variant="h5" gutterBottom>
+        ساخت کلاس جدید برای دوره {currentCourse?.title}
+      </Typography>
+      <Typography dir="ltr"> ID: {courseId}</Typography>
+
+      <div className="flex flex-col w-full bg-white rounded-2xl shadow-md py-12">
+        {/* Stepper */}
+        <Box sx={{ width: '100%', px: 4, mb: 4 }}>
+          <Stepper activeStep={activeStep} orientation="horizontal">
+            {steps.map((label, index) => (
+              <Step key={label}>
+                <StepLabel>&nbsp;&nbsp;{label}</StepLabel>
+              </Step>
+            ))}
+          </Stepper>
+        </Box>
+
+        {/* Step Content */}
+        <div className="flex justify-around items-center flex-col">
+          {renderStepContent(activeStep)}
         </div>
+
+        {/* Navigation Buttons */}
+        <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2, px: 4 }}>
+          <Button
+            variant="outlined"
+            color="inherit"
+            disabled={activeStep === 0}
+            onClick={handleBack}
+            sx={{ mr: 1 }}
+          >
+            قبلی
+          </Button>
+          <Box sx={{ flex: '1 1 auto' }} />
+
+          {activeStep === steps.length - 1 ? (
+            <Button
+              variant="contained"
+              onClick={submitFormHandler}
+              disabled={assignCoachMutation.isPending}
+              sx={{ minWidth: 120 }}
+            >
+              {assignCoachMutation.isPending ? <CircularProgress size={24} /> : 'ثبت نهایی'}
+            </Button>
+          ) : (
+            <Button onClick={handleNext} variant="contained">
+              بعدی
+            </Button>
+          )}
+        </Box>
+
+        {/* Reset Button */}
+        {activeStep === steps.length && (
+          <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2, px: 4 }}>
+            <Box sx={{ flex: '1 1 auto' }} />
+            <Button onClick={handleReset}>شروع مجدد</Button>
+          </Box>
+        )}
       </div>
     </div>
   )
