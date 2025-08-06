@@ -71,7 +71,7 @@ const Sidebar = ({ mobileOpen, handleDrawerToggle }) => {
 
   const menuItems: MenuItem[] = [
     { 
-      text: 'لیست کاربران', 
+      text: 'کاربران', 
       icon: <People />, 
       path: '/users',
       children: [
@@ -80,7 +80,7 @@ const Sidebar = ({ mobileOpen, handleDrawerToggle }) => {
       ]
     },
     { 
-      text: 'لیست محصولات', 
+      text: 'محصولات', 
       icon: <ShoppingCart />, 
       path: '/products',
       children: [
@@ -90,17 +90,17 @@ const Sidebar = ({ mobileOpen, handleDrawerToggle }) => {
       ]
     },
     { 
-      text: 'لیست اساتید', 
+      text: 'اساتید', 
       icon: <PeopleOutline />, 
       path: '/coach',
       children: [
         { text: 'مشاهده اساتید', icon: <PeopleOutline />, path: '/coach' },
         { text: 'ایجاد استاد', icon: <Add />, path: '/coach/new' },
-        { text: 'برنامه اساتید', icon: <Assignment />, path: '/coach/coach-course-program' },
+        { text: 'برنامه اساتید', icon: <Assignment />, path: '/' },
       ]
     },
     { 
-      text: 'لیست آموزش ها', 
+      text: 'آموزش آفلاین', 
       icon: <School />, 
       path: '/courses',
       children: [
@@ -110,12 +110,12 @@ const Sidebar = ({ mobileOpen, handleDrawerToggle }) => {
       ]
     },
     { 
-      text: 'لیست کلاس ها', 
+      text: 'دوره های آموزشی', 
       icon: <Class />, 
       path: '/courses-sessions',
       children: [
-        { text: 'مشاهده کلاس ها', icon: <Class />, path: '/courses-sessions' },
-        { text: 'ایجاد کلاس', icon: <Add />, path: '/courses-sessions/create' },
+        { text: 'مشاهده دوره ها', icon: <Class />, path: '/courses-sessions' },
+        { text: 'ایجاد دوره', icon: <Add />, path: '/courses-sessions/create' },
         { text: 'پکیج کلاس ها', icon: <School />, path: '/courses-sessions/implement-package' },
       ]
     },
