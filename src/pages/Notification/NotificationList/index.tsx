@@ -25,11 +25,11 @@ const SERVER_FILE = process.env.REACT_APP_SERVER_FILE
 const NotificationList = () => {
   // Define filters for the notification list
   const filters = [
-    {
-      queryParamKey: 'user',
-      label: 'کاربر',
-      type: 'search'
-    },
+    // {
+    //   queryParamKey: 'user',
+    //   label: 'کاربر',
+    //   type: 'search'
+    // },
     {
       queryParamKey: 'status',
       label: 'وضعیت',
