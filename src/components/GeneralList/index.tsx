@@ -340,7 +340,7 @@ const List = ({
 
                         {/* Pagination */}
                         {data.totalPages > 1 && (
-                            <div className="mt-6 flex items-center justify-between">
+                            <div dir='ltr' className="mt-6 flex items-center justify-between">
                                 <div className="text-sm text-gray-600">
                                     Showing page {data.page} of {data.totalPages} • {data.totalResults} total items
                                 </div>

@@ -56,6 +56,7 @@ import ProgramOrderSpecific from './pages/CourseSessionProgramOrder/ProgramOrder
 
 import TestUserList from './pages/Users/UserList';
 import CreateUser from './pages/Users/CreateUser'
+import NotificationPage from './pages/Notification/NotificationHome'
 
 
 const router = createBrowserRouter(
@@ -357,6 +358,14 @@ const router = createBrowserRouter(
       element: (
         <Layout>
           <SpecificCoachCoursePage />
+        </Layout>
+      ),
+    },
+    {
+      path: '/notifications',
+      element: (
+        <Layout>
+          <NotificationPage />
         </Layout>
       ),
     },
