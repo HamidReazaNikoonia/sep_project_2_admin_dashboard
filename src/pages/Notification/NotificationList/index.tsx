@@ -43,7 +43,7 @@ const NotificationList = () => {
       options: ['low', 'medium', 'high', 'urgent']
     },
     {
-      queryParamKey: 'category',
+      queryParamKey: 'notification_type',
       label: 'نوع اعلان',
       type: 'options',
       options: [
@@ -65,11 +65,11 @@ const NotificationList = () => {
         'announcement'
       ]
     },
-    {
-      queryParamKey: 'is_read_by_admin',
-      label: 'خوانده شده توسط ادمین',
-      type: 'checkbox'
-    }
+    // {
+    //   queryParamKey: 'is_read_by_admin',
+    //   label: 'خوانده شده توسط ادمین',
+    //   type: 'checkbox'
+    // }
   ];
 
   // Translation helpers
@@ -146,71 +146,72 @@ const NotificationList = () => {
 
   // Render individual notification item
   const renderNotificationItem = (notification) => (
-    <div key={notification.id} className="border-b border-gray-200 last:border-b-0">
-      <div className="p-4 hover:bg-gray-50 transition-colors">
-        <div className="flex items-center justify-between">
-          {/* Left side - Main content */}
-          <div className="flex-1 grid grid-cols-1 md:grid-cols-10 gap-4 items-center">
+    <Link to={`/notifications/${notification.id}`}>
+      <div key={notification.id} className="border-b border-gray-200 last:border-b-0">
+        <div className="p-4 hover:bg-gray-50 transition-colors">
+          <div className="flex items-center justify-between">
+            {/* Left side - Main content */}
+            <div className="flex-1 grid grid-cols-1 md:grid-cols-10 gap-4 items-center">
 
-            {/* User Info */}
-            <div className="flex col-span-3 items-center space-x-3 space-x-reverse">
-              <Avatar
-                src={notification.customer?.avatar?.file_name ? `${SERVER_FILE}/${notification.customer.avatar.file_name}` : undefined}
-                sx={{ width: 60, height: 60 }}
-              >
-                {!notification.customer?.avatar?.file_name &&
-                  `${notification.customer?.first_name?.[0] || ''}${notification.customer?.last_name?.[0] || ''}`
-                }
-              </Avatar>
-              <div className='mr-2'>
-                <Typography variant="body2" className="font-medium">
-                  {`${notification.customer?.first_name || ''} ${notification.customer?.last_name || ''}`.trim() || 'نامشخص'}
-                </Typography>
-                <Typography variant="caption" color="text.secondary">
-                  ID: {notification.customer?.id}
-                </Typography>
-              </div>
-            </div>
-
-            {/* Title & Category */}
-            <div className=''>
-            <div className='flex flex-col items-center'>
-                <div className='text-xs text-gray-600 mb-1'>نوع اعلان</div>
-                <Chip
-                label={getCategoryLabel(notification.notification_type)}
-                size="small"
-                variant="outlined"
-                sx={{ fontSize: '0.75rem', minWidth: 120 }}
-              />
-              </div>
-            </div>
-
-            {/* Status & Priority */}
-            <div className="space-x-3 col-span-2 flex items-center">
-              <div className='flex flex-col items-center'>
-                <div className='text-xs text-gray-600 mb-1'>وضعیت ارسال</div>
-                <Chip
-                  sx={{ minWidth: 100 }}
-                  label={getStatusLabel(notification.status)}
-                  color={getStatusColor(notification.status)}
-                  size="small"
-                />
+              {/* User Info */}
+              <div className="flex col-span-3 items-center space-x-3 space-x-reverse">
+                <Avatar
+                  src={notification.customer?.avatar?.file_name ? `${SERVER_FILE}/${notification.customer.avatar.file_name}` : undefined}
+                  sx={{ width: 60, height: 60 }}
+                >
+                  {!notification.customer?.avatar?.file_name &&
+                    `${notification.customer?.first_name?.[0] || ''}${notification.customer?.last_name?.[0] || ''}`
+                  }
+                </Avatar>
+                <div className='mr-2'>
+                  <Typography variant="body2" className="font-medium">
+                    {`${notification.customer?.first_name || ''} ${notification.customer?.last_name || ''}`.trim() || 'نامشخص'}
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    ID: {notification.customer?.id}
+                  </Typography>
+                </div>
               </div>
 
-              <div className='flex flex-col items-center'>
-                <div className='text-xs text-gray-600 mb-1'>اولویت</div>
-                <Chip
-                  sx={{ minWidth: 50 }}
-                  label={getPriorityLabel(notification.priority)}
-                  color={getPriorityColor(notification.priority)}
-                  size="small"
-                  variant="outlined"
-                />
+              {/* Title & Category */}
+              <div className=''>
+                <div className='flex flex-col items-center'>
+                  <div className='text-xs text-gray-600 mb-1'>نوع اعلان</div>
+                  <Chip
+                    label={getCategoryLabel(notification.notification_type)}
+                    size="small"
+                    variant="outlined"
+                    sx={{ fontSize: '0.75rem', minWidth: 120 }}
+                  />
+                </div>
               </div>
-            </div>
 
-            {/* Read Status & Replies */}
-            {/* <div className="flex flex-col items-center space-y-2">
+              {/* Status & Priority */}
+              <div className="space-x-3 col-span-2 flex items-center">
+                <div className='flex flex-col items-center'>
+                  <div className='text-xs text-gray-600 mb-1'>وضعیت ارسال</div>
+                  <Chip
+                    sx={{ minWidth: 100 }}
+                    label={getStatusLabel(notification.status)}
+                    color={getStatusColor(notification.status)}
+                    size="small"
+                  />
+                </div>
+
+                <div className='flex flex-col items-center'>
+                  <div className='text-xs text-gray-600 mb-1'>اولویت</div>
+                  <Chip
+                    sx={{ minWidth: 50 }}
+                    label={getPriorityLabel(notification.priority)}
+                    color={getPriorityColor(notification.priority)}
+                    size="small"
+                    variant="outlined"
+                  />
+                </div>
+              </div>
+
+              {/* Read Status & Replies */}
+              {/* <div className="flex flex-col items-center space-y-2">
               <div className="flex items-center space-x-4 space-x-reverse">
                 <Tooltip title="خوانده شده توسط ادمین">
                   <div>
@@ -241,35 +242,35 @@ const NotificationList = () => {
               )}
             </div> */}
 
-            {/* Dates */}
-            <div className="text-xs col-span-2 text-gray-500">
-              <div>
-                <strong>ایجاد:</strong> {moment(notification.created_at).format('jYYYY/jMM/jDD HH:mm')}
+              {/* Dates */}
+              <div className="text-xs col-span-2 text-gray-500">
+                <div>
+                  <strong>ایجاد:</strong> {moment(notification.created_at).format('jYYYY/jMM/jDD HH:mm')}
+                </div>
+                <div>
+                  <strong>بروزرسانی:</strong> {moment(notification.updated_at).format('jYYYY/jMM/jDD HH:mm')}
+                </div>
               </div>
-              <div>
-                <strong>بروزرسانی:</strong> {moment(notification.updated_at).format('jYYYY/jMM/jDD HH:mm')}
+
+              {/* Channels */}
+              <div className="flex items-center gap-2 col-span-2">
+                {notification.channels?.map((channel, index) => (
+                  <Chip
+                    key={index}
+                    label={channel === 'sms' ? 'پیامک' :
+                      channel === 'email' ? 'ایمیل' :
+                        channel === 'push' ? 'پوش' :
+                          channel === 'in_app' ? 'درون برنامه‌ای' :
+                            channel === 'webhook' ? 'وب‌هوک' : channel}
+                    size="small"
+                    variant="outlined"
+                    sx={{ fontSize: '10px' }}
+                  />
+                ))}
               </div>
-            </div>
 
-            {/* Channels */}
-            <div className="flex items-center gap-2 col-span-2">
-              {notification.channels?.map((channel, index) => (
-                <Chip
-                  key={index}
-                  label={channel === 'sms' ? 'پیامک' :
-                         channel === 'email' ? 'ایمیل' :
-                         channel === 'push' ? 'پوش' :
-                         channel === 'in_app' ? 'درون برنامه‌ای' :
-                         channel === 'webhook' ? 'وب‌هوک' : channel}
-                  size="small"
-                  variant="outlined"
-                  sx={{ fontSize: '10px' }}
-                />
-              ))}
-            </div>
-
-            {/* Actions */}
-            {/* <div className="flex items-center space-x-2 space-x-reverse">
+              {/* Actions */}
+              {/* <div className="flex items-center space-x-2 space-x-reverse">
               <Tooltip title="مشاهده جزئیات">
                 <Link to={`/notifications/${notification.id}`}>
                   <IconButton size="small" color="primary">
@@ -285,22 +286,23 @@ const NotificationList = () => {
                 </Link>
               </Tooltip>
             </div> */}
+            </div>
           </div>
-        </div>
 
-        {/* Description preview */}
-        {notification.description && (
-          <div className="mt-3 pt-3 border-t border-gray-100">
-            <Typography variant="body2" color="text.secondary" className="line-clamp-2">
-              {notification.description.length > 150
-                ? `${notification.description.substring(0, 150)}...`
-                : notification.description
-              }
-            </Typography>
-          </div>
-        )}
+          {/* Description preview */}
+          {notification.description && (
+            <div className="mt-3 pt-3 border-t border-gray-100">
+              <Typography variant="body2" color="text.secondary" className="line-clamp-2">
+                {notification.description.length > 150
+                  ? `${notification.description.substring(0, 150)}...`
+                  : notification.description
+                }
+              </Typography>
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+    </Link>
   );
 
   return (

@@ -23,7 +23,7 @@ export const notificationApi = {
 
   // 3. Get specific notification by ID
   getNotificationById: async (ticketId: string): Promise<NotificationResponse> => {
-    const response = await api.get(`/notification/admin/${ticketId}`);
+    const response = await api.get(`/notification/${ticketId}`);
     return response.data;
   },
 

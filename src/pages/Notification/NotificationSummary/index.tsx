@@ -171,7 +171,7 @@ const NotificationSummary = () => {
       {/* Top Notification Types */}
       <div className="mb-4">
         <h6 className="text-lg font-medium mb-3 text-gray-700">
-          انواع اعلان‌های پربسامد
+          انواع اعلان‌ها
         </h6>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
           {topTypeCards.map((card, index) => (
