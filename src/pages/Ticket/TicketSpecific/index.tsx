@@ -29,9 +29,12 @@ import {
     Info,
     LiveHelp,
     Settings,
+    Send,
+    CloudUpload,
+    Close,
 } from '@mui/icons-material';
 import { Avatar, Chip, Button, Select, MenuItem, FormControl, InputLabel, TextareaAutosize } from '@mui/material';
-import { useTicket, useUpdateTicketGeneral, useMarkTicketAsReadGeneral } from '../../../API/Ticket/ticket.hook';
+import { useTicket, useUpdateTicketGeneral, useMarkTicketAsReadGeneral, useReplyToTicket } from '../../../API/Ticket/ticket.hook';
 import { Ticket } from '../../../API/Ticket/types';
 import { a } from 'vitest/dist/chunks/suite.B2jumIFP.js';
 import { convertToPersianDigits } from '@/utils/helper';
@@ -45,6 +48,7 @@ const TicketSpecific = () => {
     // Mutations
     const updateTicketMutation = useUpdateTicketGeneral();
     const markAsReadMutation = useMarkTicketAsReadGeneral();
+    const replyToTicketMutation = useReplyToTicket(ticket_id!);
 
     // Edit mode state
     const [isEditing, setIsEditing] = useState(false);
@@ -52,7 +56,12 @@ const TicketSpecific = () => {
         status: '',
         priority: '',
         category: '',
-        resolution_notes: ''
+    });
+
+    // 2. Add reply form state
+    const [replyForm, setReplyForm] = useState({
+        message: '',
+        attachments: [] as File[]
     });
 
     const ticket = ticketData;
@@ -64,7 +73,6 @@ const TicketSpecific = () => {
                 status: ticket.status,
                 priority: ticket.priority,
                 category: ticket.category,
-                resolution_notes: ticket.resolution_notes || ''
             });
         }
     }, [ticket, isEditing]);
@@ -184,9 +192,58 @@ const TicketSpecific = () => {
             status: ticket.status,
             priority: ticket.priority,
             category: ticket.category,
-            resolution_notes: ticket.resolution_notes || ''
+        });
+        // Reset reply form
+        setReplyForm({
+            message: '',
+            attachments: []
         });
         setIsEditing(false);
+    };
+
+    // 2. Add file upload handlers
+    const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const files = Array.from(event.target.files || []);
+        setReplyForm(prev => ({
+            ...prev,
+            attachments: [...prev.attachments, ...files]
+        }));
+    };
+
+    const removeFile = (index: number) => {
+        setReplyForm(prev => ({
+            ...prev,
+            attachments: prev.attachments.filter((_, i) => i !== index)
+        }));
+    };
+
+    // 3. Submit reply handler
+    const submitReplyForm = async () => {
+        // Check if message is not empty
+        if (!replyForm.message.trim()) {
+            alert('لطفا پیام خود را وارد کنید');
+            return;
+        }
+
+        try {
+            const payload = {
+                message: replyForm.message.trim(),
+                // attachments: [] // Add uploaded file IDs here after implementing file upload
+            };
+
+            await replyToTicketMutation.mutateAsync(payload);
+
+            // Reset form and exit edit mode
+            setReplyForm({
+                message: '',
+                attachments: []
+            });
+            setIsEditing(false);
+            refetch();
+        } catch (error) {
+            console.error('Error submitting reply:', error);
+            alert('خطا در ارسال پاسخ');
+        }
     };
 
     const renderUserCard = (user: any, title: string, icon: React.ReactNode) => {
@@ -522,27 +579,18 @@ const TicketSpecific = () => {
                                 </div>
                             </div>
 
-                            {/* Resolution Notes (if editing or exists) */}
-                            {(isEditing || ticket.resolution_notes) && (
+                            {/* Show resolution_notes only when not editing and it exists */}
+                            {ticket.resolution_notes && (
                                 <div className="md:col-span-2">
                                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                                          پاسخ
+                                        یادداشت  
                                     </label>
-                                    {isEditing ? (
-                                        <TextareaAutosize
-                                            minRows={3}
-                                            value={editForm.resolution_notes}
-                                            onChange={(e) => setEditForm({ ...editForm, resolution_notes: e.target.value })}
-                                            className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                            placeholder="یادداشت حل مسئله..."
-                                        />
-                                    ) : ticket.resolution_notes ? (
-                                        <div className="bg-gray-50 p-4 rounded-md">
-                                            <p className="text-gray-900 whitespace-pre-wrap">{ticket.resolution_notes}</p>
-                                        </div>
-                                    ) : null}
+                                    <div className="bg-gray-50 p-4 rounded-md">
+                                        <p className="text-gray-900 whitespace-pre-wrap">{ticket.resolution_notes}</p>
+                                    </div>
                                 </div>
                             )}
+
                         </div>
 
                         {/* Attachments */}
@@ -569,8 +617,109 @@ const TicketSpecific = () => {
                         )}
                     </div>
 
-                    {/* Replies Section */}
-                    {ticket.replies && ticket.replies.length > 0 && (
+                </div>
+            </div>
+            
+            {/* Reply Form */}
+            <div className='w-full bg-green-400 p-4 rounded-lg shadow-2xl'>
+                {/* Replace resolution_notes section with reply form */}
+                { (
+                                <div className="md:col-span-2 mt-6">
+                                    <h4 className="text-lg font-medium text-gray-900 mb-4">ارسال پاسخ جدید</h4>
+
+                                    <div className="space-y-4">
+                                        {/* Message Textarea */}
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-800 mb-2">
+                                                پیام <span className="text-red-500">*</span>
+                                            </label>
+                                            <TextareaAutosize
+                                                minRows={4}
+                                                maxRows={10}
+                                                value={replyForm.message}
+                                                onChange={(e) => setReplyForm({...replyForm, message: e.target.value})}
+                                                className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
+                                                placeholder="پیام خود را اینجا بنویسید..."
+                                            />
+                                        </div>
+
+                                        {/* File Upload */}
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-800 mb-2">
+                                                فایل‌های پیوست
+                                            </label>
+
+                                            {/* Upload Button */}
+                                            <div className="flex items-center space-x-2 space-x-reverse mb-2">
+                                                <input
+                                                    type="file"
+                                                    id="attachments"
+                                                    multiple
+                                                    onChange={handleFileUpload}
+                                                    className="hidden"
+                                                    accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png,.gif"
+                                                />
+                                                <label
+                                                    htmlFor="attachments"
+                                                    className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 cursor-pointer"
+                                                >
+                                                    <CloudUpload className="w-4 h-4 ml-1" />
+                                                    انتخاب فایل
+                                                </label>
+                                                <span className="text-xs mr-3 text-gray-700">
+                                                    فرمت‌های مجاز: PDF, DOC, TXT, JPG, PNG
+                                                </span>
+                                            </div>
+
+                                            {/* Selected Files List */}
+                                            {replyForm.attachments.length > 0 && (
+                                                <div className="space-y-2">
+                                                    {replyForm.attachments.map((file, index) => (
+                                                        <div key={index} className="flex items-center justify-between bg-gray-50 p-2 rounded">
+                                                            <div className="flex items-center">
+                                                                <AttachFile className="w-4 h-4 ml-2 text-gray-500" />
+                                                                <span className="text-sm text-gray-700">{file.name}</span>
+                                                                <span className="text-xs text-gray-500 mr-2">
+                                                                    ({Math.round(file.size / 1024)} KB)
+                                                                </span>
+                                                            </div>
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => removeFile(index)}
+                                                                className="text-red-500 hover:text-red-700"
+                                                            >
+                                                                <Close className="w-4 h-4" />
+                                                            </button>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        <div className='flex justify-end'>
+                                            
+                                        <Button
+                                                    sx={{
+                                                        pl: 3,
+                                                        textAlign: 'center',
+                                                    }}
+                                                    variant="contained"
+                                                    color="primary"
+                                                    startIcon={<Send className='ml-3' />}
+                                                    onClick={submitReplyForm}
+                                                >
+                                                    ارسال پاسخ
+                                                </Button>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+            </div>
+
+            {/* Reply List */}
+            <div className='w-full'>
+                 {/* Replies Section */}
+                 {ticket.replies && ticket.replies.length > 0 && (
                         <div className="bg-white rounded-lg shadow-md p-6">
                             <h3 className="text-lg font-semibold mb-4 flex items-center">
                                 <QuestionAnswer className="ml-2 text-blue-600" />
@@ -609,9 +758,19 @@ const TicketSpecific = () => {
                                                                 </span>
                                                             )}
                                                         </h4>
-                                                        <span className="text-sm text-gray-500">
-                                                            {moment(reply.createdAt).format('jYYYY/jMM/jDD HH:mm')}
-                                                        </span>
+                                                        <div className="flex items-center gap-2 space-x-reverse">
+                                                            <span className="text-sm text-gray-500">
+                                                                {convertToPersianDigits(moment(reply.createdAt).format('jYYYY/jMM/jDD HH:mm'))}
+                                                            </span>
+                                                            {/* Add is_read indicator */}
+                                                            <div className="flex items-center" title="مشاهده توسط کاربر">
+                                                                {reply.is_read ? (
+                                                                    <Visibility className="w-4 h-4 text-green-500" />
+                                                                ) : (
+                                                                    <VisibilityOff className="w-4 h-4 text-red-500" />
+                                                                )}
+                                                            </div>
+                                                        </div>
                                                     </div>
 
                                                     <p className="text-gray-700 whitespace-pre-wrap mb-3">
@@ -642,7 +801,6 @@ const TicketSpecific = () => {
                             </div>
                         </div>
                     )}
-                </div>
             </div>
         </div>
     );
