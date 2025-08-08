@@ -32,6 +32,8 @@ import {
   Category,
   Assignment,
 } from '@mui/icons-material'
+
+import CircleNotificationsIcon from '@mui/icons-material/CircleNotifications';
 import { Link, useLocation } from 'react-router'
 
 // Define the menu item type
@@ -131,6 +133,7 @@ const Sidebar = ({ mobileOpen, handleDrawerToggle }) => {
       ]
     },
     { text: 'مدیریت کلاس ها', icon: <Class />, path: '/class-room' },
+    { text: 'مدیریت اعلان ها', icon: <CircleNotificationsIcon />, path: '/notifications' },
     { 
       text: 'مدیریت دوره ها', 
       icon: <School />, 

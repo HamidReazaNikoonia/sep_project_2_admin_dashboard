@@ -251,7 +251,7 @@ const NotificationSpecific = () => {
             )}
             {notification.content?.action_url && (
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">لینک عمل</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">لینک </label>
                 <a 
                   href={notification.content.action_url} 
                   target="_blank" 
@@ -413,7 +413,7 @@ const NotificationSpecific = () => {
           )}
           {notification.read_at && (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">زمان مطالعه</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">زمان مشاهده کاربر</label>
               <p className="text-sm text-gray-900">
                 {moment(notification.read_at).format('jYYYY/jMM/jDD HH:mm')}
               </p>
@@ -495,7 +495,7 @@ const NotificationSpecific = () => {
       )}
 
       {/* Actions */}
-      {notification.actions && notification.actions.length > 0 && (
+      {/* {notification.actions && notification.actions.length > 0 && (
         <div className="bg-white shadow-lg rounded-lg p-6">
           <h2 className="text-xl font-semibold mb-4 text-gray-900">اقدامات</h2>
           <div className="space-y-2">
@@ -520,7 +520,7 @@ const NotificationSpecific = () => {
             ))}
           </div>
         </div>
-      )}
+      )} */}
 
       {/* Technical Details */}
       <div className="bg-white shadow-lg rounded-lg p-6">
