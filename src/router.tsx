@@ -58,6 +58,7 @@ import TestUserList from './pages/Users/UserList';
 import CreateUser from './pages/Users/CreateUser'
 import NotificationPage from './pages/Notification/NotificationHome'
 import NotificationSpecific from './pages/Notification/NotificationSpecific'
+import TicketList from './pages/Ticket/TicketList'
 
 
 const router = createBrowserRouter(
@@ -375,6 +376,14 @@ const router = createBrowserRouter(
       element: (
         <Layout>
           <NotificationSpecific />
+        </Layout>
+      ),
+    },
+    {
+      path: '/tickets',
+      element: (
+        <Layout>
+          <TicketList />
         </Layout>
       ),
     },
