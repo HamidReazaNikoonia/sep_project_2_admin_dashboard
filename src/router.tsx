@@ -59,6 +59,7 @@ import CreateUser from './pages/Users/CreateUser'
 import NotificationPage from './pages/Notification/NotificationHome'
 import NotificationSpecific from './pages/Notification/NotificationSpecific'
 import TicketList from './pages/Ticket/TicketList'
+import TicketSpecific from './pages/Ticket/TicketSpecific'
 
 
 const router = createBrowserRouter(
@@ -384,6 +385,14 @@ const router = createBrowserRouter(
       element: (
         <Layout>
           <TicketList />
+        </Layout>
+      ),
+    },
+    {
+      path: '/tickets/:ticket_id',
+      element: (
+        <Layout>
+          <TicketSpecific />
         </Layout>
       ),
     },
