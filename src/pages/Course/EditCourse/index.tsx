@@ -30,15 +30,19 @@ const schema = yup.object({
     price: yup
       .number()
       .required('قیمت دوره الزامی است')
-      .min(10000, 'حداقل قیمت ۱۰,۰۰۰ تومان است'),
-    course_type: yup.string().required('نوع دوره الزامی است'),
-    course_category: yup.string().required('دسته‌بندی دوره الزامی است'),
-    max_member_accept: yup
+      .min(10000, 'حداقل قیمت ۱۰,۰۰۰ ریال است'),
+    price_with_discount: yup
       .number()
-      .required('حداکثر ظرفیت الزامی است')
-      .min(1, 'حداقل ظرفیت ۱ نفر است')
-      .integer('ظرفیت باید عدد صحیح باشد'),
-    course_language: yup.string().required('زبان دوره الزامی است'),
+      .optional()
+      .nullable(),
+    // course_type: yup.string().required('نوع دوره الزامی است'),
+    course_category: yup.string().required('دسته‌بندی دوره الزامی است'),
+    // max_member_accept: yup
+    //   .number()
+    //   .required('حداکثر ظرفیت الزامی است')
+    //   .min(1, 'حداقل ظرفیت ۱ نفر است')
+    //   .integer('ظرفیت باید عدد صحیح باشد'),
+    course_language: yup.string(),
     course_duration: yup.number().required('مدت دوره الزامی است'),
     slug: yup.string(),
     // educational_level: yup.number().required('سطح آموزشی الزامی است'),
@@ -112,9 +116,10 @@ const EditCourse = () => {
     defaultValues: {
       is_have_licence: false,
       course_status: true,
-      course_type: '',
+      // course_type: '',
       sample_media: [],
       course_objects: [],
+      price_with_discount: 0,
     },
   });
 
@@ -138,10 +143,12 @@ const EditCourse = () => {
       reset({
         title: course.title,
         sub_title: course.sub_title,
-        price: course.price,
-        course_type: course.course_type,
+        price: course.price_real,
+        price_with_discount: course.price_discount || 0,
+        is_fire_sale: course.is_fire_sale,
+        // course_type: course.course_type,
         course_category: course.course_category?._id,
-        max_member_accept: course.max_member_accept,
+        // max_member_accept: course.max_member_accept,
         course_language: course.course_language,
         course_duration: course.course_duration,
         educational_level: course.educational_level,
@@ -192,10 +199,12 @@ const EditCourse = () => {
       const payload = {
         title: data.title,
         sub_title: data.sub_title,
-        price: data.price,
-        course_type: data.course_type,
+        price_real: data.price,
+        price_discount: data.price_with_discount > 0 ? data.price_with_discount : null,
+        is_fire_sale: data.price_with_discount ? true : false,
+        // course_type: data.course_type,
         course_category: data.course_category,
-        max_member_accept: data.max_member_accept,
+        // max_member_accept: data.max_member_accept,
         course_language: data.course_language,
         course_duration: data.course_duration,
         is_have_licence: data.is_have_licence,
@@ -293,7 +302,7 @@ const EditCourse = () => {
                   />
                 </Grid>
 
-                <Grid size={{ xs: 12, md: 4 }}>
+                {/* <Grid size={{ xs: 12, md: 4 }}>
                   <TextField
                     {...register('course_type')}
                     select
@@ -306,7 +315,7 @@ const EditCourse = () => {
                     <MenuItem value="HOZORI">حضوری</MenuItem>
                     <MenuItem value="OFFLINE">آفلاین</MenuItem>
                   </TextField>
-                </Grid>
+                </Grid> */}
 
                 <Grid size={{ xs: 12, md: 4 }}>
                   <TextField
@@ -331,9 +340,20 @@ const EditCourse = () => {
                     {...register('price')}
                     fullWidth
                     type="number"
-                    label="قیمت دوره (تومان)"
+                    label="قیمت دوره (ریال)"
                     error={!!errors.price}
                     helperText={errors.price?.message}
+                  />
+                </Grid>
+
+                <Grid size={{ xs: 12, md: 4 }}>
+                  <TextField
+                    {...register('price_with_discount')}
+                    fullWidth
+                    type="number"
+                    label="قیمت با تخفیف (ریال)"
+                    error={!!errors.price_with_discount}
+                    helperText={errors.price_with_discount?.message}
                   />
                 </Grid>
               </Grid>
@@ -347,7 +367,7 @@ const EditCourse = () => {
                 جزئیات دوره
               </Typography>
               <Grid container spacing={2}>
-                <Grid size={{ xs: 12, md: 3 }}>
+                {/* <Grid size={{ xs: 12, md: 3 }}>
                   <TextField
                     {...register('max_member_accept')}
                     fullWidth
@@ -356,7 +376,7 @@ const EditCourse = () => {
                     error={!!errors.max_member_accept}
                     helperText={errors.max_member_accept?.message}
                   />
-                </Grid>
+                </Grid> */}
 
                 <Grid size={{ xs: 12, md: 3 }}>
                   <TextField

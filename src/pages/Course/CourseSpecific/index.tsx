@@ -13,6 +13,7 @@ import { useCourse, useUpdateCourse } from '../../../API/Course/course.hook'
 import StyledPaper from '../../../components/StyledPaper'
 import { showToast } from '../../../utils/toast'
 import FolderIcon from '@mui/icons-material/Folder'
+import Person3Icon from '@mui/icons-material/Person3';
 const label = { inputProps: { 'aria-label': 'Switch Course Status' } }
 
 const SERVER_URL = process.env.REACT_APP_SERVER_URL
@@ -99,7 +100,7 @@ const CourseSpecific = () => {
 
       <Grid container spacing={3}>
         {/* Basic Information */}
-        <Grid item size={{ xs: 12, md: 6 }}>
+        <Grid size={{ xs: 12, md: 6 }}>
           <StyledPaper sx={{ p: 3 }}>
             <Typography variant="h6" gutterBottom>
               اطلاعات اصلی
@@ -186,7 +187,7 @@ const CourseSpecific = () => {
         <Grid size={{ xs: 12, md: 3 }}>
           <StyledPaper sx={{ p: 3, minHeight: { xs: 'auto', md: '318px' } }}>
             <Typography variant="h6" gutterBottom>
-              قیمت و ظرفیت
+              قیمت دوره
             </Typography>
             <Box mt={2}>
               <Typography variant="subtitle2" color="textSecondary">
@@ -208,14 +209,6 @@ const CourseSpecific = () => {
               </Box>
             )}
 
-            <Box mt={2}>
-              <Typography variant="subtitle2" color="textSecondary">
-                ظرفیت دوره
-              </Typography>
-              <Typography>
-                {course.member.length} / {course.max_member_accept} نفر
-              </Typography>
-            </Box>
           </StyledPaper>
         </Grid>
 
@@ -224,10 +217,31 @@ const CourseSpecific = () => {
           <StyledPaper sx={{ p: 3, minHeight: { xs: 'auto', md: '318px' } }}>
             <div className="flex flex-col gap-4">
               <div>
-                <Typography variant="h6" gutterBottom>
-                  مدرس دوره
-                </Typography>
-                <Typography>{course.coach_id?.name || '-'}</Typography>
+                <div>
+                  <div className="flex items-center gap-3 mb-4">
+                    {course?.coach_id?.avatar?.file_name ? (
+                      <img
+                        src={`${SERVER_FILE}/${course.coach_id.avatar.file_name}`}
+                        alt="Coach Avatar"
+                        className="w-16 h-16 rounded-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center">
+                        <Person3Icon sx={{ color: '#9ca3af', fontSize: 24 }} />
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <div>
+                  <Typography variant="h6" gutterBottom>
+                    مدرس دوره
+                  </Typography>
+                  {course?.coach_id ? (
+                    <Typography>{course.coach_id?.first_name + ' ' + course.coach_id?.last_name}</Typography>
+                  ) : (
+                    <Typography>نامشخص</Typography>
+                  )}
+                </div>
               </div>
 
               {/* Status */}
@@ -265,7 +279,7 @@ const CourseSpecific = () => {
                 overflowWrap: 'break-word',
               }}
             >
-              {course.description}
+              {course?.description}
             </div>
           </StyledPaper>
         </Grid>

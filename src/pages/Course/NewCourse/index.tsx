@@ -50,11 +50,11 @@ const schema = yup.object({
     )
     .optional()
     .min(10000, 'حداقل قیمت ۱۰,۰۰۰ تومان است'),
-  max_member_accept: yup
-    .number()
-    .required('حداکثر ظرفیت الزامی است')
-    .min(1, 'حداقل ظرفیت ۱ نفر است')
-    .integer('ظرفیت باید عدد صحیح باشد'),
+  // max_member_accept: yup
+  //   .number()
+  //   .required('حداکثر ظرفیت الزامی است')
+  //   .min(1, 'حداقل ظرفیت ۱ نفر است')
+  //   .integer('ظرفیت باید عدد صحیح باشد'),
   course_language: yup.string(),
   course_duration: yup.number().required('مدت دوره الزامی است'),
   slug: yup.string(),
@@ -129,7 +129,7 @@ const NewCourse = () => {
       price_discount: null,
       price_real: 0,
       description: '',
-      max_member_accept: 1,
+      // max_member_accept: 1,
       course_duration: 0,
       course_language: 'FA',
     },
@@ -415,7 +415,7 @@ const NewCourse = () => {
                 جزئیات دوره
               </Typography>
               <Grid container spacing={2}>
-                <Grid size={{ xs: 12, md: 3 }}>
+                {/* <Grid size={{ xs: 12, md: 3 }}>
                   <TextField
                     {...register('max_member_accept')}
                     fullWidth
@@ -424,7 +424,7 @@ const NewCourse = () => {
                     error={!!errors.max_member_accept}
                     helperText={errors.max_member_accept?.message}
                   />
-                </Grid>
+                </Grid> */}
 
                 <Grid size={{ xs: 12, md: 3 }}>
                   <TextField

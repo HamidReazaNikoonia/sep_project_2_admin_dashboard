@@ -20,7 +20,7 @@ const ProgramList = () => {
 
     const renderUserItem = (courseSession: any) => (
         <div dir='rtl' key={courseSession.id} className="p-3 border-b hover:bg-gray-50">
-            <Link to={`/courses-sessions/${courseSession?.id}`} className="font-medium hover:opacity-80">
+            <Link to={`/courses/${courseSession?.id}`} className="font-medium hover:opacity-80">
                 {/* Mobile Layout (column) */}
                 <div className="md:hidden space-y-3">
 
@@ -216,7 +216,7 @@ const ProgramList = () => {
         <>
             <div dir='rtl' className='flex  text-right mb-6'>
                 <Link
-                    to="/courses-sessions/create"
+                    to="/courses/new"
                     style={{
                         textDecoration: 'none',
                         color: 'inherit',
