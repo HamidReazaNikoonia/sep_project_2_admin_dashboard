@@ -105,6 +105,7 @@ const CourseSessionSpecific = () => {
             </Button>
           </Link> */}
 
+          <div className='flex gap-2'>
           <Link to={`/courses-sessions/${course_id}/assign-coach/`}>
             <Button
               endIcon={<AddCircleOutline />}
@@ -114,6 +115,17 @@ const CourseSessionSpecific = () => {
               افزودن کلاس&nbsp;&nbsp;
             </Button>
           </Link>
+
+          <Link to={`/courses-sessions/${course_id}/edit`}>
+          <Button
+              endIcon={<EditIcon />}
+              variant="contained"
+              color="warning"
+            >
+              ویرایش دوره&nbsp;&nbsp;
+            </Button>
+          </Link>
+          </div>
         </div>
       </div>
 

@@ -1,8 +1,5 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router'
-import { useForm, useFieldArray, Controller } from 'react-hook-form'
-import { yupResolver } from '@hookform/resolvers/yup'
-import * as yup from 'yup'
 import {
   Box,
   Typography,
@@ -15,6 +12,9 @@ import {
 } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
 import DeleteIcon from '@mui/icons-material/Delete'
+import EditIcon from '@mui/icons-material/Edit'
+import SaveIcon from '@mui/icons-material/Save'
+import CancelIcon from '@mui/icons-material/Cancel'
 import UploadIcon from '@mui/icons-material/Upload'
 import ImageUploader from 'react-images-upload'
 
@@ -29,11 +29,11 @@ import { showToast } from '@/utils/toast'
 import Editor from '@/components/TextEditor'
 import StyledPaper from '@/components/StyledPaper'
 
-// Types and schema (same as in CreateCourseSession)
+// Types
 interface UploadedFile {
   _id: string
   name: string
-  // Add other properties as needed
+  file_name: string
 }
 
 interface FileUploadState {
@@ -45,45 +45,74 @@ interface FileUploadState {
   }
 }
 
-interface FormData {
-  title: string
-  sub_title: string
-  description: string
-  description_long?: string
-  sample_media: {
-    media_type: string
-    media_title: string
-    url_address: string
-  }[]
+interface SampleMedia {
+  _id: string
+  file: { file_name: string; _id: string }
+  media_title: string
+  media_type: 'IMAGE' | 'VIDEO' | 'FILE' | 'AUDIO'
+  url_address: string
 }
 
-const schema = yup.object().shape({
-  title: yup.string().required('عنوان جلسه الزامی است'),
-  sub_title: yup.string().required('زیرعنوان الزامی است'),
-  description: yup.string().required('توضیح کوتاه الزامی است'),
-  sample_media: yup.array().of(
-    yup.object().shape({
-      media_title: yup.string().required('عنوان رسانه الزامی است'),
-      media_type: yup.string().required('نوع رسانه الزامی است'),
-      url_address: yup.string(),
-    }),
-  ),
-})
+interface FormErrors {
+  title?: string
+  sub_title?: string
+  description?: string
+}
 
 const SERVER_FILE = process.env.REACT_APP_SERVER_FILE
 const SERVER_URL = process.env.REACT_APP_SERVER_URL
 
+const MEDIA_TYPE_OPTIONS = [
+  { value: 'VIDEO', label: 'ویدیو' },
+  { value: 'IMAGE', label: 'تصویر' },
+  { value: 'AUDIO', label: 'صوت' },
+  { value: 'FILE', label: 'فایل' },
+]
+
 const EditCourseSession: React.FC = () => {
   const navigate = useNavigate()
   const { course_id } = useParams()
-  const [thumbnailImage, setThumbnailImage] = useState<string | null>(null)
-  const [thumbnailImageUrl, setThumbnailImageUrl] = useState<string | null>(
-    null,
-  )
+
+  // Form state using useState
+  const [formData, setFormData] = useState({
+    title: '',
+    sub_title: '',
+    description: '',
+  })
+  const [formErrors, setFormErrors] = useState<FormErrors>({})
+  
+  // Other state
+  const [thumbnailImage, setThumbnailImage] = useState<File | null>(null)
+  const [thumbnailImageUrl, setThumbnailImageUrl] = useState<string | null>(null)
   const [descriptionLong, setDescriptionLong] = useState('')
+  const [sampleMedia, setSampleMedia] = useState<SampleMedia[]>([])
+  // Remove editing states since we don't need them anymore
+  // const [editingMediaIndex, setEditingMediaIndex] = useState<number | null>(null)
+  // const [editingMediaData, setEditingMediaData] = useState<{...}>({...})
+  
+  // Add state for new sample media form
+  const [newSampleMedia, setNewSampleMedia] = useState({
+    media_title: '',
+    media_type: 'IMAGE',
+    url_address: '',
+  })
+  const [newSampleMediaFile, setNewSampleMediaFile] = useState<File | null>(null)
+  const [isUploadingNewMedia, setIsUploadingNewMedia] = useState(false)
+  const [newMediaErrors, setNewMediaErrors] = useState<{
+    media_title?: string
+    media_type?: string
+    file?: string
+  }>({})
+
   const [fileUploads, setFileUploads] = useState<FileUploadState>({})
   const [categories, setCategories] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [hasChanges, setHasChanges] = useState({
+    sampleMedia: false,
+    thumbnail: false,
+    descriptionLong: false,
+    categories: false,
+  })
 
   // Fetch course session data
   const { data: courseSession, isLoading: isLoadingCourseSession } =
@@ -92,76 +121,68 @@ const EditCourseSession: React.FC = () => {
   // API Mutation for updating
   const updateCourseSessionMutation = useUpdateCourseSession(course_id || '')
 
-  const {
-    register,
-    handleSubmit,
-    control,
-    formState: { errors },
-    setValue,
-    reset,
-  } = useForm<FormData>({
-    resolver: yupResolver(schema),
-    defaultValues: {
-      title: '',
-      sub_title: '',
-      description: '',
-      sample_media: [],
-    },
-  })
-
-  const {
-    fields: sampleMediaFields,
-    append: appendSampleMedia,
-    remove: removeSampleMedia,
-    replace: replaceSampleMedia,
-  } = useFieldArray({
-    name: 'sample_media',
-    control,
-  })
-
   // Load course session data when it's available
   useEffect(() => {
     if (courseSession && !isLoadingCourseSession) {
-      console.log({ courseSession: courseSession.data.results })
+      console.log({ courseSession: courseSession?.results })
 
-      if (courseSession?.data?.results) {
-        if (courseSession.data.results[0]) {
-          const _courseSessionData = courseSession.data.results[0]
+      if (courseSession?.results?.[0]) {
+        const _courseSessionData = courseSession.results[0]
 
-          // ready for update
-          // Set form values
-          reset({
-            title: _courseSessionData.title || '',
-            sub_title: _courseSessionData.sub_title || '',
-            description: _courseSessionData.description || '',
-            sample_media: _courseSessionData.sample_media || [],
-          })
+        // Set form values
+        setFormData({
+          title: _courseSessionData.title || '',
+          sub_title: _courseSessionData.sub_title || '',
+          description: _courseSessionData.description || '',
+        })
 
-          // Set description long
-          setDescriptionLong(_courseSessionData.description_long || '')
+        // Set description long
+        setDescriptionLong(_courseSessionData.description_long || '')
 
-          // Set categories
-          if (_courseSessionData.course_session_category) {
-            setCategories(_courseSessionData.course_session_category)
-          }
+        // Set sample media
+        setSampleMedia(_courseSessionData.sample_media || [])
 
-          // Set thumbnail image if available
-          if (courseSession.tumbnail) {
-            // If the thumbnail is an object with url property
-            if (
-              typeof _courseSessionData.tumbnail === 'object' &&
-              _courseSessionData.tumbnail.url
-            ) {
-              setThumbnailImageUrl(_courseSessionData.tumbnail.url)
-            }
-            // If it's just the ID, you might need to construct the URL or handle differently
-          }
+        // Set categories
+        if (_courseSessionData.course_session_category) {
+          setCategories(_courseSessionData.course_session_category)
+        }
+
+        // Set thumbnail image if available
+        if (_courseSessionData.tumbnail?.file_name) {
+          setThumbnailImageUrl(`${SERVER_FILE}/${_courseSessionData.tumbnail.file_name}`)
         }
       }
 
       setIsLoading(false)
     }
-  }, [courseSession, isLoadingCourseSession, reset])
+  }, [courseSession, isLoadingCourseSession])
+
+  // Form validation
+  const validateForm = () => {
+    const errors: FormErrors = {}
+
+    if (!formData.title.trim()) {
+      errors.title = 'عنوان جلسه الزامی است'
+    }
+    if (!formData.sub_title.trim()) {
+      errors.sub_title = 'زیرعنوان الزامی است'
+    }
+    if (!formData.description.trim()) {
+      errors.description = 'توضیح کوتاه الزامی است'
+    }
+
+    setFormErrors(errors)
+    return Object.keys(errors).length === 0
+  }
+
+  // Handle form input changes
+  const handleInputChange = (field: keyof typeof formData, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }))
+    // Clear error when user starts typing
+    if (formErrors[field]) {
+      setFormErrors(prev => ({ ...prev, [field]: undefined }))
+    }
+  }
 
   const submitHandlerForPassData = (data: string) => {
     setDescriptionLong(data)
@@ -211,84 +232,208 @@ const EditCourseSession: React.FC = () => {
     setCategories(data)
   }
 
-  const onSubmit = async (data: FormData) => {
-    let courseSessionRequestBody: any = {}
+  // Remove the editing functions and replace with simpler ones
+  const deleteSampleMedia = (index: number) => {
+    setSampleMedia(prev => prev.filter((_, i) => i !== index))
+    // Track sample media changes
+    setHasChanges(prev => ({ ...prev, sampleMedia: true }))
+  }
+
+  // New sample media form functions
+  const validateNewSampleMedia = () => {
+    const errors: typeof newMediaErrors = {}
+
+    if (!newSampleMedia.media_title.trim()) {
+      errors.media_title = 'عنوان رسانه الزامی است'
+    }
+    if (!newSampleMedia.media_type) {
+      errors.media_type = 'نوع رسانه الزامی است'
+    }
+    if (!newSampleMediaFile) {
+      errors.file = 'انتخاب فایل الزامی است'
+    }
+
+    setNewMediaErrors(errors)
+    return Object.keys(errors).length === 0
+  }
+
+  const handleNewSampleMediaChange = (field: keyof typeof newSampleMedia, value: string) => {
+    setNewSampleMedia(prev => ({ ...prev, [field]: value }))
+    // Clear error when user starts typing
+    if (newMediaErrors[field]) {
+      setNewMediaErrors(prev => ({ ...prev, [field]: undefined }))
+    }
+  }
+
+  const handleNewSampleMediaFileChange = (file: File | null) => {
+    setNewSampleMediaFile(file)
+    if (newMediaErrors.file) {
+      setNewMediaErrors(prev => ({ ...prev, file: undefined }))
+    }
+  }
+
+  const addNewSampleMedia = async () => {
+    if (!validateNewSampleMedia()) {
+      showToast('خطا', 'لطفا تمام فیلدها را پر کنید', 'error')
+      return
+    }
+
+    if (!newSampleMediaFile) {
+      showToast('خطا', 'لطفا فایل را انتخاب کنید', 'error')
+      return
+    }
+
+    setIsUploadingNewMedia(true)
+
+    try {
+      // Upload the file first
+      const uploadedFile = await uploadFile(newSampleMediaFile)
+      
+      if (uploadedFile?._id) {
+        // Create new sample media object
+        const newMedia: SampleMedia = {
+          _id: `temp_${Date.now()}`,
+          file: { file_name: uploadedFile.name || '', _id: uploadedFile._id },
+          media_title: newSampleMedia.media_title,
+          media_type: newSampleMedia.media_type as any,
+          url_address: newSampleMedia.url_address,
+        }
+
+        // Add to sample media list
+        setSampleMedia(prev => [...prev, newMedia])
+        
+        // Store the uploaded file info for submission
+        setFileUploads(prev => ({
+          ...prev,
+          [`new_media_${Date.now()}`]: {
+            file: newSampleMediaFile,
+            uploading: false,
+            error: null,
+            uploadedFile: uploadedFile,
+          },
+        }))
+
+        // Reset form
+        setNewSampleMedia({
+          media_title: '',
+          media_type: 'IMAGE',
+          url_address: '',
+        })
+        setNewSampleMediaFile(null)
+        setNewMediaErrors({})
+
+        // Track changes
+        setHasChanges(prev => ({ ...prev, sampleMedia: true }))
+
+        showToast('موفق', 'نمونه آموزشی با موفقیت اضافه شد', 'success')
+      }
+    } catch (error) {
+      showToast('خطا', 'خطا در آپلود فایل', 'error')
+      console.error('Upload error:', error)
+    } finally {
+      setIsUploadingNewMedia(false)
+    }
+  }
+
+  const renderMediaPreview = (media: SampleMedia) => {
+    const mediaUrl = media.url_address || (media.file?.file_name ? `${SERVER_FILE}/${media.file.file_name}` : '')
+    
+    if (!mediaUrl) return <div className="w-full h-32 bg-gray-200 rounded flex items-center justify-center text-gray-500">بدون فایل</div>
+
+    switch (media.media_type) {
+      case 'IMAGE':
+        return <img src={mediaUrl} alt={media.media_title} className="w-full h-32 object-cover rounded" />
+      case 'VIDEO':
+        return <video src={mediaUrl} className="w-full h-32 object-cover rounded" controls />
+      case 'AUDIO':
+        return (
+          <div className="w-full h-32 bg-blue-100 rounded flex items-center justify-center">
+            <audio src={mediaUrl} controls className="w-full" />
+          </div>
+        )
+      default:
+        return (
+          <div className="w-full h-32 bg-gray-100 rounded flex items-center justify-center">
+            <span className="text-gray-600">📄 {media.file?.file_name || 'فایل'}</span>
+          </div>
+        )
+    }
+  }
+
+  // Update onSubmit to handle new media structure
+  const onSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+
+    // Validate form
+    if (!validateForm()) {
+      showToast('خطا', 'لطفا خطاهای فرم را برطرف کنید', 'error')
+      return
+    }
 
     // Form Manual Validation
     if (!descriptionLong) {
-      showToast('خطا', ' لطفا توضیحات را کامل کنید', 'error')
-      return false
+      showToast('خطا', 'لطفا توضیحات را کامل کنید', 'error')
+      return
     }
 
-    // add categories
-    if (categories && categories.length !== 0) {
-      courseSessionRequestBody.course_session_category = categories
-    } else {
+    // Check categories
+    if (!categories || categories.length === 0) {
       showToast('خطا', 'حداقل یک دسته بندی انتخاب کنید', 'error')
-      return false
+      return
     }
 
-    // Upload new thumbnail if changed
-    if (thumbnailImage) {
-      const uploadedThumbnailFile = await uploadFile(thumbnailImage)
-
-      if (uploadedThumbnailFile?._id) {
-        courseSessionRequestBody.tumbnail = uploadedThumbnailFile?._id
-      }
-    }
-
-    // Prepare sample media with uploaded file IDs
-    const sampleMediaWithFiles = await Promise.all(
-      data.sample_media.map(async (media, index) => {
-        const uploadKey = `sample_media_${index}`
-        const uploadedFile = fileUploads[uploadKey]?.uploadedFile
-
-        // If there's a new file upload for this media
-        if (uploadedFile?._id) {
-          return {
-            media_type: media.media_type,
-            media_title: media.media_title,
-            url_address: media.url_address,
-            file: uploadedFile._id,
-          }
-        }
-        // If using existing file from the course session
-        else if (courseSession?.sample_media?.[index]?.file) {
-          return {
-            media_type: media.media_type,
-            media_title: media.media_title,
-            url_address: media.url_address,
-            file: courseSession.sample_media[index].file,
-          }
-        }
-        // Otherwise throw an error
-        else {
-          throw new Error(`لطفا فایل نمونه ${index + 1} را آپلود کنید`)
-        }
-      }),
-    )
-
-    courseSessionRequestBody = {
-      ...courseSessionRequestBody,
-      ...data,
-      sample_media: sampleMediaWithFiles,
-      description_long: descriptionLong,
-    }
+    // Build payload with only changed fields
+    let courseSessionRequestBody: any = {}
 
     try {
+      // Upload new thumbnail if changed
+      if (thumbnailImage) {
+        const uploadedThumbnailFile = await uploadFile(thumbnailImage)
+        if (uploadedThumbnailFile?._id) {
+          courseSessionRequestBody.tumbnail = uploadedThumbnailFile._id
+        }
+      }
+
+      // Prepare sample media with uploaded file IDs
+      const sampleMediaWithFiles = sampleMedia.map(media => {
+        // For new media (temp IDs), find the uploaded file
+        if (media._id.startsWith('temp_')) {
+          const uploadKey = Object.keys(fileUploads).find(key => 
+            key.startsWith('new_media_') && fileUploads[key]?.uploadedFile
+          )
+          const uploadedFile = uploadKey ? fileUploads[uploadKey]?.uploadedFile : null
+          
+          if (uploadedFile?._id) {
+            return {
+              media_type: media.media_type,
+              media_title: media.media_title,
+              url_address: media.url_address,
+              file: uploadedFile._id,
+            }
+          }
+        }
+        
+        // For existing media, use the existing file ID
+        return {
+          media_type: media.media_type,
+          media_title: media.media_title,
+          url_address: media.url_address,
+          file: media.file?._id,
+        }
+      }).filter(media => media.file) // Only include media with valid file IDs
+
+      courseSessionRequestBody.sample_media = sampleMediaWithFiles
+
       await updateCourseSessionMutation.mutateAsync(courseSessionRequestBody)
       showToast('موفق', 'جلسه با موفقیت بروزرسانی شد', 'success')
       navigate('/courses-sessions')
-    } catch (error) {
-      // @ts-expect-error
+    } catch (error: any) {
       if (error instanceof Error && error?.response?.data?.message) {
-        // @ts-expect-error
         showToast('خطا', error?.response?.data?.message, 'error')
       } else {
-        showToast('خطا', 'خطا در بروزرسانی جلسه', 'error')
+        showToast('خطا', error.message || 'خطا در بروزرسانی جلسه', 'error')
       }
-      // @ts-expect-error
-      console.error('Error submitting form:', error?.response?.data?.message)
+      console.error('Error submitting form:', error?.response?.data?.message || error.message)
     }
   }
 
@@ -305,45 +450,53 @@ const EditCourseSession: React.FC = () => {
     )
   }
 
+  console.log({ courseSession })
+
   return (
     <Box dir="rtl" p={{ xs: 0, md: 4 }}>
       <Typography className="pb-4" variant="h4" gutterBottom>
         ویرایش جلسه دوره
       </Typography>
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <form onSubmit={onSubmit}>
         <Grid container spacing={3}>
           {/* Title */}
           <Grid size={{ xs: 12, md: 6 }}>
             <TextField
-              {...register('title')}
+              value={formData.title}
+              onChange={(e) => handleInputChange('title', e.target.value)}
               fullWidth
               label="عنوان جلسه"
-              error={!!errors.title}
-              helperText={errors.title?.message}
+              error={!!formErrors.title}
+              helperText={formErrors.title}
             />
           </Grid>
+          
           {/* Sub Title */}
           <Grid size={{ xs: 12, md: 6 }}>
             <TextField
-              {...register('sub_title')}
+              value={formData.sub_title}
+              onChange={(e) => handleInputChange('sub_title', e.target.value)}
               fullWidth
               label="زیرعنوان"
-              error={!!errors.sub_title}
-              helperText={errors.sub_title?.message}
+              error={!!formErrors.sub_title}
+              helperText={formErrors.sub_title}
             />
           </Grid>
+          
           {/* Description */}
           <Grid size={12}>
             <TextField
-              {...register('description')}
+              value={formData.description}
+              onChange={(e) => handleInputChange('description', e.target.value)}
               fullWidth
               multiline
               rows={3}
               label="توضیح کوتاه"
-              error={!!errors.description}
-              helperText={errors.description?.message}
+              error={!!formErrors.description}
+              helperText={formErrors.description}
             />
           </Grid>
+          
           {/* Description Long (WYSIWYG) */}
           <Grid size={12}>
             <Typography fontWeight={800} variant="subtitle1" sx={{ mb: 1 }}>
@@ -356,22 +509,24 @@ const EditCourseSession: React.FC = () => {
               />
             </Box>
           </Grid>
+          
           {/* Thumbnail Image Uploader */}
           <Grid size={12}>
             <Typography variant="subtitle1" sx={{ mb: 1 }}>
               تصویر جلسه
             </Typography>
             {thumbnailImageUrl && (
-              <Box mb={2}>
-                <Typography variant="subtitle2" sx={{ mb: 1 }}>
+              <div className="mb-2">
+                <div className="text-sm mb-4">
                   تصویر فعلی:
-                </Typography>
+                </div>
                 <img
                   src={thumbnailImageUrl}
                   alt="thumbnail"
-                  style={{ maxWidth: '200px', maxHeight: '200px' }}
+                  className='border-4 border-gray-200 rounded-lg shadow-2xl'
+                 
                 />
-              </Box>
+              </div>
             )}
             <ImageUploader
               withIcon={true}
@@ -403,163 +558,138 @@ const EditCourseSession: React.FC = () => {
             </StyledPaper>
           </Grid>
 
-          {/* Sample Media Fields */}
+          {/* Sample Media Section */}
           <Grid size={12}>
             <StyledPaper sx={{ p: 3 }}>
-              <Box
-                display="flex"
-                justifyContent="space-between"
-                alignItems="center"
-                mb={2}
-              >
-                <Typography variant="h6">نمونه‌های آموزشی</Typography>
-                <Button
-                  startIcon={<AddIcon className="ml-2" />}
-                  onClick={() =>
-                    appendSampleMedia({
-                      media_type: '',
-                      media_title: '',
-                      url_address: '',
-                    })
-                  }
-                >
-                  افزودن نمونه
-                </Button>
-              </Box>
+              <Typography variant="h6" className="mb-6">نمونه‌های آموزشی</Typography>
+              
+              {/* 1. Current Sample Media List */}
+              {sampleMedia.length > 0 && (
+                <div className="mb-8">
+                  <div className="mb-4 text-sm">
+                    نمونه‌های موجود ({sampleMedia.length})
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {sampleMedia.map((media, index) => (
+                      <div key={media._id} className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+                        {/* Media Preview */}
+                        <div className="mb-4">
+                          {renderMediaPreview(media)}
+                        </div>
 
-              {sampleMediaFields.map((field, index) => (
-                <Box
-                  key={field.id}
-                  sx={{
-                    mb: 3,
-                    p: 2,
-                    border: '1px solid #eee',
-                    borderRadius: 1,
-                  }}
-                >
-                  <Grid container spacing={2}>
-                    <Grid size={{ xs: 12, md: 4 }}>
-                      <TextField
-                        {...register(`sample_media.${index}.media_title`)}
-                        fullWidth
-                        label="عنوان"
-                        error={!!errors.sample_media?.[index]?.media_title}
-                        helperText={
-                          errors.sample_media?.[index]?.media_title?.message
-                        }
-                      />
-                    </Grid>
-
-                    <Grid size={{ xs: 12, md: 4 }}>
-                      <TextField
-                        {...register(`sample_media.${index}.media_type`)}
-                        select
-                        fullWidth
-                        label="نوع رسانه"
-                        error={!!errors.sample_media?.[index]?.media_type}
-                        helperText={
-                          errors.sample_media?.[index]?.media_type?.message
-                        }
-                      >
-                        <MenuItem value="VIDEO">ویدیو</MenuItem>
-                        <MenuItem value="IMAGE">تصویر</MenuItem>
-                        <MenuItem value="AUDIO">صوت</MenuItem>
-                        <MenuItem value="PDF">PDF</MenuItem>
-                      </TextField>
-                    </Grid>
-
-                    <Grid size={{ xs: 12, md: 4 }}>
-                      <TextField
-                        {...register(`sample_media.${index}.url_address`)}
-                        fullWidth
-                        label="آدرس URL"
-                        error={!!errors.sample_media?.[index]?.url_address}
-                        helperText={
-                          errors.sample_media?.[index]?.url_address?.message
-                        }
-                      />
-                    </Grid>
-
-                    <Grid size={12}>
-                      {courseSession?.sample_media?.[index]?.file && (
-                        <Alert severity="info" sx={{ mb: 2 }}>
-                          فایل قبلی موجود است
-                        </Alert>
-                      )}
-
-                      <input
-                        type="file"
-                        onChange={(e) => {
-                          const file = e.target.files?.[0]
-                          if (file) {
-                            setFileUploads((prev) => ({
-                              ...prev,
-                              [`sample_media_${index}`]: {
-                                file,
-                                uploading: false,
-                                error: null,
-                                uploadedFile: null,
-                              },
-                            }))
-                          }
-                        }}
-                        style={{ display: 'none' }}
-                        id={`sample-media-file-${index}`}
-                      />
-                      <Box display="flex" alignItems="center" gap={2}>
-                        <label htmlFor={`sample-media-file-${index}`}>
-                          <Button variant="outlined" component="span">
-                            {courseSession?.sample_media?.[index]?.file
-                              ? 'تغییر فایل'
-                              : 'انتخاب فایل'}
-                          </Button>
-                        </label>
-                        {fileUploads[`sample_media_${index}`]?.file &&
-                          !fileUploads[`sample_media_${index}`]
-                            ?.uploadedFile && (
-                            <Button
-                              variant="contained"
-                              onClick={() =>
-                                handleFileUpload(`sample_media_${index}`)
-                              }
-                              disabled={
-                                fileUploads[`sample_media_${index}`]?.uploading
-                              }
-                              startIcon={
-                                fileUploads[`sample_media_${index}`]
-                                  ?.uploading ? (
-                                  <CircularProgress
-                                    sx={{ marginLeft: '5px' }}
-                                    size={20}
-                                  />
-                                ) : (
-                                  <UploadIcon sx={{ marginLeft: '5px' }} />
-                                )
-                              }
-                            >
-                              آپلود فایل
-                            </Button>
+                        {/* Media Info */}
+                        <div className="space-y-2">
+                          <h4 className="font-medium text-gray-900">{media.media_title || 'بدون عنوان'}</h4>
+                          <p className="text-sm text-gray-600">
+                            نوع: {MEDIA_TYPE_OPTIONS.find(opt => opt.value === media.media_type)?.label || media.media_type}
+                          </p>
+                          {media.url_address && (
+                            <p className="text-xs text-gray-500 truncate">URL: {media.url_address}</p>
                           )}
-                        {fileUploads[`sample_media_${index}`]?.uploadedFile && (
-                          <Alert sx={{ marginLeft: '5px' }} severity="success">
-                            فایل با موفقیت آپلود شد
-                          </Alert>
-                        )}
-                      </Box>
-                    </Grid>
+                          
+                          {/* Delete Button */}
+                          <div className="pt-2">
+                            <Button
+                              onClick={() => deleteSampleMedia(index)}
+                              variant="outlined"
+                              color="error"
+                              size="small"
+                              startIcon={<DeleteIcon />}
+                              fullWidth
+                            >
+                              حذف
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
-                    <Grid size={12} display="flex" justifyContent="flex-end">
-                      <Button
-                        color="error"
-                        startIcon={<DeleteIcon className="ml-2" />}
-                        onClick={() => removeSampleMedia(index)}
+              {/* 2. Add New Sample Media Form */}
+              <div className="border-t pt-6 bg-amber-200 py-8 px-4 md:px-8 rounded-lg">
+                <div className="mb-4 font-medium">
+                  افزودن نمونه آموزشی جدید
+                </div>
+                
+                <div className="flex flex-col gap-y-4">
+                  {/* Media Title */}
+                  <TextField
+                    value={newSampleMedia.media_title}
+                    onChange={(e) => handleNewSampleMediaChange('media_title', e.target.value)}
+                    fullWidth
+                    label="عنوان نمونه"
+                    error={!!newMediaErrors.media_title}
+                    helperText={newMediaErrors.media_title}
+                    size="small"
+                  />
+
+
+                  {/* Media Type */}
+                  <TextField
+                    value={newSampleMedia.media_type}
+                    onChange={(e) => handleNewSampleMediaChange('media_type', e.target.value)}
+                    select
+                    fullWidth
+                    label="نوع رسانه"
+                    error={!!newMediaErrors.media_type}
+                    helperText={newMediaErrors.media_type}
+                    size="small"
+                  >
+                    {MEDIA_TYPE_OPTIONS.map((option) => (
+                      <MenuItem key={option.value} value={option.value}>
+                        {option.label}
+                      </MenuItem>
+                    ))}
+                  </TextField>
+
+                  {/* URL Address (Optional) */}
+                  <TextField
+                    value={newSampleMedia.url_address}
+                    onChange={(e) => handleNewSampleMediaChange('url_address', e.target.value)}
+                    fullWidth
+                    label="آدرس URL (اختیاری)"
+                    size="small"
+                  />
+
+                  {/* File Upload */}
+                  <div>
+                    <input
+                      type="file"
+                      onChange={(e) => handleNewSampleMediaFileChange(e.target.files?.[0] || null)}
+                      style={{ display: 'none' }}
+                      id="new-sample-media-file"
+                    />
+                    <label htmlFor="new-sample-media-file">
+                      <Button 
+                        variant="outlined" 
+                        component="span" 
+                        fullWidth
+                        className={newMediaErrors.file ? 'border-red-500 text-red-500' : ''}
                       >
-                        حذف
+                        {newSampleMediaFile ? newSampleMediaFile.name : 'انتخاب فایل'}
                       </Button>
-                    </Grid>
-                  </Grid>
-                </Box>
-              ))}
+                    </label>
+                    {newMediaErrors.file && (
+                      <Typography color="error" variant="caption" className="mt-1 block">
+                        {newMediaErrors.file}
+                      </Typography>
+                    )}
+                  </div>
+
+                  {/* Add Button */}
+                  <Button
+                    onClick={addNewSampleMedia}
+                    variant="contained"
+                    startIcon={isUploadingNewMedia ? <CircularProgress sx={{pl: 2, textAlign: 'center'}} className='ml-2' size={20} /> : <AddIcon className='ml-2' />}
+                    disabled={isUploadingNewMedia}
+                    fullWidth
+                  >
+                    {isUploadingNewMedia ? 'در حال آپلود...' : 'افزودن نمونه'}
+                  </Button>
+                </div>
+              </div>
             </StyledPaper>
           </Grid>
 
