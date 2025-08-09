@@ -6,6 +6,7 @@ import Accordion from '@mui/material/Accordion';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import Slider from '@mui/material/Slider';
 
 import DatePicker from 'react-datepicker2'
 import moment from 'moment-jalaali'
@@ -17,7 +18,9 @@ const List = ({
     searchPlaceholder,
     title,
     searchDebounceDelay = 500,
-    showDateFilter = false
+    showDateFilter = false,
+    showPriceFilter = false,
+    priceRange = [0, 1000000000]
 }) => {
     // State for pagination
     const [page, setPage] = useState(1);
@@ -31,12 +34,17 @@ const List = ({
     // Add state for accordion
     const [expanded, setExpanded] = useState(false);
     const [expandedCreatedAtDate, setExpandedCreatedAtDate] = useState(false);
+    const [expandedPriceFilter, setExpandedPriceFilter] = useState(false);
 
     // State for date range
     const [dateRange, setDateRange] = useState({
         created_from_date: null,
         created_to_date: null
     });
+
+    // State for price range with debounce
+    const [priceFilterRange, setPriceFilterRange] = useState(priceRange);
+    const debouncedPriceRange = useDebounce(priceFilterRange, 2000);
 
     // Build query parameters for the hook
     const queryParams = useMemo(() => {
@@ -70,8 +78,14 @@ const List = ({
             }
         }
 
+        // Add price range if enabled (using debounced values)
+        if (showPriceFilter) {
+            params.price_from = debouncedPriceRange[0];
+            params.price_to = debouncedPriceRange[1];
+        }
+
         return params;
-    }, [page, limit, debouncedSearchQuery, filterValues, dateRange, showDateFilter]);
+    }, [page, limit, debouncedSearchQuery, filterValues, dateRange, showDateFilter, debouncedPriceRange, showPriceFilter]);
 
     // Use the custom hook passed as prop
     const { data: queryData, isLoading, error } = useDataQuery(queryParams);
@@ -97,6 +111,10 @@ const List = ({
 
     const handleCreatedAtAccordionChange = () => {
         setExpandedCreatedAtDate(!expandedCreatedAtDate);
+    };
+
+    const handlePriceFilterAccordionChange = () => {
+        setExpandedPriceFilter(!expandedPriceFilter);
     };
 
     // Initialize filter values
@@ -163,6 +181,23 @@ const List = ({
             created_to_date: null
         })
     }
+
+    // Handle price range change (immediate state update, debounced API call)
+    const handlePriceRangeChange = (event, newValue) => {
+        setPriceFilterRange(newValue);
+    };
+
+    // Reset to first page when debounced price range changes
+    useEffect(() => {
+        if (showPriceFilter) {
+            setPage(1);
+        }
+    }, [debouncedPriceRange, showPriceFilter]);
+
+    // Reset price range
+    const resetPriceRange = () => {
+        setPriceFilterRange(priceRange);
+    };
 
     // Render filter inputs based on type
     const renderFilterInput = (filter) => {
@@ -310,6 +345,64 @@ const List = ({
                                     <div>
                                         <button type='button' className='text-sm  px-4 py-1 bg-purple-600 text-white rounded-sm' onClick={resetDateRange}>
                                             حذف فیلتر تاریخ
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </AccordionDetails>
+                    </Accordion>
+                )}
+
+                {/* Price Range Filter Section */}
+                {showPriceFilter && (
+                    <Accordion sx={{ backgroundColor: "#f0f0f0", boxShadow: "0px 10px 15px -3px rgba(0,0,0,0.1)" }} expanded={expandedPriceFilter} onChange={handlePriceFilterAccordionChange}>
+                        <AccordionSummary
+                            expandIcon={<ExpandMoreIcon />}
+                            aria-controls="price-filter-content"
+                            id="price-filter-header"
+                        >
+                            <h3 className="text-sm md:text-base font-medium text-gray-700">فیلتر بر اساس قیمت</h3>
+                        </AccordionSummary>
+                        <AccordionDetails>
+                            <div className="price-filter-section mb-4 py-8 border px-4">
+                                <h3 className="text-sm md:text-base font-medium text-gray-700 mb-4">
+                                    انتخاب محدوده قیمت
+                                </h3>
+                                <div className="px-4">
+                                    <Slider
+                                        value={priceFilterRange}
+                                        onChange={handlePriceRangeChange}
+                                        valueLabelDisplay="auto"
+                                        min={priceRange[0]}
+                                        max={priceRange[1]}
+                                        valueLabelFormat={(value) => value.toLocaleString('fa-IR')}
+                                        sx={{
+                                            color: '#3b82f6',
+                                            '& .MuiSlider-thumb': {
+                                                backgroundColor: '#3b82f6',
+                                            },
+                                            '& .MuiSlider-track': {
+                                                backgroundColor: '#3b82f6',
+                                            },
+                                            '& .MuiSlider-rail': {
+                                                backgroundColor: '#e5e7eb',
+                                            },
+                                        }}
+                                    />
+                                    <div className="flex justify-between items-center mt-2 text-sm text-gray-600">
+                                        <span>از: {priceFilterRange[0].toLocaleString('fa-IR')} ریال</span>
+                                        <span>تا: {priceFilterRange[1].toLocaleString('fa-IR')} ریال</span>
+                                    </div>
+                                    {priceFilterRange !== debouncedPriceRange && (
+                                        <p className="text-xs text-gray-500 mt-1">در حال اعمال فیلتر...</p>
+                                    )}
+                                    <div className="mt-4">
+                                        <button 
+                                            type='button' 
+                                            className='text-sm px-4 py-1 bg-purple-600 text-white rounded-sm' 
+                                            onClick={resetPriceRange}
+                                        >
+                                            حذف فیلتر قیمت
                                         </button>
                                     </div>
                                 </div>

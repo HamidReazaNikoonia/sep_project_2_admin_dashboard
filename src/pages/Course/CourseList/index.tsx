@@ -20,7 +20,7 @@ const ProgramList = () => {
 
     const renderUserItem = (courseSession: any) => (
         <div dir='rtl' key={courseSession.id} className="p-3 border-b hover:bg-gray-50">
-            <Link to={`/courses-sessions/${courseSession._id}`} className="font-medium hover:opacity-80">
+            <Link to={`/courses-sessions/${courseSession?.id}`} className="font-medium hover:opacity-80">
                 {/* Mobile Layout (column) */}
                 <div className="md:hidden space-y-3">
 
@@ -193,50 +193,23 @@ const ProgramList = () => {
         //     queryParamKey: 'mobile2',
         //     label: 'موبایل بر اسسا'
         // },
-        {
-            type: 'checkbox',
-            queryParamKey: 'is_fire_sale',
-            label: 'تخفیف دار'
-        },
-        {
-            type: 'checkbox',
-            queryParamKey: 'have_members',
-            label: 'ثبت نام شده'
-        },
-        {
-            type: 'checkbox',
-            queryParamKey: 'is_have_capacity',
-            label: 'ظرفیت تکمیل شده'
-        },
-        {
-            type: 'checkbox',
-            queryParamKey: 'is_have_capacity_in_progress',
-            label: 'ظرفیت در حال تکمیل (بیشتر از 50%)'
-        },
-        {
-            type: 'checkbox',
-            queryParamKey: 'is_have_min_capacity',
-            label: 'ظرفیت در حال تکمیل (بیشتر از 20%)'
-        },
-
-        {
-            type: 'checkbox',
-            queryParamKey: 'is_have_min_capacity',
-            label: 'ظرفیت در حال تکمیل (بیشتر از 90%)'
-        },
-
-        {
-            type: 'options',
-            queryParamKey: 'status',
-            label: 'وضعیت دوره',
-            options: ['active', 'completed', 'inactive']
-        },
-        {
-            type: 'options',
-            queryParamKey: 'program_type',
-            label: 'نوع دوره',
-            options: ['ON-SITE', 'ONLINE']
-        }
+        // {
+        //     type: 'checkbox',
+        //     queryParamKey: 'is_fire_sale',
+        //     label: 'تخفیف دار'
+        // },
+        // {
+        //     type: 'options',
+        //     queryParamKey: 'status',
+        //     label: 'وضعیت دوره',
+        //     options: ['active', 'completed', 'inactive']
+        // },
+        // {
+        //     type: 'options',
+        //     queryParamKey: 'program_type',
+        //     label: 'نوع دوره',
+        //     options: ['ON-SITE', 'ONLINE']
+        // }
     ];
 
     return (
@@ -262,6 +235,7 @@ const ProgramList = () => {
                 title="مدیریت فیلم های آموزشی"
                 searchPlaceholder="جستجو بر اساس نام استاد, دوره, کلاس"
                 showDateFilter
+                showPriceFilter
             />
         </>
 
