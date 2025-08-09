@@ -65,10 +65,11 @@ export const useDeleteCourse = () => {
 // Hooks for course categories
 
 // Hooks for course categories
-export const useCourseCategories = () => {
+export const useCourseCategories = (params?: { enabled?: boolean }) => {
   return useQuery({
     queryKey: [COURSE_CATEGORIES_KEY],
     queryFn: () => courseApi.getCategories(),
+    enabled: params?.enabled,
   })
 }
 

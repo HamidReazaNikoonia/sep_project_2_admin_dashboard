@@ -60,6 +60,7 @@ import NotificationPage from './pages/Notification/NotificationHome'
 import NotificationSpecific from './pages/Notification/NotificationSpecific'
 import TicketList from './pages/Ticket/TicketList'
 import TicketSpecific from './pages/Ticket/TicketSpecific'
+import CategoryPage from './pages/Category';
 
 
 const router = createBrowserRouter(
@@ -393,6 +394,14 @@ const router = createBrowserRouter(
       element: (
         <Layout>
           <TicketSpecific />
+        </Layout>
+      ),
+    },
+    {
+      path: '/category',
+      element: (
+        <Layout>
+          <CategoryPage />
         </Layout>
       ),
     },

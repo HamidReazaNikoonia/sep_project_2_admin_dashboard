@@ -62,10 +62,11 @@ export const useDeleteProduct = () => {
   });
 };
 
-export const useCategories = () => {
+export const useCategories = (params?: { enabled?: boolean; }) => {
   return useQuery({
     queryKey: productsKeys.categories,
     queryFn: productsApi.getCategories,
+    enabled: params?.enabled,
   });
 };
 

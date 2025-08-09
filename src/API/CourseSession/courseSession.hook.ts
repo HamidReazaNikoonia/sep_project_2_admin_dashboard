@@ -231,10 +231,11 @@ export const useAddNewSessionToProgram = (programId: string) => {
 }
 
 // Hooks for course categories
-export const useCourseSessionCategories = () => {
+export const useCourseSessionCategories = (params?: { enabled?: boolean }) => {
   return useQuery({
     queryKey: [COURSE_CATEGORIES_KEY],
     queryFn: () => courseSessionApi.getCategories(),
+    enabled: params?.enabled,
   })
 }
 
