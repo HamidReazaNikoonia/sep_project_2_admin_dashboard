@@ -290,9 +290,12 @@ const EditCourseSession: React.FC = () => {
       const uploadedFile = await uploadFile(newSampleMediaFile)
       
       if (uploadedFile?._id) {
-        // Create new sample media object
+        // Create unique ID for this media item
+        const uniqueMediaId = `temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+        
+        // Create new sample media object with reference to uploaded file
         const newMedia: SampleMedia = {
-          _id: `temp_${Date.now()}`,
+          _id: uniqueMediaId,
           file: { file_name: uploadedFile.name || '', _id: uploadedFile._id },
           media_title: newSampleMedia.media_title,
           media_type: newSampleMedia.media_type as any,
@@ -302,10 +305,10 @@ const EditCourseSession: React.FC = () => {
         // Add to sample media list
         setSampleMedia(prev => [...prev, newMedia])
         
-        // Store the uploaded file info for submission
+        // Store the uploaded file info with the same unique ID for mapping
         setFileUploads(prev => ({
           ...prev,
-          [`new_media_${Date.now()}`]: {
+          [uniqueMediaId]: {
             file: newSampleMediaFile,
             uploading: false,
             error: null,
@@ -396,12 +399,9 @@ const EditCourseSession: React.FC = () => {
 
       // Prepare sample media with uploaded file IDs
       const sampleMediaWithFiles = sampleMedia.map(media => {
-        // For new media (temp IDs), find the uploaded file
+        // For new media (temp IDs), find the specific uploaded file using the media ID
         if (media._id.startsWith('temp_')) {
-          const uploadKey = Object.keys(fileUploads).find(key => 
-            key.startsWith('new_media_') && fileUploads[key]?.uploadedFile
-          )
-          const uploadedFile = uploadKey ? fileUploads[uploadKey]?.uploadedFile : null
+          const uploadedFile = fileUploads[media._id]?.uploadedFile
           
           if (uploadedFile?._id) {
             return {
