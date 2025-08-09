@@ -188,50 +188,50 @@ const ProgramList = () => {
         //     queryParamKey: 'mobile2',
         //     label: 'موبایل بر اسسا'
         // },
-        {
-            type: 'checkbox',
-            queryParamKey: 'is_fire_sale',
-            label: 'تخفیف دار'
-        },
-        {
-            type: 'checkbox',
-            queryParamKey: 'have_members',
-            label: 'ثبت نام شده'
-        },
-        {
-            type: 'checkbox',
-            queryParamKey: 'is_have_capacity',
-            label: 'ظرفیت تکمیل شده'
-        },
-        {
-            type: 'checkbox',
-            queryParamKey: 'is_have_capacity_in_progress',
-            label: 'ظرفیت در حال تکمیل (بیشتر از 50%)'
-        },
-        {
-            type: 'checkbox',
-            queryParamKey: 'is_have_min_capacity',
-            label: 'ظرفیت در حال تکمیل (بیشتر از 20%)'
-        },
+        // {
+        //     type: 'checkbox',
+        //     queryParamKey: 'is_fire_sale',
+        //     label: 'تخفیف دار'
+        // },
+        // {
+        //     type: 'checkbox',
+        //     queryParamKey: 'have_members',
+        //     label: 'ثبت نام شده'
+        // },
+        // {
+        //     type: 'checkbox',
+        //     queryParamKey: 'is_have_capacity',
+        //     label: 'ظرفیت تکمیل شده'
+        // },
+        // {
+        //     type: 'checkbox',
+        //     queryParamKey: 'is_have_capacity_in_progress',
+        //     label: 'ظرفیت در حال تکمیل (بیشتر از 50%)'
+        // },
+        // {
+        //     type: 'checkbox',
+        //     queryParamKey: 'is_have_min_capacity',
+        //     label: 'ظرفیت در حال تکمیل (بیشتر از 20%)'
+        // },
 
-        {
-            type: 'checkbox',
-            queryParamKey: 'is_have_min_capacity',
-            label: 'ظرفیت در حال تکمیل (بیشتر از 90%)'
-        },
+        // {
+        //     type: 'checkbox',
+        //     queryParamKey: 'is_have_min_capacity',
+        //     label: 'ظرفیت در حال تکمیل (بیشتر از 90%)'
+        // },
 
-        {
-            type: 'options',
-            queryParamKey: 'status',
-            label: 'وضعیت دوره',
-            options: ['active', 'completed', 'inactive']
-        },
-        {
-            type: 'options',
-            queryParamKey: 'program_type',
-            label: 'نوع دوره',
-            options: ['ON-SITE', 'ONLINE']
-        }
+        // {
+        //     type: 'options',
+        //     queryParamKey: 'status',
+        //     label: 'وضعیت دوره',
+        //     options: ['active', 'completed', 'inactive']
+        // },
+        // {
+        //     type: 'options',
+        //     queryParamKey: 'program_type',
+        //     label: 'نوع دوره',
+        //     options: ['ON-SITE', 'ONLINE']
+        // }
     ];
 
     return (
