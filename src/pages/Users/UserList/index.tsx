@@ -5,6 +5,8 @@ import { useUsers } from '../../../API/Users/users.hook';
 import { Button } from '@mui/material';
 import { Add } from '@mui/icons-material';
 
+const SERVER_FILE = process.env.REACT_APP_SERVER_FILE
+
 const UserList = () => {
 
 
@@ -23,6 +25,7 @@ const UserList = () => {
                     <div className="flex flex-col">
                         <p className="font-medium mb-2">{user?.first_name} - {user?.last_name}</p>
                         <p className="text-xs text-gray-500">ID: {user.id}</p>
+                        <p className="text-xs text-gray-500">Student ID: {user.student_id}</p>
                     </div>
 
                     {/* Row 2: Email */}
@@ -56,8 +59,25 @@ const UserList = () => {
                 {/* Desktop Layout (grid) */}
                 <div className="hidden md:grid grid-cols-12 items-center py-4">
                     <div className="col-span-3">
-                        <p className="font-medium">{user.first_name} - {user.last_name}</p>
-                        <p className="text-xs text-gray-500">ID: {user.id}</p>
+                        <div className='flex gap-3'>
+                            {/* Avatar */}
+                            <div className='w-16 h-16 rounded-full bg-gray-200'>
+                                {user?.avatar?.file_name ? (
+                                    <img src={`${SERVER_FILE}/${user?.avatar?.file_name}`} alt="avatar" className='w-full h-full object-cover rounded-full' />
+
+                                ) : (
+                                    <div className='w-full h-full flex items-center justify-center'>
+                                        <p className='text-sm text-gray-500'>{user.first_name.charAt(0)}</p>
+                                    </div>
+                                )}
+                            </div>
+
+                            <div>
+                                <p className="font-medium">{user.first_name} - {user.last_name}</p>
+                                <p className="text-xs text-gray-500">ID: {user.id}</p>
+                                <p className="text-xs text-gray-500">Student ID: {user.student_id}</p>
+                            </div>
+                        </div>
                     </div>
 
                     <div className="col-span-2">
@@ -135,7 +155,7 @@ const UserList = () => {
     return (
         <div className='w-full flex flex-col'>
 
-            <div className='flex justify-end items-center mb-8'>
+            <div className='flex justify-start items-center mb-8'>
                 <Button href="/users/create" variant="contained" color="primary">
                     <Add className='mr-2' />
                     افزودن کاربر جدید
