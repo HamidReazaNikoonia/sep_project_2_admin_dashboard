@@ -126,8 +126,8 @@ importers:
         specifier: ^2.12.0
         version: 2.12.0(@tiptap/core@2.12.0(@tiptap/pm@2.12.0))
       '@tiptap/extension-task-item':
-        specifier: ^2.12.0
-        version: 2.12.0(@tiptap/core@2.12.0(@tiptap/pm@2.12.0))(@tiptap/pm@2.12.0)
+        specifier: ^3.2.0
+        version: 3.2.0(@tiptap/extension-list@3.2.0(@tiptap/core@2.12.0(@tiptap/pm@2.12.0))(@tiptap/pm@2.12.0))
       '@tiptap/extension-task-list':
         specifier: ^2.12.0
         version: 2.12.0(@tiptap/core@2.12.0(@tiptap/pm@2.12.0))
@@ -1615,6 +1615,12 @@ packages:
     peerDependencies:
       '@tiptap/core': ^2.7.0
 
+  '@tiptap/extension-list@3.2.0':
+    resolution: {integrity: sha512-/3ZL9MpgDnEOv8tPwFwW3ct/TBbxZg3r3rN9noLHOR+YgiZKwbpMt9pDSJGu8y++rzT3vIHVmRRp0xFOXBvptQ==}
+    peerDependencies:
+      '@tiptap/core': ^3.2.0
+      '@tiptap/pm': ^3.2.0
+
   '@tiptap/extension-mention@2.12.0':
     resolution: {integrity: sha512-+b/fqOU+pRWWAo0ZfyInkhkvV0Ub5RpNrYZ45v2nn5PjbXbxyxNQ51zT6cGk2F6Jmc6UBmlR8iqqNTIQY9ieEg==}
     peerDependencies:
@@ -1674,11 +1680,10 @@ packages:
       '@tiptap/core': ^2.7.0
       '@tiptap/pm': ^2.7.0
 
-  '@tiptap/extension-task-item@2.12.0':
-    resolution: {integrity: sha512-IyAcy5CGU4Oesb5HpoZ7nU3wvP61Spz5/KCy1aXCgBfx3c1tF+JOijxKDnYKWSvfxzziGGIiOKR89EllnzTsdw==}
+  '@tiptap/extension-task-item@3.2.0':
+    resolution: {integrity: sha512-NNxLQ038Wdaq4s8+31zki5HLIGBEuFlpAT1U93WWWMm7+rKsYOXMqHFprkRZs1J6pplydynFi/P4mt7s/Wj2GA==}
     peerDependencies:
-      '@tiptap/core': ^2.7.0
-      '@tiptap/pm': ^2.7.0
+      '@tiptap/extension-list': ^3.2.0
 
   '@tiptap/extension-task-list@2.12.0':
     resolution: {integrity: sha512-KqXL4bRsras3a2sswxoddo7GYgBE0ZqzJgGgYVWvczA7TG3WShjJheaB1tFbt9DmVJzaZR34hKhXvDbVspbznQ==}
@@ -5829,6 +5834,11 @@ snapshots:
     dependencies:
       '@tiptap/core': 2.12.0(@tiptap/pm@2.12.0)
 
+  '@tiptap/extension-list@3.2.0(@tiptap/core@2.12.0(@tiptap/pm@2.12.0))(@tiptap/pm@2.12.0)':
+    dependencies:
+      '@tiptap/core': 2.12.0(@tiptap/pm@2.12.0)
+      '@tiptap/pm': 2.12.0
+
   '@tiptap/extension-mention@2.12.0(@tiptap/core@2.12.0(@tiptap/pm@2.12.0))(@tiptap/pm@2.12.0)(@tiptap/suggestion@2.12.0(@tiptap/core@2.12.0(@tiptap/pm@2.12.0))(@tiptap/pm@2.12.0))':
     dependencies:
       '@tiptap/core': 2.12.0(@tiptap/pm@2.12.0)
@@ -5877,10 +5887,9 @@ snapshots:
       '@tiptap/core': 2.12.0(@tiptap/pm@2.12.0)
       '@tiptap/pm': 2.12.0
 
-  '@tiptap/extension-task-item@2.12.0(@tiptap/core@2.12.0(@tiptap/pm@2.12.0))(@tiptap/pm@2.12.0)':
+  '@tiptap/extension-task-item@3.2.0(@tiptap/extension-list@3.2.0(@tiptap/core@2.12.0(@tiptap/pm@2.12.0))(@tiptap/pm@2.12.0))':
     dependencies:
-      '@tiptap/core': 2.12.0(@tiptap/pm@2.12.0)
-      '@tiptap/pm': 2.12.0
+      '@tiptap/extension-list': 3.2.0(@tiptap/core@2.12.0(@tiptap/pm@2.12.0))(@tiptap/pm@2.12.0)
 
   '@tiptap/extension-task-list@2.12.0(@tiptap/core@2.12.0(@tiptap/pm@2.12.0))':
     dependencies:
