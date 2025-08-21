@@ -218,19 +218,19 @@ importers:
         version: 9.33.0
       '@tailwindcss/aspect-ratio':
         specifier: ^0.4.2
-        version: 0.4.2(tailwindcss@4.0.10)
+        version: 0.4.2(tailwindcss@4.1.12)
       '@tailwindcss/forms':
         specifier: ^0.5.10
-        version: 0.5.10(tailwindcss@4.0.10)
+        version: 0.5.10(tailwindcss@4.1.12)
       '@tailwindcss/line-clamp':
         specifier: ^0.4.4
-        version: 0.4.4(tailwindcss@4.0.10)
+        version: 0.4.4(tailwindcss@4.1.12)
       '@tailwindcss/postcss':
         specifier: ^4.1.12
         version: 4.1.12
       '@tailwindcss/typography':
         specifier: ^0.5.16
-        version: 0.5.16(tailwindcss@4.0.10)
+        version: 0.5.16(tailwindcss@4.1.12)
       '@testing-library/dom':
         specifier: ^10.4.0
         version: 10.4.0
@@ -331,8 +331,8 @@ importers:
         specifier: ^6.0.1
         version: 6.0.1
       tailwindcss:
-        specifier: ^4.0.10
-        version: 4.0.10
+        specifier: ^4.1.12
+        version: 4.1.12
       ts-expect:
         specifier: ^1.3.0
         version: 1.3.0
@@ -4620,9 +4620,6 @@ packages:
     resolution: {integrity: sha512-vrozgXDQwYO72vHjUb/HnFbQx1exDjoKzqx23aXEg2a9VIg2TSFZ8FmeZpTjUCFMYw7mpX4BE2SFu8wI7asYsw==}
     engines: {node: ^14.18.0 || >=16.0.0}
 
-  tailwindcss@4.0.10:
-    resolution: {integrity: sha512-Z8U/6E2BWSdDkt3IWPiphoV+8V6aNzRmu2SriSbuhm6i3QIcY3TdUJzUP5NX8M8MZuIl+v4/77Rer8u4YSrSsg==}
-
   tailwindcss@4.1.12:
     resolution: {integrity: sha512-DzFtxOi+7NsFf7DBtI3BJsynR+0Yp6etH+nRPTbpWnS2pZBaSksv/JGctNwSWzbFjp0vxSqknaUylseZqMDGrA==}
 
@@ -6076,18 +6073,18 @@ snapshots:
     dependencies:
       '@swc/counter': 0.1.3
 
-  '@tailwindcss/aspect-ratio@0.4.2(tailwindcss@4.0.10)':
+  '@tailwindcss/aspect-ratio@0.4.2(tailwindcss@4.1.12)':
     dependencies:
-      tailwindcss: 4.0.10
+      tailwindcss: 4.1.12
 
-  '@tailwindcss/forms@0.5.10(tailwindcss@4.0.10)':
+  '@tailwindcss/forms@0.5.10(tailwindcss@4.1.12)':
     dependencies:
       mini-svg-data-uri: 1.4.4
-      tailwindcss: 4.0.10
+      tailwindcss: 4.1.12
 
-  '@tailwindcss/line-clamp@0.4.4(tailwindcss@4.0.10)':
+  '@tailwindcss/line-clamp@0.4.4(tailwindcss@4.1.12)':
     dependencies:
-      tailwindcss: 4.0.10
+      tailwindcss: 4.1.12
 
   '@tailwindcss/node@4.1.12':
     dependencies:
@@ -6161,13 +6158,13 @@ snapshots:
       postcss: 8.5.3
       tailwindcss: 4.1.12
 
-  '@tailwindcss/typography@0.5.16(tailwindcss@4.0.10)':
+  '@tailwindcss/typography@0.5.16(tailwindcss@4.1.12)':
     dependencies:
       lodash.castarray: 4.4.0
       lodash.isplainobject: 4.0.6
       lodash.merge: 4.6.2
       postcss-selector-parser: 6.0.10
-      tailwindcss: 4.0.10
+      tailwindcss: 4.1.12
 
   '@tanstack/query-core@5.85.5': {}
 
@@ -9706,8 +9703,6 @@ snapshots:
     dependencies:
       '@pkgr/core': 0.1.1
       tslib: 2.8.1
-
-  tailwindcss@4.0.10: {}
 
   tailwindcss@4.1.12: {}
 
