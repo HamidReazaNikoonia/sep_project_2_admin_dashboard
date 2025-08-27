@@ -88,7 +88,7 @@
     "react-hook-form": "^7.54.2",
     "react-hot-toast": "^2.6.0",
     "react-images-upload": "^1.2.8",
-    "react-router": "^7.8.0",
+    "react-router": "^7.8.2",
     "tippy": "^0.0.0",
     "tippy.js": "^6.3.7",
     "yup": "^1.6.1"
