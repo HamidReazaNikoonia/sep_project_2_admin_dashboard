@@ -57,8 +57,8 @@ importers:
         specifier: ^2.12.0
         version: 2.12.0(@tiptap/core@2.12.0(@tiptap/pm@2.12.0))
       '@tiptap/extension-dropcursor':
-        specifier: ^3.2.2
-        version: 3.2.2(@tiptap/extensions@3.3.0(@tiptap/core@3.3.0(@tiptap/pm@3.3.0))(@tiptap/pm@3.3.0))
+        specifier: ^3.3.0
+        version: 3.3.0(@tiptap/extensions@3.3.0(@tiptap/core@3.3.0(@tiptap/pm@3.3.0))(@tiptap/pm@3.3.0))
       '@tiptap/extension-font-family':
         specifier: ^2.12.0
         version: 2.12.0(@tiptap/core@2.12.0(@tiptap/pm@2.12.0))(@tiptap/extension-text-style@2.26.1(@tiptap/core@2.12.0(@tiptap/pm@2.12.0)))
@@ -1548,11 +1548,6 @@ packages:
     resolution: {integrity: sha512-J7w2pva06OSBoEUxIyL/faXx+P97H3L0Q8tCsH5umXgUVew2xLYq6nEDqtHOFIXRp/bvrQd677UlQorBaRrWeQ==}
     peerDependencies:
       '@tiptap/core': ^3.3.0
-
-  '@tiptap/extension-dropcursor@3.2.2':
-    resolution: {integrity: sha512-/lFKAfYtxz73gBBvPXGlIzQ5gCoGhBK2PtfhCJgEtVCcRx7L1nOyTbZIAZ2W33nu9MNvaHi1xPU8jKz6arDBqQ==}
-    peerDependencies:
-      '@tiptap/extensions': ^3.2.2
 
   '@tiptap/extension-dropcursor@3.3.0':
     resolution: {integrity: sha512-aPgEmW6A7K9lq7Mfw8h/ATCJKsWJ5KHimnNoQGwu1V7onWyn3Set/tSgfqKQVGoyvk5xwgRqAg41pYYBIrxF7Q==}
@@ -6308,10 +6303,6 @@ snapshots:
   '@tiptap/extension-document@3.3.0(@tiptap/core@3.3.0(@tiptap/pm@3.3.0))':
     dependencies:
       '@tiptap/core': 3.3.0(@tiptap/pm@3.3.0)
-
-  '@tiptap/extension-dropcursor@3.2.2(@tiptap/extensions@3.3.0(@tiptap/core@3.3.0(@tiptap/pm@3.3.0))(@tiptap/pm@3.3.0))':
-    dependencies:
-      '@tiptap/extensions': 3.3.0(@tiptap/core@2.12.0(@tiptap/pm@2.12.0))(@tiptap/pm@2.12.0)
 
   '@tiptap/extension-dropcursor@3.3.0(@tiptap/extensions@3.3.0(@tiptap/core@3.3.0(@tiptap/pm@3.3.0))(@tiptap/pm@3.3.0))':
     dependencies:
