@@ -31,6 +31,7 @@ import {
   Add,
   Category,
   Assignment,
+  Campaign
 } from '@mui/icons-material'
 
 import CircleNotificationsIcon from '@mui/icons-material/CircleNotifications';
@@ -145,6 +146,7 @@ const Sidebar = ({ mobileOpen, handleDrawerToggle }) => {
         { text: 'سفارش دوره ها', icon: <Ballot />, path: '/course-session-program/orders' },
       ]
     },
+    { text: 'مدیریت کمپین ها', icon: <Campaign />, path: '/campaign/create' },
   ]
 
   // Render menu item (with or without children)

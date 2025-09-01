@@ -61,6 +61,7 @@ import NotificationSpecific from './pages/Notification/NotificationSpecific'
 import TicketList from './pages/Ticket/TicketList'
 import TicketSpecific from './pages/Ticket/TicketSpecific'
 import CategoryPage from './pages/Category';
+import CreateCampaign from './pages/Campain/CreateCampain'
 
 
 const router = createBrowserRouter(
@@ -402,6 +403,14 @@ const router = createBrowserRouter(
       element: (
         <Layout>
           <CategoryPage />
+        </Layout>
+      ),
+    },
+    {
+      path: '/campaign/create',
+      element: (
+        <Layout>
+          <CreateCampaign />
         </Layout>
       ),
     },
