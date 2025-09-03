@@ -67,13 +67,13 @@ const UserList = () => {
 
                                 ) : (
                                     <div className='w-full h-full flex items-center justify-center'>
-                                        <p className='text-sm text-gray-500'>{user.first_name.charAt(0)}</p>
+                                        <p className='text-sm text-gray-500'>{user?.first_name?.charAt(0)}</p>
                                     </div>
                                 )}
                             </div>
 
                             <div>
-                                <p className="font-medium">{user.first_name} - {user.last_name}</p>
+                                <p className="font-medium">{user?.first_name} - {user?.last_name}</p>
                                 <p className="text-xs text-gray-500">ID: {user.id}</p>
                                 <p className="text-xs text-gray-500">Student ID: {user.student_id}</p>
                             </div>
@@ -81,19 +81,19 @@ const UserList = () => {
                     </div>
 
                     <div className="col-span-2">
-                        <p className="text-sm text-gray-700">{user.role && userRoleTitleMap[user.role]}</p>
+                        <p className="text-sm text-gray-700">{user?.role && userRoleTitleMap[user?.role]}</p>
                     </div>
 
                     <div className="col-span-2">
                         <p className="text-sm">
                             <span className="text-xs text-gray-400 block">Mobile</span>
-                            {user.mobile || 'N/A'}
+                            {user?.mobile || 'N/A'}
                         </p>
                     </div>
 
                     <div className="col-span-2">
                         <span className={`px-2 py-1 text-xs rounded-full ${user?.isVerified ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                            {user.isVerified ? 'تایید شده' : 'عدم تایید'}
+                            {user?.isVerified ? 'تایید شده' : 'عدم تایید'}
                         </span>
                     </div>
 

@@ -62,6 +62,9 @@ import TicketList from './pages/Ticket/TicketList'
 import TicketSpecific from './pages/Ticket/TicketSpecific'
 import CategoryPage from './pages/Category';
 import CreateCampaign from './pages/Campain/CreateCampain'
+import BlogList from './pages/Blog/BlogList'
+import CreateBlog from './pages/Blog/CreateBlog'
+import EditBlog from './pages/Blog/EditBlog'
 
 
 const router = createBrowserRouter(
@@ -411,6 +414,30 @@ const router = createBrowserRouter(
       element: (
         <Layout>
           <CreateCampaign />
+        </Layout>
+      ),
+    },
+    {
+      path: '/blog',
+      element: (
+        <Layout>
+          <BlogList />
+        </Layout>
+      ),
+    },
+    {
+      path: '/blog/create',
+      element: (
+        <Layout>
+          <CreateBlog />
+        </Layout>
+      ),
+    },
+    {
+      path: '/blog/:blogId/edit',
+      element: (
+        <Layout>
+          <EditBlog />
         </Layout>
       ),
     },
