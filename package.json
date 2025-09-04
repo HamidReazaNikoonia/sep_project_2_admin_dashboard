@@ -42,7 +42,7 @@
     "@tiptap/extension-code-block": "^2.12.0",
     "@tiptap/extension-color": "^2.12.0",
     "@tiptap/extension-document": "^2.12.0",
-    "@tiptap/extension-dropcursor": "^2.12.0",
+    "@tiptap/extension-dropcursor": "^3.4.1",
     "@tiptap/extension-font-family": "^2.12.0",
     "@tiptap/extension-gapcursor": "^3.4.1",
     "@tiptap/extension-hard-break": "^2.12.0",
