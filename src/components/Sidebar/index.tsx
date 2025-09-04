@@ -147,6 +147,10 @@ const Sidebar = ({ mobileOpen, handleDrawerToggle }) => {
       ]
     },
     { text: 'مدیریت کمپین ها', icon: <Campaign />, path: '/campaign/create' },
+    { text: 'مدیریت بلاگ ها', icon: <Article />, path: '/blog', children: [
+      { text: 'مشاهده بلاگ ها', icon: <Article />, path: '/blog' },
+      { text: 'ایجاد بلاگ', icon: <Add />, path: '/blog/create' },
+    ] },
   ]
 
   // Render menu item (with or without children)

@@ -65,6 +65,7 @@ import CreateCampaign from './pages/Campain/CreateCampain'
 import BlogList from './pages/Blog/BlogList'
 import CreateBlog from './pages/Blog/CreateBlog'
 import EditBlog from './pages/Blog/EditBlog'
+import BlogSpecific from './pages/Blog/BlogSpecific'
 
 
 const router = createBrowserRouter(
@@ -438,6 +439,14 @@ const router = createBrowserRouter(
       element: (
         <Layout>
           <EditBlog />
+        </Layout>
+      ),
+    },
+    {
+      path: '/blog/:blogId',
+      element: (
+        <Layout>
+          <BlogSpecific />
         </Layout>
       ),
     },

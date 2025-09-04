@@ -198,7 +198,7 @@ const EditBlog = () => {
           <div className="flex gap-2">
             <Button
               variant="outlined"
-              startIcon={<CancelIcon />}
+              endIcon={<CancelIcon className='mr-4' />}
               onClick={() => navigate('/blog')}
             >
               انصراف
@@ -333,8 +333,8 @@ const EditBlog = () => {
               color="primary"
               type="submit"
               disabled={updatePending}
-              startIcon={
-                updatePending ? <CircularProgress size={20} /> : <SaveIcon />
+              endIcon={
+                updatePending ? <CircularProgress className='mr-4' size={20} /> : <SaveIcon className='mr-4' />
               }
             >
               {updatePending ? 'در حال ذخیره...' : 'ذخیره تغییرات'}
