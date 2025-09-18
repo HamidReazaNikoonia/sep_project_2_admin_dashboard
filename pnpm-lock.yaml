@@ -126,8 +126,8 @@ importers:
         specifier: ^2.12.0
         version: 2.12.0(@tiptap/core@2.26.1(@tiptap/pm@2.26.1))
       '@tiptap/extension-task-item':
-        specifier: ^3.4.3
-        version: 3.4.3(@tiptap/extension-list@3.4.4(@tiptap/core@3.4.4(@tiptap/pm@3.4.4))(@tiptap/pm@3.4.4))
+        specifier: ^3.4.4
+        version: 3.4.4(@tiptap/extension-list@3.4.4(@tiptap/core@3.4.4(@tiptap/pm@3.4.4))(@tiptap/pm@3.4.4))
       '@tiptap/extension-task-list':
         specifier: ^3.4.4
         version: 3.4.4(@tiptap/extension-list@3.4.4(@tiptap/core@3.4.4(@tiptap/pm@3.4.4))(@tiptap/pm@3.4.4))
@@ -1786,10 +1786,10 @@ packages:
       '@tiptap/core': ^2.7.0
       '@tiptap/pm': ^2.7.0
 
-  '@tiptap/extension-task-item@3.4.3':
-    resolution: {integrity: sha512-M7qB3p/cDZfsoO+77fsVbT7+XGBx4RQdx4Vf6RkAHen7TkimpsAyL3jBils6rtNAA8kcg2X9H9LFdTKhHh4U3w==}
+  '@tiptap/extension-task-item@3.4.4':
+    resolution: {integrity: sha512-i2WUUHV5pnfU7xvzUWlECuIj7ZQNKCe7+1HUf6ktTmmWDNpJirRHwLrNPVWShfBOJX/fFMif5mQqZ3/91rODbQ==}
     peerDependencies:
-      '@tiptap/extension-list': ^3.4.3
+      '@tiptap/extension-list': ^3.4.4
 
   '@tiptap/extension-task-list@3.4.4':
     resolution: {integrity: sha512-wvB1P/MGD98P36dJMMnY+6bN2MPAUPZTpAPEFsPba6pMhnXOAYRkBqibt4WQcGdiSv6aGlnZexW3Tj8uq/FKbg==}
@@ -6171,7 +6171,7 @@ snapshots:
       '@tiptap/core': 2.26.1(@tiptap/pm@2.26.1)
       '@tiptap/pm': 2.26.1
 
-  '@tiptap/extension-task-item@3.4.3(@tiptap/extension-list@3.4.4(@tiptap/core@3.4.4(@tiptap/pm@3.4.4))(@tiptap/pm@3.4.4))':
+  '@tiptap/extension-task-item@3.4.4(@tiptap/extension-list@3.4.4(@tiptap/core@3.4.4(@tiptap/pm@3.4.4))(@tiptap/pm@3.4.4))':
     dependencies:
       '@tiptap/extension-list': 3.4.4(@tiptap/core@2.26.1(@tiptap/pm@2.26.1))(@tiptap/pm@2.26.1)
 
