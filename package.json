@@ -93,7 +93,7 @@
     "react-router": "^7.9.1",
     "tippy": "^0.0.0",
     "tippy.js": "^6.3.7",
-    "yup": "^1.6.1"
+    "yup": "^1.7.0"
   },
   "devDependencies": {
     "@eslint/compat": "^1.2.7",
