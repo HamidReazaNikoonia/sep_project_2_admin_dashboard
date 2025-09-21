@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 
     // Helper function to filter programs by status
     const excludeProgramByStatus = (programs: any[], status: 'active' | 'inactive' | 'completed') => {
-      return programs.filter(program => program.status === status);
+      return programs?.filter(program => program.status === status);
   };
 
 const EnrollmentsTable = ({ enrollments }: { enrollments: any[] }) => {
@@ -82,7 +82,7 @@ const EnrollmentsTable = ({ enrollments }: { enrollments: any[] }) => {
           
           {/* Table Body */}
           <tbody>
-            {!!filteredProgram.length && filteredProgram?.map((session, index) => (
+            {!!filteredProgram?.length && filteredProgram?.map((session, index) => (
               <tr 
                 key={index}
                 className={`${index % 2 === 0 ? 'bg-gray-100' : 'bg-gray-200'} hover:bg-blue-50 transition-colors`}

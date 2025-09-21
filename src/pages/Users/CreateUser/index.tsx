@@ -130,20 +130,20 @@ const CreateUser: React.FC = () => {
   }, [createUserMutation.isError ])
   
 
-  const kir = () => {
+  const WalletEditing = () => {
     setIsWalletEditing(!isWalletEditing)
   }
 
-  const handleDeleteUser = () => {
+  const handleWalletEditing = () => {
     // Open modal with delete action
-    setPendingAction(() => kir);
+    setPendingAction(() => WalletEditing);
     setIsModalOpen(true);
   };
 
-  const deleteUser = () => {
-    console.log("User deleted!");
-    // Your actual delete logic here
-  };
+  // const deleteUser = () => {
+  //   console.log("User deleted!");
+  //   // Your actual delete logic here
+  // };
 
   const handleConfirm = () => {
     if (pendingAction) {
@@ -337,7 +337,7 @@ const CreateUser: React.FC = () => {
 
       // Handle wallet amount
       if (data.wallet_amount !== null && data.wallet_amount !== undefined && data.wallet_amount >= 0) {
-        userData.wallet = Number(data.wallet_amount);
+        userData.wallet_amount = Number(data.wallet_amount);
       }
 
       console.log('Creating user with data:', userData); // For debugging
@@ -516,7 +516,6 @@ const CreateUser: React.FC = () => {
                   <TextField
                     {...field}
                     label="شغل"
-                    type="number"
                     fullWidth
                     variant="outlined"
                   />
@@ -652,7 +651,7 @@ const CreateUser: React.FC = () => {
               <Button
                 variant="outlined"
                 size="small"
-                onClick={handleDeleteUser}
+                onClick={handleWalletEditing}
               >
                 ویرایش موجودی
               </Button>
