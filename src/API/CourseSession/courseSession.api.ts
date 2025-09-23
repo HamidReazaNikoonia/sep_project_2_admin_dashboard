@@ -192,7 +192,7 @@ const courseSessionApi = {
 
   // Get all course sessions (Program) of a user
   getAllCourseSessionsOfUser: async (userId: string) => {
-    const { data } = await axios.get(`course-session/admin/program/${userId}`)
+    const { data } = await axios.get(`course-session/admin/user-program/${userId}`)
     return data
   },
 

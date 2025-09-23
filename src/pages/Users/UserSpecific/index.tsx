@@ -439,7 +439,7 @@ const UserSpecific = () => {
 
 
               {showCourseSessions && (
-                <Button href={`/programs?user=${user?._id}`} variant="outlined" color="primary" startIcon={<VisibilityIcon className='ml-4 text-gray-500' />}>
+                <Button href={`/programs?user=${user?.id}`} variant="outlined" color="primary" startIcon={<VisibilityIcon className='ml-4 text-gray-500' />}>
                   <Typography textAlign="right" variant="subtitle2" color="textSecondary">
                     نمایش کامل کلاس های این کاربر در قسمت مدیریت کلاس ها
                   </Typography>
