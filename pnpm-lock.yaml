@@ -123,8 +123,8 @@ importers:
         specifier: ^2.12.0
         version: 2.12.0(@tiptap/core@2.12.0(@tiptap/pm@2.12.0))
       '@tiptap/extension-table-row':
-        specifier: ^2.12.0
-        version: 2.12.0(@tiptap/core@2.12.0(@tiptap/pm@2.12.0))
+        specifier: ^2.26.2
+        version: 2.26.2(@tiptap/core@2.12.0(@tiptap/pm@2.12.0))
       '@tiptap/extension-task-item':
         specifier: ^2.12.0
         version: 2.12.0(@tiptap/core@2.12.0(@tiptap/pm@2.12.0))(@tiptap/pm@2.12.0)
@@ -1728,8 +1728,8 @@ packages:
     peerDependencies:
       '@tiptap/core': ^2.7.0
 
-  '@tiptap/extension-table-row@2.12.0':
-    resolution: {integrity: sha512-AEW/Zl9V0IoaYDBLMhF5lVl0xgoIJs3IuKCsIYxGDlxBfTVFC6PfQzvuy296CMjO5ZcZ0xalVipPV9ggsMRD+w==}
+  '@tiptap/extension-table-row@2.26.2':
+    resolution: {integrity: sha512-TzQn/KJ7w34oswRP3P1RKwT0qYV6TG+k2iFzKPO7Vxo24debJopqC8C+oP/qw7NJaTyTcEwx+oSavTPILFdxeg==}
     peerDependencies:
       '@tiptap/core': ^2.7.0
 
@@ -5995,7 +5995,7 @@ snapshots:
     dependencies:
       '@tiptap/core': 2.12.0(@tiptap/pm@2.12.0)
 
-  '@tiptap/extension-table-row@2.12.0(@tiptap/core@2.12.0(@tiptap/pm@2.12.0))':
+  '@tiptap/extension-table-row@2.26.2(@tiptap/core@2.12.0(@tiptap/pm@2.12.0))':
     dependencies:
       '@tiptap/core': 2.12.0(@tiptap/pm@2.12.0)
 
