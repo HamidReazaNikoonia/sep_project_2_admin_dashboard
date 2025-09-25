@@ -132,8 +132,8 @@ importers:
         specifier: ^2.26.2
         version: 2.26.2(@tiptap/core@2.12.0(@tiptap/pm@2.26.2))
       '@tiptap/extension-text':
-        specifier: ^2.26.2
-        version: 2.26.2(@tiptap/core@2.12.0(@tiptap/pm@2.26.2))
+        specifier: ^3.6.0
+        version: 3.6.0(@tiptap/core@2.12.0(@tiptap/pm@2.26.2))
       '@tiptap/extension-text-align':
         specifier: ^2.26.2
         version: 2.26.2(@tiptap/core@2.12.0(@tiptap/pm@2.26.2))
@@ -1749,15 +1749,10 @@ packages:
     peerDependencies:
       '@tiptap/core': ^2.7.0
 
-  '@tiptap/extension-text@2.26.2':
-    resolution: {integrity: sha512-Rb8Le/Li+EixQNc/pGkEJpLjozTjWYP9glaYfnjPtRVw4tHcd7khVm5mer0TQjonbBUjVC1zSuXv9gifXOv6DQ==}
+  '@tiptap/extension-text@3.6.0':
+    resolution: {integrity: sha512-1+OZzZkfz9x3M4GWFwl0xogq/ElqgPTOYQHOYJ1JDyovyTIhN6M/9/yKV+51aQKVaZiXbZaGy01qsh4JPyHIHA==}
     peerDependencies:
-      '@tiptap/core': ^2.7.0
-
-  '@tiptap/extension-text@3.5.1':
-    resolution: {integrity: sha512-+OS4qQnYZ6NNyDvYasx0wlBf717nttyU0h7hT3VCijm3ERIvwdiJKwZtsCVEF0yHqu+zUqJP84svg5ymEdtFSw==}
-    peerDependencies:
-      '@tiptap/core': ^3.5.1
+      '@tiptap/core': ^3.6.0
 
   '@tiptap/extension-underline@2.12.0':
     resolution: {integrity: sha512-u95lrUCesw1SN3BXY4xrgfSuxtoCYmJ9uaU7IVVOu0zVsDFtLlOa82kd63KVF+URL0kMdO+FBmvdS6d8Era70Q==}
@@ -6049,11 +6044,11 @@ snapshots:
     dependencies:
       '@tiptap/core': 2.12.0(@tiptap/pm@2.26.2)
 
-  '@tiptap/extension-text@2.26.2(@tiptap/core@2.12.0(@tiptap/pm@2.26.2))':
+  '@tiptap/extension-text@3.6.0(@tiptap/core@2.12.0(@tiptap/pm@2.26.2))':
     dependencies:
       '@tiptap/core': 2.12.0(@tiptap/pm@2.26.2)
 
-  '@tiptap/extension-text@3.5.1(@tiptap/core@3.5.0(@tiptap/pm@3.5.1))':
+  '@tiptap/extension-text@3.6.0(@tiptap/core@3.5.0(@tiptap/pm@3.5.1))':
     dependencies:
       '@tiptap/core': 3.5.0(@tiptap/pm@3.5.1)
 
@@ -6146,7 +6141,7 @@ snapshots:
       '@tiptap/extension-ordered-list': 3.5.1(@tiptap/extension-list@3.5.0(@tiptap/core@3.5.0(@tiptap/pm@3.5.1))(@tiptap/pm@3.5.1))
       '@tiptap/extension-paragraph': 3.5.1(@tiptap/core@3.5.0(@tiptap/pm@3.5.1))
       '@tiptap/extension-strike': 3.5.0(@tiptap/core@3.5.0(@tiptap/pm@3.5.1))
-      '@tiptap/extension-text': 3.5.1(@tiptap/core@3.5.0(@tiptap/pm@3.5.1))
+      '@tiptap/extension-text': 3.6.0(@tiptap/core@3.5.0(@tiptap/pm@3.5.1))
       '@tiptap/extension-underline': 3.5.0(@tiptap/core@3.5.0(@tiptap/pm@3.5.1))
       '@tiptap/extensions': 3.5.0(@tiptap/core@2.12.0(@tiptap/pm@2.26.2))(@tiptap/pm@2.26.2)
       '@tiptap/pm': 3.5.1
