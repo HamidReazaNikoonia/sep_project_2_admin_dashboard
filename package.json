@@ -38,7 +38,7 @@
     "@tiptap/extension-blockquote": "^2.26.2",
     "@tiptap/extension-bold": "^2.26.2",
     "@tiptap/extension-bullet-list": "^3.6.1",
-    "@tiptap/extension-code": "^2.12.0",
+    "@tiptap/extension-code": "^2.26.2",
     "@tiptap/extension-code-block": "^2.26.2",
     "@tiptap/extension-color": "^2.26.2",
     "@tiptap/extension-document": "^2.26.2",
