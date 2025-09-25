@@ -66,8 +66,8 @@ importers:
         specifier: ^2.26.2
         version: 2.26.2(@tiptap/core@2.12.0(@tiptap/pm@2.26.2))(@tiptap/pm@2.26.2)
       '@tiptap/extension-hard-break':
-        specifier: ^2.12.0
-        version: 2.12.0(@tiptap/core@2.12.0(@tiptap/pm@2.26.2))
+        specifier: ^2.26.2
+        version: 2.26.2(@tiptap/core@2.12.0(@tiptap/pm@2.26.2))
       '@tiptap/extension-heading':
         specifier: ^2.26.2
         version: 2.26.2(@tiptap/core@2.12.0(@tiptap/pm@2.26.2))
@@ -1568,15 +1568,15 @@ packages:
     peerDependencies:
       '@tiptap/extensions': ^3.5.1
 
-  '@tiptap/extension-hard-break@2.12.0':
-    resolution: {integrity: sha512-08MNS2PK5DzdnAfqXn4krmJ/xebKmWpRpYqqN5EM8AvetYKlAJyTVSpo0ZUeGbZ3EZiPm9djgSnrLqpFUDjRCg==}
+  '@tiptap/extension-hard-break@2.26.2':
+    resolution: {integrity: sha512-OLpeTey7p3ChyEsABLPvNv7rD/8E4k1JTt+H+MUjyL0dnrZuIWluckUJCJKnV8PhR9Mifngk1MTFUilpooiv1g==}
     peerDependencies:
       '@tiptap/core': ^2.7.0
 
-  '@tiptap/extension-hard-break@3.5.0':
-    resolution: {integrity: sha512-6QXW05ooXQirgJDhHlnIgsGvNMFksK/u/xJ7ltpSTzOe9sw9WyuvHFELsannzM0N+WSiZFKSzvt+yFVom/Z/9g==}
+  '@tiptap/extension-hard-break@3.6.0':
+    resolution: {integrity: sha512-slHBbADh4bcoJl8MbQKjFCSb0wqNvnocJgnBUwQ6DioWZRw27Zj7vyl2vgXZQbOe8r8SzNSx3NTTNuxmHiyxFA==}
     peerDependencies:
-      '@tiptap/core': ^3.5.0
+      '@tiptap/core': ^3.6.0
 
   '@tiptap/extension-heading@2.26.2':
     resolution: {integrity: sha512-0VAr1l1QKFJ0B2l4D4wV0LRlyFYeJt0S09mz+HPF2TqKF4twmPjaGD6o5zzXWl8c4cQj1CmM8P+9an3SKRjOaA==}
@@ -5900,11 +5900,11 @@ snapshots:
     dependencies:
       '@tiptap/extensions': 3.5.0(@tiptap/core@2.12.0(@tiptap/pm@2.26.2))(@tiptap/pm@2.26.2)
 
-  '@tiptap/extension-hard-break@2.12.0(@tiptap/core@2.12.0(@tiptap/pm@2.26.2))':
+  '@tiptap/extension-hard-break@2.26.2(@tiptap/core@2.12.0(@tiptap/pm@2.26.2))':
     dependencies:
       '@tiptap/core': 2.12.0(@tiptap/pm@2.26.2)
 
-  '@tiptap/extension-hard-break@3.5.0(@tiptap/core@3.5.0(@tiptap/pm@3.5.1))':
+  '@tiptap/extension-hard-break@3.6.0(@tiptap/core@3.5.0(@tiptap/pm@3.5.1))':
     dependencies:
       '@tiptap/core': 3.5.0(@tiptap/pm@3.5.1)
 
@@ -6135,7 +6135,7 @@ snapshots:
       '@tiptap/extension-document': 3.5.0(@tiptap/core@3.5.0(@tiptap/pm@3.5.1))
       '@tiptap/extension-dropcursor': 3.5.1(@tiptap/extensions@3.5.0(@tiptap/core@3.5.0(@tiptap/pm@3.5.1))(@tiptap/pm@3.5.1))
       '@tiptap/extension-gapcursor': 3.5.1(@tiptap/extensions@3.5.0(@tiptap/core@3.5.0(@tiptap/pm@3.5.1))(@tiptap/pm@3.5.1))
-      '@tiptap/extension-hard-break': 3.5.0(@tiptap/core@3.5.0(@tiptap/pm@3.5.1))
+      '@tiptap/extension-hard-break': 3.6.0(@tiptap/core@3.5.0(@tiptap/pm@3.5.1))
       '@tiptap/extension-heading': 3.5.1(@tiptap/core@3.5.0(@tiptap/pm@3.5.1))
       '@tiptap/extension-horizontal-rule': 3.5.1(@tiptap/core@3.5.0(@tiptap/pm@3.5.1))(@tiptap/pm@3.5.1)
       '@tiptap/extension-italic': 3.5.1(@tiptap/core@3.5.0(@tiptap/pm@3.5.1))
