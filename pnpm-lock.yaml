@@ -141,8 +141,8 @@ importers:
         specifier: ^2.12.0
         version: 2.12.0(@tiptap/core@2.12.0(@tiptap/pm@2.26.2))
       '@tiptap/extension-underline':
-        specifier: ^2.12.0
-        version: 2.12.0(@tiptap/core@2.12.0(@tiptap/pm@2.26.2))
+        specifier: ^2.26.2
+        version: 2.26.2(@tiptap/core@2.12.0(@tiptap/pm@2.26.2))
       '@tiptap/pm':
         specifier: ^2.26.2
         version: 2.26.2
@@ -1755,15 +1755,15 @@ packages:
     peerDependencies:
       '@tiptap/core': ^3.6.0
 
-  '@tiptap/extension-underline@2.12.0':
-    resolution: {integrity: sha512-u95lrUCesw1SN3BXY4xrgfSuxtoCYmJ9uaU7IVVOu0zVsDFtLlOa82kd63KVF+URL0kMdO+FBmvdS6d8Era70Q==}
+  '@tiptap/extension-underline@2.26.2':
+    resolution: {integrity: sha512-kpKJSfsn1+b8l96YPg2GRn3aaN78pLqSeyzfA5FYVbN0lyptbqRVOrNM8p3n6l0LbAkiEjc/TgOMwNNEL93kyA==}
     peerDependencies:
       '@tiptap/core': ^2.7.0
 
-  '@tiptap/extension-underline@3.5.0':
-    resolution: {integrity: sha512-ZbeVF+TXy7hsJEYvpMBns6OO3J321SRsXXkzmbcaDku7pKOTcfJoLXwM6HyGQUQUe307wKSBijmi3jxrJJYiHA==}
+  '@tiptap/extension-underline@3.6.0':
+    resolution: {integrity: sha512-iQDc093ihe0DdTRK9NDPnaiFkuunmoyq7hUv1DHUk8dr67KpyHcMvRcF11SX2qIjfR3L4GDvSNpwey4XFjw8YA==}
     peerDependencies:
-      '@tiptap/core': ^3.5.0
+      '@tiptap/core': ^3.6.0
 
   '@tiptap/extensions@3.5.0':
     resolution: {integrity: sha512-6LKkOXLgXC5z4XYkijCyZtY+989treWbjBiuoK7aLK5bi74ltO9C70GZnjMa12v6qKtuxxifeKp5vxGpiqHH7Q==}
@@ -6038,11 +6038,11 @@ snapshots:
     dependencies:
       '@tiptap/core': 3.5.0(@tiptap/pm@3.5.1)
 
-  '@tiptap/extension-underline@2.12.0(@tiptap/core@2.12.0(@tiptap/pm@2.26.2))':
+  '@tiptap/extension-underline@2.26.2(@tiptap/core@2.12.0(@tiptap/pm@2.26.2))':
     dependencies:
       '@tiptap/core': 2.12.0(@tiptap/pm@2.26.2)
 
-  '@tiptap/extension-underline@3.5.0(@tiptap/core@3.5.0(@tiptap/pm@3.5.1))':
+  '@tiptap/extension-underline@3.6.0(@tiptap/core@3.5.0(@tiptap/pm@3.5.1))':
     dependencies:
       '@tiptap/core': 3.5.0(@tiptap/pm@3.5.1)
 
@@ -6128,7 +6128,7 @@ snapshots:
       '@tiptap/extension-paragraph': 3.5.1(@tiptap/core@3.5.0(@tiptap/pm@3.5.1))
       '@tiptap/extension-strike': 3.5.0(@tiptap/core@3.5.0(@tiptap/pm@3.5.1))
       '@tiptap/extension-text': 3.6.0(@tiptap/core@3.5.0(@tiptap/pm@3.5.1))
-      '@tiptap/extension-underline': 3.5.0(@tiptap/core@3.5.0(@tiptap/pm@3.5.1))
+      '@tiptap/extension-underline': 3.6.0(@tiptap/core@3.5.0(@tiptap/pm@3.5.1))
       '@tiptap/extensions': 3.5.0(@tiptap/core@2.12.0(@tiptap/pm@2.26.2))(@tiptap/pm@2.26.2)
       '@tiptap/pm': 3.5.1
 
