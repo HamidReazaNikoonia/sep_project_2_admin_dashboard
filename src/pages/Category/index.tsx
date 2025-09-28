@@ -338,6 +338,7 @@ const CategoriesPage = () => {
         ) : (
           <Box className="border rounded-lg p-4 bg-white" sx={{ minHeight: 300, minWidth: 250 }}>
             <SimpleTreeView
+              dir='ltr'
               expandedItems={expandedItems}
               onExpandedItemsChange={handleExpandedItemsChange}
               sx={{
