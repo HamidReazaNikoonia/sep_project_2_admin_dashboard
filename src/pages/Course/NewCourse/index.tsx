@@ -33,7 +33,7 @@ import CourseCategorySelection from '../../../components/CourseCategorySelection
 const SERVER_URL = process.env.REACT_APP_SERVER_URL
 const SERVER_FILE = process.env.REACT_APP_SERVER_FILE
 
-// Validation schema
+// Remove course_objects from validation schema
 const schema = yup.object({
   title: yup.string().required('عنوان دوره الزامی است'),
   sub_title: yup.string().required('زیرعنوان دوره الزامی است'),
@@ -50,17 +50,10 @@ const schema = yup.object({
     )
     .optional()
     .min(10000, 'حداقل قیمت ۱۰,۰۰۰ تومان است'),
-  // max_member_accept: yup
-  //   .number()
-  //   .required('حداکثر ظرفیت الزامی است')
-  //   .min(1, 'حداقل ظرفیت ۱ نفر است')
-  //   .integer('ظرفیت باید عدد صحیح باشد'),
   course_language: yup.string(),
   course_duration: yup.number().required('مدت دوره الزامی است'),
   slug: yup.string(),
-  // educational_level: yup.number().required('سطح آموزشی الزامی است'),
   is_have_licence: yup.boolean().default(false),
-  // coach_id: yup.string().required('انتخاب مدرس الزامی است'),
   course_status: yup.boolean().default(true),
   sample_media: yup
     .array()
@@ -73,14 +66,6 @@ const schema = yup.object({
       }),
     )
     .min(1, 'حداقل یک نمونه رسانه الزامی است'),
-  course_objects: yup.array().of(
-    yup.object({
-      subject_title: yup.string().required('عنوان سرفصل الزامی است'),
-      status: yup.string().oneOf(['PUBLIC', 'PRIVATE']).default('PRIVATE'),
-      duration: yup.number().required('مدت زمان الزامی است'),
-      files: yup.mixed(),
-    }),
-  ),
 })
 
 type FormData = yup.InferType<typeof schema>
@@ -99,6 +84,25 @@ interface FileUploadState {
   }
 }
 
+// Define types for course objects
+interface Lesson {
+  title: string
+  description: string
+  order: number
+  status: 'PUBLIC' | 'PRIVATE'
+  duration: number
+  file?: File | null
+}
+
+interface CourseObject {
+  subject_title: string
+  description: string
+  order: number
+  duration: number
+  files?: File | null
+  lessons: Lesson[]
+}
+
 const NewCourse = () => {
   const navigate = useNavigate()
   const [thumbnailImage, setThumbnailImage] = useState<File | null>(null)
@@ -106,10 +110,13 @@ const NewCourse = () => {
   const [thumbnailUploadedFile, setThumbnailUploadedFile] =
     useState<UploadedFile | null>(null)
   const [fileUploads, setFileUploads] = useState<FileUploadState>({})
-  // const { data: categories = [] } = useCourseCategories()
   const [categories, setCategories] = useState<any>([])
   const [descriptionLong, setDescriptionLong] = useState('')
   const createCourse = useCreateCourse()
+
+  // Add useState for course_objects
+  const [courseObjects, setCourseObjects] = useState<CourseObject[]>([])
+  const [courseObjectErrors, setCourseObjectErrors] = useState<{[key: string]: string}>({})
 
   const {
     register,
@@ -125,11 +132,9 @@ const NewCourse = () => {
       is_have_licence: false,
       course_status: true,
       sample_media: [{ media_type: '', media_title: '', url_address: '' }],
-      course_objects: [],
       price_discount: null,
       price_real: 0,
       description: '',
-      // max_member_accept: 1,
       course_duration: 0,
       course_language: 'FA',
     },
@@ -145,14 +150,156 @@ const NewCourse = () => {
     control,
   })
 
-  const {
-    fields: courseObjectFields,
-    append: appendCourseObject,
-    remove: removeCourseObject,
-  } = useFieldArray({
-    name: 'course_objects',
-    control,
-  })
+  // Course objects management functions
+  const addCourseObject = () => {
+    const newCourseObject: CourseObject = {
+      subject_title: '',
+      description: '',
+      order: courseObjects.length + 1,
+      duration: 0,
+      lessons: [],
+    }
+    setCourseObjects([...courseObjects, newCourseObject])
+  }
+
+  const removeCourseObject = (index: number) => {
+    const newCourseObjects = courseObjects.filter((_, i) => i !== index)
+    setCourseObjects(newCourseObjects)
+    
+    // Remove related file uploads
+    const keysToRemove = Object.keys(fileUploads).filter(key => 
+      key.startsWith(`course_object_${index}`) || key.startsWith(`lesson_${index}_`)
+    )
+    const newFileUploads = { ...fileUploads }
+    keysToRemove.forEach(key => delete newFileUploads[key])
+    setFileUploads(newFileUploads)
+  }
+
+  const updateCourseObject = (index: number, field: keyof CourseObject, value: any) => {
+    const newCourseObjects = [...courseObjects]
+    newCourseObjects[index] = { ...newCourseObjects[index], [field]: value }
+    setCourseObjects(newCourseObjects)
+    
+    // Clear error for this field
+    const errorKey = `courseObject_${index}_${field}`
+    if (courseObjectErrors[errorKey]) {
+      const newErrors = { ...courseObjectErrors }
+      delete newErrors[errorKey]
+      setCourseObjectErrors(newErrors)
+    }
+  }
+
+  const addLesson = (courseObjectIndex: number) => {
+    const newLesson: Lesson = {
+      title: '',
+      description: '',
+      order: courseObjects[courseObjectIndex].lessons.length + 1,
+      status: 'PRIVATE',
+      duration: 0,
+    }
+    
+    const newCourseObjects = [...courseObjects]
+    newCourseObjects[courseObjectIndex].lessons.push(newLesson)
+    setCourseObjects(newCourseObjects)
+  }
+
+  const removeLesson = (courseObjectIndex: number, lessonIndex: number) => {
+    const newCourseObjects = [...courseObjects]
+    newCourseObjects[courseObjectIndex].lessons = newCourseObjects[courseObjectIndex].lessons.filter((_, i) => i !== lessonIndex)
+    setCourseObjects(newCourseObjects)
+    
+    // Remove related file uploads
+    const uploadKey = `lesson_${courseObjectIndex}_${lessonIndex}`
+    if (fileUploads[uploadKey]) {
+      const newFileUploads = { ...fileUploads }
+      delete newFileUploads[uploadKey]
+      setFileUploads(newFileUploads)
+    }
+  }
+
+  const updateLesson = (courseObjectIndex: number, lessonIndex: number, field: keyof Lesson, value: any) => {
+    const newCourseObjects = [...courseObjects]
+    newCourseObjects[courseObjectIndex].lessons[lessonIndex] = {
+      ...newCourseObjects[courseObjectIndex].lessons[lessonIndex],
+      [field]: value
+    }
+    setCourseObjects(newCourseObjects)
+    
+    // Clear error for this field
+    const errorKey = `lesson_${courseObjectIndex}_${lessonIndex}_${field}`
+    if (courseObjectErrors[errorKey]) {
+      const newErrors = { ...courseObjectErrors }
+      delete newErrors[errorKey]
+      setCourseObjectErrors(newErrors)
+    }
+  }
+
+  // Validation function for course objects
+  const validateCourseObjects = (): boolean => {
+    const errors: {[key: string]: string} = {}
+    let isValid = true
+
+    if (courseObjects.length === 0) {
+      errors['courseObjects_general'] = 'حداقل یک سرفصل الزامی است'
+      isValid = false
+    }
+
+    courseObjects.forEach((courseObject, index) => {
+      if (!courseObject.subject_title.trim()) {
+        errors[`courseObject_${index}_subject_title`] = 'عنوان سرفصل الزامی است'
+        isValid = false
+      }
+      if (!courseObject.description.trim()) {
+        errors[`courseObject_${index}_description`] = 'توضیحات سرفصل الزامی است'
+        isValid = false
+      }
+      if (!courseObject.order || courseObject.order <= 0) {
+        errors[`courseObject_${index}_order`] = 'ترتیب سرفصل الزامی است'
+        isValid = false
+      }
+      if (!courseObject.duration || courseObject.duration <= 0) {
+        errors[`courseObject_${index}_duration`] = 'مدت زمان الزامی است'
+        isValid = false
+      }
+
+      // Check if file is uploaded
+      const uploadKey = `course_object_${index}`
+      // if (!fileUploads[uploadKey]?.uploadedFile?._id) {
+      //   errors[`courseObject_${index}_file`] = `لطفا فایل سرفصل ${index + 1} را آپلود کنید`
+      //   isValid = false
+      // }
+
+      // Validate lessons
+      courseObject.lessons.forEach((lesson, lessonIndex) => {
+        if (!lesson.title.trim()) {
+          errors[`lesson_${index}_${lessonIndex}_title`] = 'عنوان درس الزامی است'
+          isValid = false
+        }
+        if (!lesson.description.trim()) {
+          errors[`lesson_${index}_${lessonIndex}_description`] = 'توضیحات درس الزامی است'
+          isValid = false
+        }
+        if (!lesson.order || lesson.order <= 0) {
+          errors[`lesson_${index}_${lessonIndex}_order`] = 'ترتیب درس الزامی است'
+          isValid = false
+        }
+        if (!lesson.duration || lesson.duration <= 0) {
+          errors[`lesson_${index}_${lessonIndex}_duration`] = 'مدت زمان الزامی است'
+          isValid = false
+        }
+
+        // Check if lesson file is uploaded
+        const lessonUploadKey = `lesson_${index}_${lessonIndex}`
+        if (!fileUploads[lessonUploadKey]?.uploadedFile?._id) {
+          errors[`lesson_${index}_${lessonIndex}_file`] = `لطفا فایل درس ${lessonIndex + 1} را آپلود کنید`
+          isValid = false
+        }
+      })
+    })
+
+    setCourseObjectErrors(errors)
+    return isValid
+  }
 
   const uploadFile = async (file: File): Promise<UploadedFile> => {
     const formData = new FormData()
@@ -222,6 +369,13 @@ const NewCourse = () => {
     console.log('Form has errors:', Object.keys(errors).length > 0)
 
     try {
+      console.log('validateCourseObjects', validateCourseObjects())
+      // Validate course objects
+      if (!validateCourseObjects()) {
+        showToast('خطا', 'لطفا خطاهای سرفصل‌ها را برطرف کنید', 'error')
+        return
+      }
+
       // Check if thumbnail is uploaded
       if (!thumbnailUploadedFile?._id) {
         showToast('خطا', 'لطفا تصویر دوره را آپلود کنید', 'error')
@@ -244,25 +398,42 @@ const NewCourse = () => {
       })
 
       // Prepare course objects with uploaded file IDs
-      const courseObjectsWithFiles = data.course_objects.map(
-        (object, index) => {
-          const uploadKey = `course_object_${index}`
-          const uploadedFile = fileUploads[uploadKey]?.uploadedFile
-          if (!uploadedFile?._id) {
-            throw new Error(`لطفا فایل سرفصل ${index + 1} را آپلود کنید`)
+      const courseObjectsWithFiles = courseObjects.map((object, index) => {
+        const uploadKey = `course_object_${index}`
+        const uploadedFile = fileUploads[uploadKey]?.uploadedFile
+        // if (!uploadedFile?._id) {
+        //   throw new Error(`لطفا فایل سرفصل ${index + 1} را آپلود کنید`)
+        // }
+
+        // Process lessons with their files
+        const lessonsWithFiles = object.lessons.map((lesson, lessonIndex) => {
+          const lessonUploadKey = `lesson_${index}_${lessonIndex}`
+          const lessonUploadedFile = fileUploads[lessonUploadKey]?.uploadedFile
+          if (!lessonUploadedFile?._id) {
+            throw new Error(`لطفا فایل درس ${lessonIndex + 1} از سرفصل ${index + 1} را آپلود کنید`)
           }
           return {
-            subject_title: object.subject_title,
-            status: object.status,
-            duration: object.duration,
-            files: uploadedFile._id,
+            title: lesson.title,
+            description: lesson.description,
+            order: lesson.order,
+            status: lesson.status,
+            duration: lesson.duration,
+            file: lessonUploadedFile._id,
           }
-        },
-      )
+        })
+
+        return {
+          subject_title: object.subject_title,
+          description: object.description,
+          order: object.order,
+          duration: object.duration,
+          files: uploadedFile?._id,
+          lessons: lessonsWithFiles,
+        }
+      })
 
       // add categories
-      // course_session_category
-      if (!categories && categories.length === 0) {
+      if (!categories || categories.length === 0) {
         showToast('خطا', 'حداقل یک دسته بندی انتخاب کنید', 'error')
         return false
       }
@@ -696,7 +867,7 @@ const NewCourse = () => {
             </StyledPaper>
           </Grid>
 
-          {/* Course Objects Section */}
+          {/* Course Objects Section - Updated with useState */}
           <Grid size={12}>
             <StyledPaper sx={{ p: 3 }}>
               <Box
@@ -708,21 +879,21 @@ const NewCourse = () => {
                 <Typography variant="h6">سرفصل‌های دوره</Typography>
                 <Button
                   startIcon={<AddIcon className="ml-2" />}
-                  onClick={() =>
-                    appendCourseObject({
-                      subject_title: '',
-                      status: 'PRIVATE',
-                      duration: 0,
-                    })
-                  }
+                  onClick={addCourseObject}
                 >
                   افزودن سرفصل
                 </Button>
               </Box>
 
-              {courseObjectFields.map((field, index) => (
+              {courseObjectErrors['courseObjects_general'] && (
+                <Alert severity="error" sx={{ mb: 2 }}>
+                  {courseObjectErrors['courseObjects_general']}
+                </Alert>
+              )}
+
+              {courseObjects.map((courseObject, index) => (
                 <Box
-                  key={field.id}
+                  key={index}
                   sx={{
                     mb: 3,
                     p: 2,
@@ -733,43 +904,48 @@ const NewCourse = () => {
                   <Grid container spacing={2}>
                     <Grid size={{ xs: 12, md: 6 }}>
                       <TextField
-                        {...register(`course_objects.${index}.subject_title`)}
                         fullWidth
                         label="عنوان سرفصل"
-                        error={!!errors.course_objects?.[index]?.subject_title}
-                        helperText={
-                          errors.course_objects?.[index]?.subject_title?.message
-                        }
+                        value={courseObject.subject_title}
+                        onChange={(e) => updateCourseObject(index, 'subject_title', e.target.value)}
+                        error={!!courseObjectErrors[`courseObject_${index}_subject_title`]}
+                        helperText={courseObjectErrors[`courseObject_${index}_subject_title`]}
                       />
                     </Grid>
 
-                    <Grid size={{ xs: 12, md: 3 }}>
+                    <Grid size={{ xs: 12, md: 6 }}>
                       <TextField
-                        {...register(`course_objects.${index}.duration`)}
+                        fullWidth
+                        label="توضیحات سرفصل"
+                        value={courseObject.description}
+                        onChange={(e) => updateCourseObject(index, 'description', e.target.value)}
+                        error={!!courseObjectErrors[`courseObject_${index}_description`]}
+                        helperText={courseObjectErrors[`courseObject_${index}_description`]}
+                      />
+                    </Grid>
+
+                    <Grid size={{ xs: 12, md: 4 }}>
+                      <TextField
+                        fullWidth
+                        type="number"
+                        label="ترتیب"
+                        value={courseObject.order}
+                        onChange={(e) => updateCourseObject(index, 'order', parseInt(e.target.value) || 0)}
+                        error={!!courseObjectErrors[`courseObject_${index}_order`]}
+                        helperText={courseObjectErrors[`courseObject_${index}_order`]}
+                      />
+                    </Grid>
+
+                    <Grid size={{ xs: 12, md: 4 }}>
+                      <TextField
                         fullWidth
                         type="number"
                         label="مدت زمان (دقیقه)"
-                        error={!!errors.course_objects?.[index]?.duration}
-                        helperText={
-                          errors.course_objects?.[index]?.duration?.message
-                        }
+                        value={courseObject.duration}
+                        onChange={(e) => updateCourseObject(index, 'duration', parseInt(e.target.value) || 0)}
+                        error={!!courseObjectErrors[`courseObject_${index}_duration`]}
+                        helperText={courseObjectErrors[`courseObject_${index}_duration`]}
                       />
-                    </Grid>
-
-                    <Grid size={{ xs: 12, md: 3 }}>
-                      <TextField
-                        {...register(`course_objects.${index}.status`)}
-                        select
-                        fullWidth
-                        label="وضعیت"
-                        error={!!errors.course_objects?.[index]?.status}
-                        helperText={
-                          errors.course_objects?.[index]?.status?.message
-                        }
-                      >
-                        <MenuItem value="PUBLIC">عمومی</MenuItem>
-                        <MenuItem value="PRIVATE">خصوصی</MenuItem>
-                      </TextField>
                     </Grid>
 
                     <Grid size={12}>
@@ -778,7 +954,7 @@ const NewCourse = () => {
                         onChange={(e) => {
                           const file = e.target.files?.[0]
                           if (file) {
-                            setValue(`course_objects.${index}.files`, file)
+                            updateCourseObject(index, 'files', file)
 
                             setFileUploads((prev) => ({
                               ...prev,
@@ -829,7 +1005,184 @@ const NewCourse = () => {
                             فایل با موفقیت آپلود شد
                           </Alert>
                         )}
+                        {courseObjectErrors[`courseObject_${index}_file`] && (
+                          <Alert severity="error">
+                            {courseObjectErrors[`courseObject_${index}_file`]}
+                          </Alert>
+                        )}
                       </Box>
+                    </Grid>
+
+                    {/* Lessons Section */}
+                    <Grid size={12} sx={{ mt: 2 }}>
+                      <Box
+                        display="flex"
+                        justifyContent="space-between"
+                        alignItems="center"
+                        mb={2}
+                      >
+                        <Typography variant="subtitle1">درس‌های این سرفصل</Typography>
+                        <Button
+                          size="small"
+                          startIcon={<AddIcon className="ml-2" />}
+                          onClick={() => addLesson(index)}
+                        >
+                          افزودن درس
+                        </Button>
+                      </Box>
+
+                      {courseObject.lessons.map((lesson, lessonIndex) => (
+                        <Box
+                          key={lessonIndex}
+                          sx={{
+                            mb: 2,
+                            p: 2,
+                            border: '1px dashed #ccc',
+                            borderRadius: 1,
+                            bgcolor: '#f9f9f9',
+                          }}
+                        >
+                          <Grid container spacing={2}>
+                            <Grid size={{ xs: 12, md: 6 }}>
+                              <TextField
+                                fullWidth
+                                label="عنوان درس"
+                                value={lesson.title}
+                                onChange={(e) => updateLesson(index, lessonIndex, 'title', e.target.value)}
+                                error={!!courseObjectErrors[`lesson_${index}_${lessonIndex}_title`]}
+                                helperText={courseObjectErrors[`lesson_${index}_${lessonIndex}_title`]}
+                              />
+                            </Grid>
+
+                            <Grid size={{ xs: 12, md: 6 }}>
+                              <TextField
+                                fullWidth
+                                label="توضیحات درس"
+                                value={lesson.description}
+                                onChange={(e) => updateLesson(index, lessonIndex, 'description', e.target.value)}
+                                error={!!courseObjectErrors[`lesson_${index}_${lessonIndex}_description`]}
+                                helperText={courseObjectErrors[`lesson_${index}_${lessonIndex}_description`]}
+                              />
+                            </Grid>
+
+                            <Grid size={{ xs: 12, md: 4 }}>
+                              <TextField
+                                fullWidth
+                                type="number"
+                                label="ترتیب"
+                                value={lesson.order}
+                                onChange={(e) => updateLesson(index, lessonIndex, 'order', parseInt(e.target.value) || 0)}
+                                error={!!courseObjectErrors[`lesson_${index}_${lessonIndex}_order`]}
+                                helperText={courseObjectErrors[`lesson_${index}_${lessonIndex}_order`]}
+                              />
+                            </Grid>
+
+                            <Grid size={{ xs: 12, md: 4 }}>
+                              <TextField
+                                select
+                                fullWidth
+                                label="وضعیت"
+                                value={lesson.status}
+                                onChange={(e) => updateLesson(index, lessonIndex, 'status', e.target.value as 'PUBLIC' | 'PRIVATE')}
+                                error={!!courseObjectErrors[`lesson_${index}_${lessonIndex}_status`]}
+                                helperText={courseObjectErrors[`lesson_${index}_${lessonIndex}_status`]}
+                              >
+                                <MenuItem value="PUBLIC">عمومی</MenuItem>
+                                <MenuItem value="PRIVATE">خصوصی</MenuItem>
+                              </TextField>
+                            </Grid>
+
+                            <Grid size={{ xs: 12, md: 4 }}>
+                              <TextField
+                                fullWidth
+                                type="number"
+                                label="مدت زمان (دقیقه)"
+                                value={lesson.duration}
+                                onChange={(e) => updateLesson(index, lessonIndex, 'duration', parseInt(e.target.value) || 0)}
+                                error={!!courseObjectErrors[`lesson_${index}_${lessonIndex}_duration`]}
+                                helperText={courseObjectErrors[`lesson_${index}_${lessonIndex}_duration`]}
+                              />
+                            </Grid>
+
+                            <Grid size={12}>
+                              <input
+                                type="file"
+                                onChange={(e) => {
+                                  const file = e.target.files?.[0]
+                                  if (file) {
+                                    updateLesson(index, lessonIndex, 'file', file)
+
+                                    setFileUploads((prev) => ({
+                                      ...prev,
+                                      [`lesson_${index}_${lessonIndex}`]: {
+                                        file,
+                                        uploading: false,
+                                        error: null,
+                                        uploadedFile: null,
+                                      },
+                                    }))
+                                  }
+                                }}
+                                style={{ display: 'none' }}
+                                id={`lesson-file-${index}-${lessonIndex}`}
+                              />
+                              <Box display="flex" alignItems="center" gap={2}>
+                                <label htmlFor={`lesson-file-${index}-${lessonIndex}`}>
+                                  <Button variant="outlined" component="span" size="small">
+                                    انتخاب فایل
+                                  </Button>
+                                </label>
+                                {fileUploads[`lesson_${index}_${lessonIndex}`]?.file &&
+                                  !fileUploads[`lesson_${index}_${lessonIndex}`]
+                                    ?.uploadedFile && (
+                                    <Button
+                                      variant="contained"
+                                      size="small"
+                                      onClick={() =>
+                                        handleFileUpload(`lesson_${index}_${lessonIndex}`)
+                                      }
+                                      disabled={
+                                        fileUploads[`lesson_${index}_${lessonIndex}`]?.uploading
+                                      }
+                                      startIcon={
+                                        fileUploads[`lesson_${index}_${lessonIndex}`]
+                                          ?.uploading ? (
+                                          <CircularProgress size={16} />
+                                        ) : (
+                                          <UploadIcon />
+                                        )
+                                      }
+                                    >
+                                      آپلود فایل
+                                    </Button>
+                                  )}
+                                {fileUploads[`lesson_${index}_${lessonIndex}`]
+                                  ?.uploadedFile && (
+                                  <Alert severity="success" sx={{ py: 0 }}>
+                                    فایل با موفقیت آپلود شد
+                                  </Alert>
+                                )}
+                                {courseObjectErrors[`lesson_${index}_${lessonIndex}_file`] && (
+                                  <Alert severity="error" sx={{ py: 0 }}>
+                                    {courseObjectErrors[`lesson_${index}_${lessonIndex}_file`]}
+                                  </Alert>
+                                )}
+                              </Box>
+                            </Grid>
+
+                            <Grid size={12} display="flex" justifyContent="flex-end">
+                              <Button
+                                color="error"
+                                size="small"
+                                startIcon={<DeleteIcon className="ml-2" />}
+                                onClick={() => removeLesson(index, lessonIndex)}
+                              >
+                                حذف درس
+                              </Button>
+                            </Grid>
+                          </Grid>
+                        </Box>
+                      ))}
                     </Grid>
 
                     <Grid size={12} display="flex" justifyContent="flex-end">
@@ -838,7 +1191,7 @@ const NewCourse = () => {
                         startIcon={<DeleteIcon className="ml-2" />}
                         onClick={() => removeCourseObject(index)}
                       >
-                        حذف
+                        حذف سرفصل
                       </Button>
                     </Grid>
                   </Grid>
