@@ -23,7 +23,7 @@ type Coach = {
 }
 
 interface CoachListAndFilterProps {
-  coaches: Coach[]
+  coaches: {results: Coach[]}
   selectedCurentCoach: string | null
   changeCurentCoach: (coachId: string) => void
 }
@@ -37,9 +37,10 @@ const CoachListAndFilter: React.FC<CoachListAndFilterProps> = ({
 
   // Filter logic
   const filteredCoaches = useMemo(() => {
-    if (!search) return coaches
+    if (!search) return coaches?.results
+    if (!coaches?.results || !Array.isArray(coaches?.results)) return []
     const s = search.trim().toLowerCase()
-    return coaches.filter(
+    return coaches?.results?.filter(
       (c) =>
         c.first_name?.toLowerCase().includes(s) ||
         c.last_name?.toLowerCase().includes(s),
@@ -64,7 +65,7 @@ const CoachListAndFilter: React.FC<CoachListAndFilterProps> = ({
       />
       <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
         {filteredCoaches &&
-          filteredCoaches?.results.map((coach, idx) => {
+          filteredCoaches.map((coach, idx) => {
             const selected = coach.id === selectedCurentCoach
             return (
               <React.Fragment key={coach.id}>
