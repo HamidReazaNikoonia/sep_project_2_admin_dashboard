@@ -897,8 +897,8 @@ const NewCourse = () => {
                   sx={{
                     mb: 3,
                     p: 2,
-                    border: '1px solid #eee',
-                    borderRadius: 1,
+                    border: '4px solid #b0aabd',
+                    borderRadius: 4,
                   }}
                 >
                   <Grid container spacing={2}>
@@ -1170,9 +1170,10 @@ const NewCourse = () => {
                               </Box>
                             </Grid>
 
-                            <Grid size={12} display="flex" justifyContent="flex-end">
+                            <Grid size={12} display="flex" justifyContent="center" sx={{ mt: 2, borderRadius: 1 }}>
                               <Button
                                 color="error"
+                                sx={{ border: '1px solid #ccc', borderRadius: 1, width: '200px' }}
                                 size="small"
                                 startIcon={<DeleteIcon className="ml-2" />}
                                 onClick={() => removeLesson(index, lessonIndex)}
@@ -1185,9 +1186,10 @@ const NewCourse = () => {
                       ))}
                     </Grid>
 
-                    <Grid size={12} display="flex" justifyContent="flex-end">
+                    <Grid size={12} display="flex" justifyContent="flex-start" sx={{ mt: 2, borderRadius: 1 }}>
                       <Button
                         color="error"
+                        sx={{ border: '1px solid #ccc', borderRadius: 1, width: '200px' }}
                         startIcon={<DeleteIcon className="ml-2" />}
                         onClick={() => removeCourseObject(index)}
                       >
