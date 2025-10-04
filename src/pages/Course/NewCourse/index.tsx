@@ -1,13 +1,16 @@
 //@ts-nocheck
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useFieldArray } from 'react-hook-form'
 import Editor from '@/components/TextEditor'
+import CoachListAndFilter from '@/components/CoachListAndFilter'
 import {
   Add as AddIcon,
   Delete as DeleteIcon,
   Upload as UploadIcon,
+  Person2 as Person2Icon,
 } from '@mui/icons-material'
 import { useNavigate } from 'react-router'
+import { useGetAllCoaches } from '@/API/Coach/coach.hook'
 import {
   Box,
   TextField,
@@ -114,10 +117,30 @@ const NewCourse = () => {
   const [descriptionLong, setDescriptionLong] = useState('')
   const createCourse = useCreateCourse()
 
+  // coach State
+  const [selectedCurentCoach, setSelectedCurentCoach] = useState<string | null>(
+    null,
+  )
+
   // Add useState for course_objects
   const [courseObjects, setCourseObjects] = useState<CourseObject[]>([])
   const [courseObjectErrors, setCourseObjectErrors] = useState<{[key: string]: string}>({})
 
+
+
+  useEffect(() => {
+    if (selectedCurentCoach) {
+      console.log('selectedCurentCoach', selectedCurentCoach)
+    }
+  }, [selectedCurentCoach])
+
+    // Fetch All Coaches Data
+    const {
+      data: coachesData,
+      isLoading: coachesIsLoading,
+      isError: coachesIsError,
+    } = useGetAllCoaches()
+  
   const {
     register,
     handleSubmit,
@@ -716,6 +739,33 @@ const NewCourse = () => {
             </StyledPaper>
           </Grid>
 
+          <Grid size={12}>
+            <StyledPaper sx={{ p: 3 }}>
+            <div dir="rtl" className="w-full px-8 md:px-12">
+            <div className='mb-1 text-base font-semibold md:text-xl flex items-center gap-2'>
+              <Person2Icon className='' />
+              <div className='mt-0.5'>انتخاب استاد</div>
+            </div>
+            <div className='mb-4 text-sm text-gray-500'>
+              لطفا استاد مورد نظر خود را انتخاب کنید
+            </div>
+            {coachesIsLoading && (
+              <div className="w-full p-12">
+                <CircularProgress />
+                <Typography sx={{ mt: 2 }}>
+                  در حال بارگذاری اطلاعات دوره...
+                </Typography>
+              </div>
+            )}
+            <CoachListAndFilter
+              coaches={coachesData}
+              selectedCurentCoach={selectedCurentCoach}
+              changeCurentCoach={setSelectedCurentCoach}
+            />
+          </div>
+            </StyledPaper>
+          </Grid>
+
           {/* Uploader Sample Media */}
           <Grid size={12}>
             <StyledPaper sx={{ p: 3 }}>
@@ -896,7 +946,8 @@ const NewCourse = () => {
                   key={index}
                   sx={{
                     mb: 3,
-                    p: 2,
+                    px: 4,
+                    py: 6,
                     border: '4px solid #b0aabd',
                     borderRadius: 4,
                   }}
