@@ -6,7 +6,11 @@ import {
   CircularProgress,
   Switch,
   Button,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
 } from '@mui/material'
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router'
 import { useCourse, useUpdateCourse } from '../../../API/Course/course.hook'
@@ -317,7 +321,7 @@ const CourseSpecific = () => {
                 dangerouslySetInnerHTML={{ __html: he.decode(course?.description_long || '') }}
                 className="text-sm leading-7 text-gray-700"
               /> */}
-              <div className="w-full border-4 border-gray-300 border-dashed px-4 py-6 ">
+              <div className="w-full border-3 border-gray-300 border-dashed px-4 py-6 ">
                 <RichTextReadOnly
                   content={he.decode(course?.description_long || '')}
                   extensions={extensions}
@@ -341,43 +345,144 @@ const CourseSpecific = () => {
             </Typography>
             <Grid container spacing={2}>
               {course.course_objects.map((object, index) => (
-                <Grid key={index} size={12}>
-                  <div className="flex flex-row md:flex-col justify-between md:justify-start items-center md:items-start">
-                    <div className="flex items-center gap-2">
-                      <Box
-                        sx={{ p: 2, border: '1px solid #eee', borderRadius: 1 }}
-                      >
-                        <Typography variant="subtitle1">
-                          {object.subject_title}
-                        </Typography>
-                        <Typography variant="body2" color="textSecondary">
-                          مدت زمان: {object.duration} دقیقه
-                        </Typography>
-                        <Typography variant="body2" color="textSecondary">
-                          وضعیت:{' '}
-                          {object.status === 'PUBLIC' ? 'رایگان' : 'پرداختی'}
-                        </Typography>
-                      </Box>
-                    </div>
+                <Grid sx={{ borderBottom: '2px solid #e0e0e0'}} key={object._id || index} size={12}>
+                  <Box sx={{ mb: 2 }}>
+                    {/* Course Object Header */}
+                    <Box
+                      sx={{ 
+                        p: 2, 
+                        border: '2px solid #e0e0e0', 
+                        borderRadius: 2,
+                        backgroundColor: '#f8f9fa'
+                      }}
+                    >
+                      <div className="flex flex-row justify-between items-start">
+                        <div className="flex-1">
+                          <Typography variant="h6" sx={{ mb: 1 }}>
+                            {object.subject_title}
+                          </Typography>
+                          {object.description && (
+                            <Typography variant="body2" color="textSecondary" sx={{ mb: 1 }}>
+                              {object.description}
+                            </Typography>
+                          )}
+                          <Typography variant="body2" color="textSecondary">
+                            مدت زمان: {object.duration} دقیقه
+                          </Typography>
+                          <Typography variant="body2" color="textSecondary">
+                            ترتیب: {object.order}
+                          </Typography>
+                          <Typography variant="body2" color="textSecondary">
+                            تعداد درس‌ها: {object.lessons?.length || 0} درس
+                          </Typography>
+                        </div>
 
-                    {/* Files */}
-                    <div className="flex items-center md:pr-4">
-                      {object.files && (
-                        <Button
-                          endIcon={
-                            <FolderIcon className="text-gray-400 mr-2" />
-                          }
-                          variant="outlined"
-                          size="small"
-                          onClick={() =>
-                            handleFileDownload(object.files.file_name)
-                          }
-                        >
-                          مشاهده فایل
-                        </Button>
-                      )}
-                    </div>
-                  </div>
+                        {/* Course Object Files */}
+                        <div className="flex items-center">
+                          {object.files && (
+                            <Button
+                              endIcon={
+                                <FolderIcon className="text-gray-400 mr-2" />
+                              }
+                              variant="outlined"
+                              size="small"
+                              onClick={() =>
+                                handleFileDownload(object.files.file_name)
+                              }
+                            >
+                              مشاهده فایل سرفصل
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                    </Box>
+
+                    {/* Lessons Accordion */}
+                    {object.lessons && object.lessons.length > 0 && (
+                      <Box sx={{ mt: 2 }}>
+                        <Accordion>
+                          <AccordionSummary
+                            expandIcon={<ExpandMoreIcon />}
+                            aria-controls={`lessons-content-${object._id || index}`}
+                            id={`lessons-header-${object._id || index}`}
+                            sx={{
+                              backgroundColor: '#f5f5f5',
+                              '&:hover': {
+                                backgroundColor: '#eeeeee',
+                              },
+                            }}
+                          >
+                            <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
+                              درس‌های این سرفصل ({object.lessons.length} درس)
+                            </Typography>
+                          </AccordionSummary>
+                          <AccordionDetails sx={{ p: 0 }}>
+                            <Grid container spacing={1} sx={{ p: 2 }}>
+                              {object.lessons
+                                .sort((a, b) => a.order - b.order)
+                                .map((lesson, lessonIndex) => (
+                                <Grid key={lesson._id || lessonIndex} size={12}>
+                                  <Box
+                                    sx={{ 
+                                      p: 2, 
+                                      border: '1px solid #ddd', 
+                                      borderRadius: 1,
+                                      backgroundColor: '#ffffff',
+                                      '&:hover': {
+                                        backgroundColor: '#fafafa',
+                                      },
+                                    }}
+                                  >
+                                    <div className="flex flex-row justify-between items-start">
+                                      <div className="flex-1">
+                                        <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>
+                                          درس {lesson.order}: {lesson.title}
+                                        </Typography>
+                                        {lesson.description && (
+                                          <Typography variant="body2" color="textSecondary" sx={{ mt: 0.5 }}>
+                                            {lesson.description}
+                                          </Typography>
+                                        )}
+                                        <div className="flex gap-4 mt-1">
+                                          <Typography variant="body2" color="textSecondary">
+                                            مدت زمان: {lesson.duration} دقیقه
+                                          </Typography>
+                                          <Typography variant="body2" color="textSecondary">
+                                            وضعیت:{' '}
+                                            <span className={lesson.status === 'PUBLIC' ? 'text-green-600' : 'text-orange-600'}>
+                                              {lesson.status === 'PUBLIC' ? 'رایگان' : 'پرداختی'}
+                                            </span>
+                                          </Typography>
+                                        </div>
+                                      </div>
+
+                                      {/* Lesson Files */}
+                                      <div className="flex items-center">
+                                        {lesson.file && (
+                                          <Button
+                                            endIcon={
+                                              <FolderIcon className="text-gray-400 mr-2" />
+                                            }
+                                            variant="outlined"
+                                            size="small"
+                                            onClick={() =>
+                                              handleFileDownload(lesson.file.file_name)
+                                            }
+                                          >
+                                            مشاهده فایل درس
+                                          </Button>
+                                        )}
+                                      </div>
+                                    </div>
+                                  </Box>
+                                </Grid>
+                              ))}
+                            </Grid>
+                          </AccordionDetails>
+                        </Accordion>
+                      </Box>
+                    )}
+                  </Box>
                 </Grid>
               ))}
             </Grid>
