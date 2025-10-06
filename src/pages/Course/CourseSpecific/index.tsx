@@ -13,8 +13,21 @@ import { useCourse, useUpdateCourse } from '../../../API/Course/course.hook'
 import StyledPaper from '../../../components/StyledPaper'
 import { showToast } from '../../../utils/toast'
 import FolderIcon from '@mui/icons-material/Folder'
+import he from 'he';
 import Person3Icon from '@mui/icons-material/Person3';
 const label = { inputProps: { 'aria-label': 'Switch Course Status' } }
+
+import useExtensions from '@/components/TextEditor/useExtensions'
+
+import {
+  LinkBubbleMenu,
+  MenuButton,
+  RichTextEditor,
+  RichTextReadOnly,
+  TableBubbleMenu,
+  insertImages,
+  type RichTextEditorRef,
+} from 'mui-tiptap'
 
 const SERVER_URL = process.env.REACT_APP_SERVER_URL
 const SERVER_FILE = process.env.REACT_APP_SERVER_FILE
@@ -24,6 +37,10 @@ const CourseSpecific = () => {
   const { course_id } = useParams()
   const { data, isLoading, isError, error } = useCourse(course_id!)
   const updateCourse = useUpdateCourse(course_id!)
+
+  const extensions = useExtensions({
+    placeholder: 'Add your own content here...',
+  })
 
   const handleChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const newStatus = event.target.checked
@@ -151,7 +168,7 @@ const CourseSpecific = () => {
                     Array.isArray(course?.course_category) &&
                     course.course_category?.length !== 0 &&
                     course.course_category.map((category) => (
-                      <div className="bg-yellow-300 px-4 rounded-3xl mb-1.5 py-1 font-semibold">
+                      <div className="bg-gray-300 px-4 rounded-3xl mb-1.5 py-1 font-normal">
                         {category.name || '-'}
                       </div>
                     ))}
@@ -291,17 +308,25 @@ const CourseSpecific = () => {
               توضیحات کامل
             </Typography>
 
-            <div
-              className="w-full px-2 md:px-4 py-4 flex flex-wrap leading-8"
-              style={{
-                wordBreak: 'break-word',
-                overflowWrap: 'break-word',
-              }}
-            >
+            {course?.description_long && (
               <div
-                dangerouslySetInnerHTML={{ __html: course.description_long }}
-              />
+              className="w-full px-2 md:px-4 py-4 flex flex-wrap leading-8"
+             
+            >
+              {/* <div
+                dangerouslySetInnerHTML={{ __html: he.decode(course?.description_long || '') }}
+                className="text-sm leading-7 text-gray-700"
+              /> */}
+              <div className="w-full border-4 border-gray-300 border-dashed px-4 py-6 ">
+                <RichTextReadOnly
+                  content={he.decode(course?.description_long || '')}
+                  extensions={extensions}
+                />
+              </div>
             </div>
+            )}
+
+            
           </StyledPaper>
         </Grid>
 

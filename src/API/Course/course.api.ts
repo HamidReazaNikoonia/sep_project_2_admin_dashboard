@@ -19,7 +19,9 @@ const courseApi = {
 
   // Get specific course by ID
   getCourse: async (courseId: string) => {
-    const { data } = await axios.get<{ course: Course }>(`course/${courseId}`)
+    const { data } = await axios.get<{
+      description_long: string course: Course 
+}>(`course/${courseId}`)
     return data
   },
 

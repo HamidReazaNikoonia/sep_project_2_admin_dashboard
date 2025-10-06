@@ -130,7 +130,7 @@ const NewCourse = () => {
 
   useEffect(() => {
     if (selectedCurentCoach) {
-      console.log('selectedCurentCoach', selectedCurentCoach)
+      showToast('موفق', 'استاد مورد نظر با موفقیت انتخاب شد', 'success')
     }
   }, [selectedCurentCoach])
 
@@ -465,6 +465,7 @@ const NewCourse = () => {
         ...data,
         ...(categories &&
           categories.length !== 0 && { course_category: categories }),
+        ...(selectedCurentCoach && { coach_id: selectedCurentCoach }),
         tumbnail_image: thumbnailUploadedFile._id,
         sample_media: sampleMediaWithFiles,
         course_objects: courseObjectsWithFiles,
@@ -887,7 +888,7 @@ const NewCourse = () => {
                                   ?.uploading ? (
                                   <CircularProgress size={20} />
                                 ) : (
-                                  <UploadIcon />
+                                  <UploadIcon className="ml-2" />
                                 )
                               }
                             >
@@ -1043,7 +1044,7 @@ const NewCourse = () => {
                                   ?.uploading ? (
                                   <CircularProgress size={20} />
                                 ) : (
-                                  <UploadIcon />
+                                  <UploadIcon className="ml-2" />
                                 )
                               }
                             >
@@ -1200,7 +1201,7 @@ const NewCourse = () => {
                                           ?.uploading ? (
                                           <CircularProgress size={16} />
                                         ) : (
-                                          <UploadIcon />
+                                          <UploadIcon className="ml-2" />
                                         )
                                       }
                                     >
