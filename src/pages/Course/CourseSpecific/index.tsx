@@ -33,6 +33,8 @@ import {
   type RichTextEditorRef,
 } from 'mui-tiptap'
 
+import CategoryTreeChips from '../../../components/CategoryTreeChips'
+
 const SERVER_URL = process.env.REACT_APP_SERVER_URL
 const SERVER_FILE = process.env.REACT_APP_SERVER_FILE
 
@@ -158,28 +160,9 @@ const CourseSpecific = () => {
                 </Box>
               </Grid> */}
 
-              <Grid size={6}>
-                <Box sx={{ maxWidth: '100px' }}>
-                  <Typography
-                    sx={{ paddingBottom: '8px' }}
-                    variant="subtitle2"
-                    color="textSecondary"
-                  >
-                    دسته‌بندی
-                  </Typography>
+              
 
-                  {course?.course_category &&
-                    Array.isArray(course?.course_category) &&
-                    course.course_category?.length !== 0 &&
-                    course.course_category.map((category) => (
-                      <div className="bg-gray-300 px-4 rounded-3xl mb-1.5 py-1 font-normal">
-                        {category.name || '-'}
-                      </div>
-                    ))}
-                </Box>
-              </Grid>
-
-              <Grid size={6}>
+              <Grid size={12}>
                 <Box>
                   <Typography variant="subtitle2" color="textSecondary">
                     مدت دوره
@@ -192,7 +175,7 @@ const CourseSpecific = () => {
                 </Box>
               </Grid>
 
-              <Grid size={6}>
+              <Grid size={12}>
                 <Box>
                   <Typography variant="subtitle2" color="textSecondary">
                     زبان دوره
@@ -283,6 +266,15 @@ const CourseSpecific = () => {
                 </div>
               </div>
             </div>
+          </StyledPaper>
+        </Grid>
+
+        <Grid size={12}>
+          <StyledPaper sx={{ p: 3 }}>
+            <Typography variant="h6" gutterBottom>
+              دسته‌بندی
+            </Typography>
+            <CategoryTreeChips categories={course?.course_category || []} />
           </StyledPaper>
         </Grid>
 
@@ -400,7 +392,7 @@ const CourseSpecific = () => {
                     {/* Lessons Accordion */}
                     {object.lessons && object.lessons.length > 0 && (
                       <Box sx={{ mt: 2 }}>
-                        <Accordion>
+                        <Accordion defaultExpanded>
                           <AccordionSummary
                             expandIcon={<ExpandMoreIcon />}
                             aria-controls={`lessons-content-${object._id || index}`}
