@@ -63,8 +63,8 @@ importers:
         specifier: ^2.12.0
         version: 2.12.0(@tiptap/core@2.12.0(@tiptap/pm@2.12.0))(@tiptap/extension-text-style@2.12.0(@tiptap/core@2.12.0(@tiptap/pm@2.12.0)))
       '@tiptap/extension-gapcursor':
-        specifier: ^2.12.0
-        version: 2.12.0(@tiptap/core@2.12.0(@tiptap/pm@2.12.0))(@tiptap/pm@2.12.0)
+        specifier: ^3.6.5
+        version: 3.6.5(@tiptap/extensions@3.6.5(@tiptap/core@2.12.0(@tiptap/pm@2.12.0))(@tiptap/pm@2.12.0))
       '@tiptap/extension-hard-break':
         specifier: ^2.12.0
         version: 2.12.0(@tiptap/core@2.12.0(@tiptap/pm@2.12.0))
@@ -1525,11 +1525,16 @@ packages:
       '@tiptap/core': ^2.7.0
       '@tiptap/extension-text-style': ^2.7.0
 
-  '@tiptap/extension-gapcursor@2.12.0':
-    resolution: {integrity: sha512-k8ji5v9YKn7bNjo8UtI9hEfXfl4tKUp1hpJOEmUxGJQa3LIwrwSbReupUTnHszGQelzxikS/l1xO9P0TIGwRoA==}
+  '@tiptap/extension-gapcursor@2.26.2':
+    resolution: {integrity: sha512-a68mi8V0mh058UrBIk23f50K5JGVeRZnF6ViptIleAD/Ny1K6VLjGCz6k190de+Tb9tnQLPEwwwDcy+ZnvCmYQ==}
     peerDependencies:
       '@tiptap/core': ^2.7.0
       '@tiptap/pm': ^2.7.0
+
+  '@tiptap/extension-gapcursor@3.6.5':
+    resolution: {integrity: sha512-SHtp71zhV2bAQS8kaJ/otb2podGusDREZ9/SQ1rZi6yPcDFLS2KvIvsLssDwbjTuH6KefnsN6Vx01tzmXRAQig==}
+    peerDependencies:
+      '@tiptap/extensions': ^3.6.5
 
   '@tiptap/extension-hard-break@2.12.0':
     resolution: {integrity: sha512-08MNS2PK5DzdnAfqXn4krmJ/xebKmWpRpYqqN5EM8AvetYKlAJyTVSpo0ZUeGbZ3EZiPm9djgSnrLqpFUDjRCg==}
@@ -1668,6 +1673,12 @@ packages:
     resolution: {integrity: sha512-u95lrUCesw1SN3BXY4xrgfSuxtoCYmJ9uaU7IVVOu0zVsDFtLlOa82kd63KVF+URL0kMdO+FBmvdS6d8Era70Q==}
     peerDependencies:
       '@tiptap/core': ^2.7.0
+
+  '@tiptap/extensions@3.6.5':
+    resolution: {integrity: sha512-7aadEaRjSbFAIp3WGYR1LXrvtVprmBNxw3FakEUMJ+XKmGNErDJgDMZh+siAYw5MWwCCGa5kKu8Qi/i+DU+ILg==}
+    peerDependencies:
+      '@tiptap/core': ^3.6.5
+      '@tiptap/pm': ^3.6.5
 
   '@tiptap/pm@2.12.0':
     resolution: {integrity: sha512-TNzVwpeNzFfHAcYTOKqX9iU4fRxliyoZrCnERR+RRzeg7gWrXrCLubQt1WEx0sojMAfznshSL3M5HGsYjEbYwA==}
@@ -5689,10 +5700,14 @@ snapshots:
       '@tiptap/core': 2.12.0(@tiptap/pm@2.12.0)
       '@tiptap/extension-text-style': 2.12.0(@tiptap/core@2.12.0(@tiptap/pm@2.12.0))
 
-  '@tiptap/extension-gapcursor@2.12.0(@tiptap/core@2.12.0(@tiptap/pm@2.12.0))(@tiptap/pm@2.12.0)':
+  '@tiptap/extension-gapcursor@2.26.2(@tiptap/core@2.12.0(@tiptap/pm@2.12.0))(@tiptap/pm@2.12.0)':
     dependencies:
       '@tiptap/core': 2.12.0(@tiptap/pm@2.12.0)
       '@tiptap/pm': 2.12.0
+
+  '@tiptap/extension-gapcursor@3.6.5(@tiptap/extensions@3.6.5(@tiptap/core@2.12.0(@tiptap/pm@2.12.0))(@tiptap/pm@2.12.0))':
+    dependencies:
+      '@tiptap/extensions': 3.6.5(@tiptap/core@2.12.0(@tiptap/pm@2.12.0))(@tiptap/pm@2.12.0)
 
   '@tiptap/extension-hard-break@2.12.0(@tiptap/core@2.12.0(@tiptap/pm@2.12.0))':
     dependencies:
@@ -5807,6 +5822,11 @@ snapshots:
     dependencies:
       '@tiptap/core': 2.12.0(@tiptap/pm@2.12.0)
 
+  '@tiptap/extensions@3.6.5(@tiptap/core@2.12.0(@tiptap/pm@2.12.0))(@tiptap/pm@2.12.0)':
+    dependencies:
+      '@tiptap/core': 2.12.0(@tiptap/pm@2.12.0)
+      '@tiptap/pm': 2.12.0
+
   '@tiptap/pm@2.12.0':
     dependencies:
       prosemirror-changeset: 2.3.1
@@ -5850,7 +5870,7 @@ snapshots:
       '@tiptap/extension-code-block': 2.12.0(@tiptap/core@2.12.0(@tiptap/pm@2.12.0))(@tiptap/pm@2.12.0)
       '@tiptap/extension-document': 2.12.0(@tiptap/core@2.12.0(@tiptap/pm@2.12.0))
       '@tiptap/extension-dropcursor': 2.12.0(@tiptap/core@2.12.0(@tiptap/pm@2.12.0))(@tiptap/pm@2.12.0)
-      '@tiptap/extension-gapcursor': 2.12.0(@tiptap/core@2.12.0(@tiptap/pm@2.12.0))(@tiptap/pm@2.12.0)
+      '@tiptap/extension-gapcursor': 2.26.2(@tiptap/core@2.12.0(@tiptap/pm@2.12.0))(@tiptap/pm@2.12.0)
       '@tiptap/extension-hard-break': 2.12.0(@tiptap/core@2.12.0(@tiptap/pm@2.12.0))
       '@tiptap/extension-heading': 2.12.0(@tiptap/core@2.12.0(@tiptap/pm@2.12.0))
       '@tiptap/extension-history': 2.12.0(@tiptap/core@2.12.0(@tiptap/pm@2.12.0))(@tiptap/pm@2.12.0)
