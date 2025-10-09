@@ -310,8 +310,8 @@ importers:
         specifier: ^5.2.3
         version: 5.2.3(@types/eslint@9.6.1)(eslint-config-prettier@10.0.2(eslint@9.37.0(jiti@2.4.2)))(eslint@9.37.0(jiti@2.4.2))(prettier@3.5.3)
       eslint-plugin-react-hooks:
-        specifier: ^6.1.1
-        version: 6.1.1(eslint@9.37.0(jiti@2.4.2))
+        specifier: ^7.0.0
+        version: 7.0.0(eslint@9.37.0(jiti@2.4.2))
       husky:
         specifier: ^9.1.7
         version: 9.1.7
@@ -2178,8 +2178,8 @@ packages:
   balanced-match@1.0.2:
     resolution: {integrity: sha512-3oSeUO0TMV67hN1AmbXsK4yaqU7tjiHlbxRDZOpH0KW9+CeX4bRAaX0Anxt0tx2MrpRpWwQaPwIlISEJhYU5Pw==}
 
-  baseline-browser-mapping@2.8.14:
-    resolution: {integrity: sha512-GM9c0cWWR8Ga7//Ves/9KRgTS8nLausCkP3CGiFLrnwA2CDUluXgaQqvrULoR2Ujrd/mz/lkX87F5BHFsNr5sQ==}
+  baseline-browser-mapping@2.8.15:
+    resolution: {integrity: sha512-qsJ8/X+UypqxHXN75M7dF88jNK37dLBRW7LeUzCPz+TNs37G8cfWy9nWzS+LS//g600zrt2le9KuXt0rWfDz5Q==}
     hasBin: true
 
   brace-expansion@1.1.12:
@@ -2687,8 +2687,8 @@ packages:
       eslint-config-prettier:
         optional: true
 
-  eslint-plugin-react-hooks@6.1.1:
-    resolution: {integrity: sha512-St9EKZzOAQF704nt2oJvAKZHjhrpg25ClQoaAlHmPZuajFldVLqRDW4VBNAS01NzeiQF0m0qhG1ZA807K6aVaQ==}
+  eslint-plugin-react-hooks@7.0.0:
+    resolution: {integrity: sha512-fNXaOwvKwq2+pXiRpXc825Vd63+KM4DLL40Rtlycb8m7fYpp6efrTp1sa6ZbP/Ap58K2bEKFXRmhURE+CJAQWw==}
     engines: {node: '>=18'}
     peerDependencies:
       eslint: ^3.0.0 || ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0-0 || ^9.0.0
@@ -2998,6 +2998,12 @@ packages:
 
   headers-polyfill@4.0.3:
     resolution: {integrity: sha512-IScLbePpkvO846sIwOtOTDjutRMWdXdJmXdMvk6gCBHxFO8d+QKOQedyZSxFTTFYRSmlgSTDtXqqq4pcenBXLQ==}
+
+  hermes-estree@0.25.1:
+    resolution: {integrity: sha512-0wUoCcLp+5Ev5pDW2OriHC2MJCbwLwuRx+gAqMTOkGKJJiBCLjtrvy4PWUGn6MIVefecRpzoOZ/UV6iGdOr+Cw==}
+
+  hermes-parser@0.25.1:
+    resolution: {integrity: sha512-6pEjquH3rqaI6cYAXYPcz9MS4rY6R4ngRgrgfDshRptUZIc3lw0MCIJIGDj9++mfySOuPTHB4nrSW99BCvOPIA==}
 
   hoist-non-react-statics@3.3.2:
     resolution: {integrity: sha512-/gGivxi8JPKWNm/W0jSmzcMPpfpPLc3dY/6GxhX2hQ9iGj3aDfklV4ET7NjKpSinLpJ5vafa9iiGIEZg10SfBw==}
@@ -6721,7 +6727,7 @@ snapshots:
 
   balanced-match@1.0.2: {}
 
-  baseline-browser-mapping@2.8.14: {}
+  baseline-browser-mapping@2.8.15: {}
 
   brace-expansion@1.1.12:
     dependencies:
@@ -6740,7 +6746,7 @@ snapshots:
 
   browserslist@4.26.3:
     dependencies:
-      baseline-browser-mapping: 2.8.14
+      baseline-browser-mapping: 2.8.15
       caniuse-lite: 1.0.30001749
       electron-to-chromium: 1.5.233
       node-releases: 2.0.23
@@ -7290,11 +7296,12 @@ snapshots:
       '@types/eslint': 9.6.1
       eslint-config-prettier: 10.0.2(eslint@9.37.0(jiti@2.4.2))
 
-  eslint-plugin-react-hooks@6.1.1(eslint@9.37.0(jiti@2.4.2)):
+  eslint-plugin-react-hooks@7.0.0(eslint@9.37.0(jiti@2.4.2)):
     dependencies:
       '@babel/core': 7.28.4
       '@babel/parser': 7.28.4
       eslint: 9.37.0(jiti@2.4.2)
+      hermes-parser: 0.25.1
       zod: 4.1.12
       zod-validation-error: 4.0.2(zod@4.1.12)
     transitivePeerDependencies:
@@ -7635,6 +7642,12 @@ snapshots:
   he@1.2.0: {}
 
   headers-polyfill@4.0.3: {}
+
+  hermes-estree@0.25.1: {}
+
+  hermes-parser@0.25.1:
+    dependencies:
+      hermes-estree: 0.25.1
 
   hoist-non-react-statics@3.3.2:
     dependencies:
