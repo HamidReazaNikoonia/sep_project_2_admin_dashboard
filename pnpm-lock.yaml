@@ -102,8 +102,8 @@ importers:
         specifier: ^2.26.3
         version: 2.26.3(@tiptap/core@2.12.0(@tiptap/pm@2.26.3))
       '@tiptap/extension-placeholder':
-        specifier: ^3.6.5
-        version: 3.6.5(@tiptap/extensions@3.6.6(@tiptap/core@2.12.0(@tiptap/pm@2.26.3))(@tiptap/pm@2.26.3))
+        specifier: ^3.6.6
+        version: 3.6.6(@tiptap/extensions@3.6.6(@tiptap/core@2.12.0(@tiptap/pm@2.26.3))(@tiptap/pm@2.26.3))
       '@tiptap/extension-strike':
         specifier: ^2.26.3
         version: 2.26.3(@tiptap/core@2.12.0(@tiptap/pm@2.26.3))
@@ -1705,10 +1705,10 @@ packages:
     peerDependencies:
       '@tiptap/core': ^3.6.6
 
-  '@tiptap/extension-placeholder@3.6.5':
-    resolution: {integrity: sha512-9CLixogEb/4UkEyuDr4JdOlLvphcOVfZMdNMKmUVQdqo4MuZCdTDyK5ypfTPQJl8aUo0oCiEhqE0bQerYlueJQ==}
+  '@tiptap/extension-placeholder@3.6.6':
+    resolution: {integrity: sha512-DIxES/I/smj2xT+XaIiJbbgH1j9YZj9RTNOhk6Tdy7ffoLHAfMC0vcfJik+ASh5Ui3HRXVCFCu/c2YuxNeoiSg==}
     peerDependencies:
-      '@tiptap/extensions': ^3.6.5
+      '@tiptap/extensions': ^3.6.6
 
   '@tiptap/extension-strike@2.26.3':
     resolution: {integrity: sha512-Po3al5hP0IwvHHIHYy3DbUvCD/kbYTsi3sWTjPAB9QgqaoJGl+jyhIyha8FsR+U3MCIIJIekMktI5o1+ySMGpg==}
@@ -6014,7 +6014,7 @@ snapshots:
     dependencies:
       '@tiptap/core': 3.6.6(@tiptap/pm@3.6.6)
 
-  '@tiptap/extension-placeholder@3.6.5(@tiptap/extensions@3.6.6(@tiptap/core@2.12.0(@tiptap/pm@2.26.3))(@tiptap/pm@2.26.3))':
+  '@tiptap/extension-placeholder@3.6.6(@tiptap/extensions@3.6.6(@tiptap/core@2.12.0(@tiptap/pm@2.26.3))(@tiptap/pm@2.26.3))':
     dependencies:
       '@tiptap/extensions': 3.6.6(@tiptap/core@2.12.0(@tiptap/pm@2.26.3))(@tiptap/pm@2.26.3)
 
