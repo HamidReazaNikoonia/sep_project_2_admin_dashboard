@@ -63,8 +63,8 @@ importers:
         specifier: ^2.26.3
         version: 2.26.3(@tiptap/core@2.12.0(@tiptap/pm@2.26.3))(@tiptap/extension-text-style@2.26.3(@tiptap/core@2.12.0(@tiptap/pm@2.26.3)))
       '@tiptap/extension-gapcursor':
-        specifier: ^3.6.5
-        version: 3.6.5(@tiptap/extensions@3.6.6(@tiptap/core@2.12.0(@tiptap/pm@2.26.3))(@tiptap/pm@2.26.3))
+        specifier: ^3.6.6
+        version: 3.6.6(@tiptap/extensions@3.6.6(@tiptap/core@2.12.0(@tiptap/pm@2.26.3))(@tiptap/pm@2.26.3))
       '@tiptap/extension-hard-break':
         specifier: ^2.26.3
         version: 2.26.3(@tiptap/core@2.12.0(@tiptap/pm@2.26.3))
@@ -1580,11 +1580,6 @@ packages:
     peerDependencies:
       '@tiptap/core': ^2.7.0
       '@tiptap/extension-text-style': ^2.7.0
-
-  '@tiptap/extension-gapcursor@3.6.5':
-    resolution: {integrity: sha512-SHtp71zhV2bAQS8kaJ/otb2podGusDREZ9/SQ1rZi6yPcDFLS2KvIvsLssDwbjTuH6KefnsN6Vx01tzmXRAQig==}
-    peerDependencies:
-      '@tiptap/extensions': ^3.6.5
 
   '@tiptap/extension-gapcursor@3.6.6':
     resolution: {integrity: sha512-aaYvK4/a5lg1k1fwIqzRz1TqokVZATRMzs0pvAcAXIqrM0Dsou1IzVGocIukmzPoesCysGwI5021FSH+ilo54A==}
@@ -5909,10 +5904,6 @@ snapshots:
     dependencies:
       '@tiptap/core': 2.12.0(@tiptap/pm@2.26.3)
       '@tiptap/extension-text-style': 2.26.3(@tiptap/core@2.12.0(@tiptap/pm@2.26.3))
-
-  '@tiptap/extension-gapcursor@3.6.5(@tiptap/extensions@3.6.6(@tiptap/core@2.12.0(@tiptap/pm@2.26.3))(@tiptap/pm@2.26.3))':
-    dependencies:
-      '@tiptap/extensions': 3.6.6(@tiptap/core@2.12.0(@tiptap/pm@2.26.3))(@tiptap/pm@2.26.3)
 
   '@tiptap/extension-gapcursor@3.6.6(@tiptap/extensions@3.6.6(@tiptap/core@2.12.0(@tiptap/pm@2.26.3))(@tiptap/pm@2.26.3))':
     dependencies:
