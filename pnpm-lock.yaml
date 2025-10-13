@@ -180,8 +180,8 @@ importers:
         specifier: ^7.0.1
         version: 7.0.1(@emotion/react@11.14.0(@types/react@19.0.10)(react@18.3.1))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@19.0.10)(react@18.3.1))(@types/react@19.0.10)(react@18.3.1))(@mui/icons-material@6.4.7(@mui/material@6.4.7(@emotion/react@11.14.0(@types/react@19.0.10)(react@18.3.1))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@19.0.10)(react@18.3.1))(@types/react@19.0.10)(react@18.3.1))(@types/react@19.0.10)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@19.0.10)(react@18.3.1))(@mui/material@6.4.7(@emotion/react@11.14.0(@types/react@19.0.10)(react@18.3.1))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@19.0.10)(react@18.3.1))(@types/react@19.0.10)(react@18.3.1))(@types/react@19.0.10)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@19.0.10)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       mui-tiptap:
-        specifier: ^1.18.1
-        version: 1.18.1(6f5e2efca3aafe26bead4510515b4a99)
+        specifier: ^1.28.1
+        version: 1.28.1(9c14f11ce53bc318e79cb5d3d7399b03)
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -2463,8 +2463,8 @@ packages:
   emoji-regex@9.2.2:
     resolution: {integrity: sha512-L18DaJsXSUk2+42pv8mLs5jJT2hqFkFE4j21wOmgbUqsZ2hL72NsUU785g9RXgo3s0ZNgVl42TiHp3ZtOv/Vyg==}
 
-  encodeurl@1.0.2:
-    resolution: {integrity: sha512-TPJXq8JqFaVYm2CWmPvnP2Iyo4ZSM7/QKcSmuMLDObfpH5fi7RUGmd/rTDf+rut/saiDiQEeVTNgAmJEdAOx0w==}
+  encodeurl@2.0.0:
+    resolution: {integrity: sha512-Q0n9HRi4m6JuGIV1eFlmvJB7ZEVxu93IrMyiMsGC0lrMJMWzRgx6WGquyfQgZVb31vhGgXnfmPNNXmxnOkRBrg==}
     engines: {node: '>= 0.8'}
 
   enhanced-resolve@5.18.1:
@@ -2519,6 +2519,9 @@ packages:
   es-to-primitive@1.3.0:
     resolution: {integrity: sha512-w+5mJ3GuFL+NjVtJlvydShqE1eN3h3PbI7/5LAsYJP/2qtuMXjfL2LpHSRqo4b4eSF5K/DH1JXKUAHSB2UW50g==}
     engines: {node: '>= 0.4'}
+
+  es-toolkit@1.40.0:
+    resolution: {integrity: sha512-8o6w0KFmU0CiIl0/Q/BCEOabF2IJaELM1T2PWj6e8KqzHv1gdx+7JtFnDwOx1kJH/isJ5NwlDG1nCr1HrRF94Q==}
 
   es5-ext@0.10.64:
     resolution: {integrity: sha512-p2snDhiLaXe6dahss1LddxqEm+SkuDvV8dnIQG0MWjyHpcMNfXKPE+/Cc0y+PhxJX3A4xGNeFCj5oc0BUh6deg==}
@@ -3478,19 +3481,19 @@ packages:
       '@types/react':
         optional: true
 
-  mui-tiptap@1.18.1:
-    resolution: {integrity: sha512-ttv75IOUOrcpcPyHQgFQLMKsIcMkppbAfHyjUJOQX3qG0dW0Ait+noaCLFJShU2MjhX2IaqKfFW4MtVhZsYJ9w==}
+  mui-tiptap@1.28.1:
+    resolution: {integrity: sha512-tKSToZBti+qMkHHPYU33ws4bnQ7ssIKUgpCRfVRAkEU5hC7jSFRdEjlSyDiympQaXgSe0XBxdD+XxF25WXm9uA==}
     engines: {pnpm: '>=9'}
     peerDependencies:
       '@emotion/react': ^11.4.1
       '@mui/icons-material': ^5.0.0 || ^6.0.0 || ^7.0.0
       '@mui/material': ^5.0.1 || ^6.0.0 || ^7.0.0
-      '@tiptap/core': ^2.0.0-beta.210
-      '@tiptap/extension-heading': ^2.0.0-beta.210
-      '@tiptap/extension-image': ^2.0.0-beta.210
-      '@tiptap/extension-table': ^2.0.0-beta.210
-      '@tiptap/pm': ^2.0.0-beta.210
-      '@tiptap/react': ^2.0.0-beta.210
+      '@tiptap/core': ^2.0.0-beta.210 || ^3.0.0
+      '@tiptap/extension-heading': ^2.0.0-beta.210 || ^3.0.0
+      '@tiptap/extension-image': ^2.0.0-beta.210 || ^3.0.0
+      '@tiptap/extension-table': ^2.0.0-beta.210 || ^3.0.0
+      '@tiptap/pm': ^2.0.0-beta.210 || ^3.0.0
+      '@tiptap/react': ^2.0.0-beta.210 || ^3.0.0
       react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
       react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
@@ -4417,20 +4420,6 @@ packages:
   tslib@2.8.1:
     resolution: {integrity: sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w==}
 
-  tss-react@4.9.18:
-    resolution: {integrity: sha512-Uc+VvP4RXVzfEacw735xRvne1lwt5HNhvIFptpvmK+G6F/hRA5TeEr3SEzxrqTb6ixA4vANB0iXjBB6LdexxJA==}
-    peerDependencies:
-      '@emotion/react': ^11.4.1
-      '@emotion/server': ^11.4.0
-      '@mui/material': ^5.0.0 || ^6.0.0 || ^7.0.0
-      '@types/react': ^16.8.0 || ^17.0.2 || ^18.0.0 || ^19.0.0
-      react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
-    peerDependenciesMeta:
-      '@emotion/server':
-        optional: true
-      '@mui/material':
-        optional: true
-
   type-check@0.4.0:
     resolution: {integrity: sha512-XleUoc9uwGXqjWwXaUTZAmzMcFZ5858QA2vvx1Ur5xIcixXIP+8LnFDgRplU30us6teqdlskFfu+ae4K79Ooew==}
     engines: {node: '>= 0.8.0'}
@@ -4442,10 +4431,6 @@ packages:
   type-fest@2.19.0:
     resolution: {integrity: sha512-RAH822pAdBgcNMAfWnCBU3CFZcfZ/i1eZjwFU/dsLKumyuuP3niueg2UAukXYF0E2AAoc82ZSSf9J0WQBinzHA==}
     engines: {node: '>=12.20'}
-
-  type-fest@3.13.1:
-    resolution: {integrity: sha512-tLq3bSNx+xSpwvAJnzrK0Ep5CLNWjvFTOp71URMaAEWBfRb9nnJiBoUe0tF8bI4ZFO3omgBR6NvnbzVUT3Ly4g==}
-    engines: {node: '>=14.16'}
 
   type-fest@4.41.0:
     resolution: {integrity: sha512-TeTSQ6H5YHvpqVwBRcnLDCBnDOHWYu7IvGbHT6N8AOymcr9PJGjc1GTtiWZTYg0NCgYwvnYWEkVChQAr9bjfwA==}
@@ -6873,7 +6858,7 @@ snapshots:
 
   emoji-regex@9.2.2: {}
 
-  encodeurl@1.0.2: {}
+  encodeurl@2.0.0: {}
 
   enhanced-resolve@5.18.1:
     dependencies:
@@ -6970,6 +6955,8 @@ snapshots:
       is-callable: 1.2.7
       is-date-object: 1.0.5
       is-symbol: 1.0.4
+
+  es-toolkit@1.40.0: {}
 
   es5-ext@0.10.64:
     dependencies:
@@ -8015,7 +8002,7 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.0.10
 
-  mui-tiptap@1.18.1(6f5e2efca3aafe26bead4510515b4a99):
+  mui-tiptap@1.28.1(9c14f11ce53bc318e79cb5d3d7399b03):
     dependencies:
       '@emotion/react': 11.14.0(@types/react@19.0.10)(react@18.3.1)
       '@mui/icons-material': 6.4.7(@mui/material@6.4.7(@emotion/react@11.14.0(@types/react@19.0.10)(react@18.3.1))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@19.0.10)(react@18.3.1))(@types/react@19.0.10)(react@18.3.1))(@types/react@19.0.10)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@19.0.10)(react@18.3.1)
@@ -8026,16 +8013,12 @@ snapshots:
       '@tiptap/extension-table': 2.26.3(@tiptap/core@2.12.0(@tiptap/pm@2.26.3))(@tiptap/pm@2.26.3)
       '@tiptap/pm': 2.26.3
       '@tiptap/react': 2.26.3(@tiptap/core@2.12.0(@tiptap/pm@2.26.3))(@tiptap/pm@2.26.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      encodeurl: 1.0.2
-      lodash: 4.17.21
+      clsx: 2.1.1
+      encodeurl: 2.0.0
+      es-toolkit: 1.40.0
       react: 18.3.1
       react-colorful: 5.6.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react-dom: 18.3.1(react@18.3.1)
-      tss-react: 4.9.18(@emotion/react@11.14.0(@types/react@19.0.10)(react@18.3.1))(@mui/material@6.4.7(@emotion/react@11.14.0(@types/react@19.0.10)(react@18.3.1))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@19.0.10)(react@18.3.1))(@types/react@19.0.10)(react@18.3.1))(@types/react@19.0.10)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@19.0.10)(react@18.3.1)
-      type-fest: 3.13.1
-    transitivePeerDependencies:
-      - '@emotion/server'
-      - '@types/react'
 
   mute-stream@0.0.8: {}
 
@@ -8960,17 +8943,6 @@ snapshots:
 
   tslib@2.8.1: {}
 
-  tss-react@4.9.18(@emotion/react@11.14.0(@types/react@19.0.10)(react@18.3.1))(@mui/material@6.4.7(@emotion/react@11.14.0(@types/react@19.0.10)(react@18.3.1))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@19.0.10)(react@18.3.1))(@types/react@19.0.10)(react@18.3.1))(@types/react@19.0.10)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@19.0.10)(react@18.3.1):
-    dependencies:
-      '@emotion/cache': 11.14.0
-      '@emotion/react': 11.14.0(@types/react@19.0.10)(react@18.3.1)
-      '@emotion/serialize': 1.3.3
-      '@emotion/utils': 1.4.2
-      '@types/react': 19.0.10
-      react: 18.3.1
-    optionalDependencies:
-      '@mui/material': 6.4.7(@emotion/react@11.14.0(@types/react@19.0.10)(react@18.3.1))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@19.0.10)(react@18.3.1))(@types/react@19.0.10)(react@18.3.1))(@types/react@19.0.10)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-
   type-check@0.4.0:
     dependencies:
       prelude-ls: 1.2.1
@@ -8978,8 +8950,6 @@ snapshots:
   type-fest@0.21.3: {}
 
   type-fest@2.19.0: {}
-
-  type-fest@3.13.1: {}
 
   type-fest@4.41.0: {}
 
