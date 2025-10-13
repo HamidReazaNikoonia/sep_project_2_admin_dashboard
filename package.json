@@ -34,7 +34,7 @@
     "@mui/x-data-grid": "^8.14.0",
     "@mui/x-tree-view": "^8.14.0",
     "@tanstack/react-query": "^5.66.11",
-    "@tiptap/core": "^2.12.0",
+    "@tiptap/core": "^2.26.3",
     "@tiptap/extension-blockquote": "^2.26.3",
     "@tiptap/extension-bold": "^2.26.3",
     "@tiptap/extension-bullet-list": "^2.26.3",
