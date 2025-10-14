@@ -51,8 +51,8 @@ importers:
         specifier: ^2.26.3
         version: 2.26.3(@tiptap/core@2.26.3(@tiptap/pm@2.26.3))(@tiptap/pm@2.26.3)
       '@tiptap/extension-color':
-        specifier: ^2.12.0
-        version: 2.12.0(@tiptap/core@2.26.3(@tiptap/pm@2.26.3))(@tiptap/extension-text-style@2.26.3(@tiptap/core@2.26.3(@tiptap/pm@2.26.3)))
+        specifier: ^2.26.3
+        version: 2.26.3(@tiptap/core@2.26.3(@tiptap/pm@2.26.3))(@tiptap/extension-text-style@2.26.3(@tiptap/core@2.26.3(@tiptap/pm@2.26.3)))
       '@tiptap/extension-document':
         specifier: ^2.26.3
         version: 2.26.3(@tiptap/core@2.26.3(@tiptap/pm@2.26.3))
@@ -1564,8 +1564,8 @@ packages:
     peerDependencies:
       '@tiptap/core': ^3.7.0
 
-  '@tiptap/extension-color@2.12.0':
-    resolution: {integrity: sha512-tb3KDhH2Hf3Pwm7pIEH80TKBOLmHU+T/0seR3R+6flamPC7t9S4mcehDX35qvTQTqDU9v429Rw5SL40FRW7AMg==}
+  '@tiptap/extension-color@2.26.3':
+    resolution: {integrity: sha512-ijwfLpLWXDi797aKtQLPnMYrIQuC2g/Sqw+1k+tDNCfAgqK1LaALGiqf8j1vAcdE0tHdl37PIjud3Qv0hh6J5w==}
     peerDependencies:
       '@tiptap/core': ^2.7.0
       '@tiptap/extension-text-style': ^2.7.0
@@ -5974,7 +5974,7 @@ snapshots:
     dependencies:
       '@tiptap/core': 3.7.0(@tiptap/pm@3.7.0)
 
-  '@tiptap/extension-color@2.12.0(@tiptap/core@2.26.3(@tiptap/pm@2.26.3))(@tiptap/extension-text-style@2.26.3(@tiptap/core@2.26.3(@tiptap/pm@2.26.3)))':
+  '@tiptap/extension-color@2.26.3(@tiptap/core@2.26.3(@tiptap/pm@2.26.3))(@tiptap/extension-text-style@2.26.3(@tiptap/core@2.26.3(@tiptap/pm@2.26.3)))':
     dependencies:
       '@tiptap/core': 2.26.3(@tiptap/pm@2.26.3)
       '@tiptap/extension-text-style': 2.26.3(@tiptap/core@2.26.3(@tiptap/pm@2.26.3))
