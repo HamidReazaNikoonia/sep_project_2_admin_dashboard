@@ -129,8 +129,8 @@ importers:
         specifier: ^3.6.5
         version: 3.6.5(@tiptap/extension-list@3.7.0(@tiptap/core@2.26.3(@tiptap/pm@2.26.3))(@tiptap/pm@2.26.3))
       '@tiptap/extension-task-list':
-        specifier: ^3.6.6
-        version: 3.6.6(@tiptap/extension-list@3.7.0(@tiptap/core@2.26.3(@tiptap/pm@2.26.3))(@tiptap/pm@2.26.3))
+        specifier: ^3.7.0
+        version: 3.7.0(@tiptap/extension-list@3.7.0(@tiptap/core@2.26.3(@tiptap/pm@2.26.3))(@tiptap/pm@2.26.3))
       '@tiptap/extension-text':
         specifier: ^2.26.3
         version: 2.26.3(@tiptap/core@2.26.3(@tiptap/pm@2.26.3))
@@ -1775,10 +1775,10 @@ packages:
     peerDependencies:
       '@tiptap/extension-list': ^3.6.5
 
-  '@tiptap/extension-task-list@3.6.6':
-    resolution: {integrity: sha512-FZyVOi6DqPedHHZ+F8Ee0EKfiLx0R0HPfZtfTunshcdgKJkXfMSexTKKC0rP71L5eBVulNcuDv3oRXfFIWG2kw==}
+  '@tiptap/extension-task-list@3.7.0':
+    resolution: {integrity: sha512-vpLwhKfv8NxwBvQsTD2Las3hUa+6eC1Dj9j/47i3Q52DxOSorhHBc9Sp2kr6PTtevz62PmeQ16oiF2jXjNg1dg==}
     peerDependencies:
-      '@tiptap/extension-list': ^3.6.6
+      '@tiptap/extension-list': ^3.7.0
 
   '@tiptap/extension-text-align@2.26.3':
     resolution: {integrity: sha512-5PU2vMUKt53EVdxFqiuPockKKGeZxipwEq6fT5OZeqz3TUWiF61bO/xkwlXzfWSNm1ZkEmrkebtaeKrH4Wu22g==}
@@ -6093,7 +6093,7 @@ snapshots:
     dependencies:
       '@tiptap/extension-list': 3.7.0(@tiptap/core@2.26.3(@tiptap/pm@2.26.3))(@tiptap/pm@2.26.3)
 
-  '@tiptap/extension-task-list@3.6.6(@tiptap/extension-list@3.7.0(@tiptap/core@2.26.3(@tiptap/pm@2.26.3))(@tiptap/pm@2.26.3))':
+  '@tiptap/extension-task-list@3.7.0(@tiptap/extension-list@3.7.0(@tiptap/core@2.26.3(@tiptap/pm@2.26.3))(@tiptap/pm@2.26.3))':
     dependencies:
       '@tiptap/extension-list': 3.7.0(@tiptap/core@2.26.3(@tiptap/pm@2.26.3))(@tiptap/pm@2.26.3)
 
