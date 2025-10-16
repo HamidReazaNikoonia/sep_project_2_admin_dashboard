@@ -135,7 +135,7 @@ const CategoryTreeChips: React.FC<CategoryTreeChipsProps> = ({
                   
                   {/* Level indicator */}
                   <span className="text-xs text-gray-500 bg-gray-200 px-1.5 py-0.5 rounded">
-                    L{category.level}
+                    سطح {category.level}
                   </span>
                 </div>
                 

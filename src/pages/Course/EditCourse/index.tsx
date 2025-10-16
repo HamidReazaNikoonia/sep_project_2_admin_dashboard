@@ -11,19 +11,46 @@ import {
   Switch,
   CircularProgress,
   Alert,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  IconButton,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from '@mui/material';
-import { useForm, useFieldArray } from 'react-hook-form';
-import { Add as AddIcon, Delete as DeleteIcon, Upload as UploadIcon } from '@mui/icons-material';
+import { useForm } from 'react-hook-form';
+import { 
+  Add as AddIcon, 
+  Delete as DeleteIcon, 
+  Edit as EditIcon,
+  Download as DownloadIcon,
+  Upload as UploadIcon 
+} from '@mui/icons-material';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useUpdateCourse, useCourse, useCourseCategories } from '../../../API/Course/course.hook';
 import StyledPaper from '../../../components/StyledPaper';
 import { showToast } from '../../../utils/toast';
 
+import {
+  StyledTableContainer,
+  StyledTable,
+  StyledTableHead,
+  StyledTableBody,
+  StyledTableRow,
+  StyledTableCell,
+} from '../../../components/StyledTableContainer'
+
 const SERVER_URL = process.env.REACT_APP_SERVER_URL;
 const SERVER_FILE = process.env.REACT_APP_SERVER_FILE;
 
-// Validation schema
+// Updated validation schema without sample_media and course_objects
 const schema = yup.object({
     title: yup.string().required('عنوان دوره الزامی است'),
     sub_title: yup.string().required('زیرعنوان دوره الزامی است'),
@@ -35,38 +62,13 @@ const schema = yup.object({
       .number()
       .optional()
       .nullable(),
-    // course_type: yup.string().required('نوع دوره الزامی است'),
     course_category: yup.string().required('دسته‌بندی دوره الزامی است'),
-    // max_member_accept: yup
-    //   .number()
-    //   .required('حداکثر ظرفیت الزامی است')
-    //   .min(1, 'حداقل ظرفیت ۱ نفر است')
-    //   .integer('ظرفیت باید عدد صحیح باشد'),
     course_language: yup.string(),
     course_duration: yup.number().required('مدت دوره الزامی است'),
     slug: yup.string(),
-    // educational_level: yup.number().required('سطح آموزشی الزامی است'),
     is_have_licence: yup.boolean().default(false),
-    // coach_id: yup.string().required('انتخاب مدرس الزامی است'),
     course_status: yup.boolean().default(true),
-    sample_media: yup.array().of(
-      yup.object({
-        media_type: yup.string().required('نوع رسانه الزامی است'),
-        media_title: yup.string().required('عنوان رسانه الزامی است'),
-        url_address: yup.string(),
-        file: yup.mixed(),
-      })
-    ).min(1, 'حداقل یک نمونه رسانه الزامی است'),
-    course_objects: yup.array().of(
-      yup.object({
-        subject_title: yup.string().required('عنوان سرفصل الزامی است'),
-        status: yup.string().oneOf(['PUBLIC', 'PRIVATE']).default('PRIVATE'),
-        duration: yup.number().required('مدت زمان الزامی است'),
-        files: yup.mixed(),
-      })
-    ),
   });
-  
 
 type FormData = yup.InferType<typeof schema>;
 
@@ -86,115 +88,734 @@ interface SampleMedia {
   file: FileObject;
 }
 
+interface Lesson {
+  _id: string;
+  title: string;
+  description: string;
+  order: number;
+  duration: number;
+  status: 'PUBLIC' | 'PRIVATE';
+  file: FileObject;
+}
+
 interface CourseObject {
   _id: string;
   subject_title: string;
   status: 'PUBLIC' | 'PRIVATE';
   duration: number;
-  files: FileObject;
+  order: number;
+  lessons: Lesson[];
 }
 
+interface FileUploadState {
+  [key: string]: {
+    file: File | null;
+    uploading: boolean;
+    error: string | null;
+    uploadedFile: any | null;
+  };
+}
+
+// Sample Media Form Component
+interface SampleMediaFormProps {
+  open: boolean;
+  onClose: () => void;
+  onSave: (data: any) => void;
+  initialData?: SampleMedia | null;
+}
+
+const SampleMediaForm: React.FC<SampleMediaFormProps> = ({ open, onClose, onSave, initialData }) => {
+  const [formData, setFormData] = useState({
+    media_title: '',
+    media_type: '',
+    url_address: '',
+  });
+  const [fileUpload, setFileUpload] = useState<FileUploadState>({});
+
+  useEffect(() => {
+    if (initialData) {
+      setFormData({
+        media_title: initialData?.media_title,
+        media_type: initialData?.media_type,
+        url_address: initialData?.url_address || '',
+      });
+    } else {
+      setFormData({
+        media_title: '',
+        media_type: '',
+        url_address: '',
+      });
+    }
+
+    return () => {
+      setFormData({
+        media_title: '',
+        media_type: '',
+        url_address: '',
+      });
+
+      setFileUpload({});
+    }
+
+    
+  }, [initialData, open]);
+
+  const handleFileUpload = async () => {
+    const fileState = fileUpload['sample_media_file'];
+    if (!fileState?.file) return;
+
+    setFileUpload(prev => ({
+      ...prev,
+      sample_media_file: { ...prev.sample_media_file, uploading: true, error: null }
+    }));
+
+    try {
+      const formDataUpload = new FormData();
+      formDataUpload.append('file', fileState.file);
+      
+      const response = await fetch(`${SERVER_URL}/admin/setting/upload`, {
+        method: 'POST',
+        body: formDataUpload,
+      });
+      
+      if (!response.ok) throw new Error('Upload failed');
+      
+      const data = await response.json();
+      setFileUpload(prev => ({
+        ...prev,
+        sample_media_file: { ...prev.sample_media_file, uploading: false, uploadedFile: data.uploadedFile }
+      }));
+      
+      showToast('موفق', 'فایل با موفقیت آپلود شد', 'success');
+    } catch (error) {
+      setFileUpload(prev => ({
+        ...prev,
+        sample_media_file: { ...prev.sample_media_file, uploading: false, error: 'خطا در آپلود فایل' }
+      }));
+      showToast('خطا', 'خطا در آپلود فایل', 'error');
+    }
+  };
+
+  const handleSave = () => {
+    const saveData = {
+      ...formData,
+      file: fileUpload['sample_media_file']?.uploadedFile?._id || initialData?.file?._id,
+      _id: initialData?._id,
+    };
+    onSave(saveData);
+    onClose();
+  };
+
+  return (
+    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
+      <DialogTitle>{initialData ? 'ویرایش نمونه آموزشی' : 'افزودن نمونه آموزشی'}</DialogTitle>
+      <DialogContent>
+        <Grid container spacing={2} sx={{ mt: 1 }}>
+          <Grid size={12}>
+            <TextField
+              fullWidth
+              label="عنوان"
+              value={formData.media_title}
+              onChange={(e) => setFormData(prev => ({ ...prev, media_title: e.target.value }))}
+            />
+          </Grid>
+          <Grid size={12}>
+            <TextField
+              select
+              fullWidth
+              label="نوع رسانه"
+              value={formData.media_type}
+              onChange={(e) => setFormData(prev => ({ ...prev, media_type: e.target.value }))}
+            >
+              <MenuItem value="video">ویدیو</MenuItem>
+              <MenuItem value="AUDIO">صوت</MenuItem>
+              <MenuItem value="PDF">PDF</MenuItem>
+            </TextField>
+          </Grid>
+          <Grid size={12}>
+            {initialData?.file && (
+              <Box mb={2}>
+                <Typography variant="body2" color="green">
+                  فایل فعلی: {initialData.file.file_name}
+                </Typography>
+                <Button
+                  variant="outlined"
+                  size="small"
+                  href={`${SERVER_FILE}/${initialData.file.file_name}`}
+                  target="_blank"
+                  startIcon={<DownloadIcon />}
+                >
+                  مشاهده فایل
+                </Button>
+              </Box>
+            )}
+            
+            <input
+              type="file"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) {
+                  setFileUpload(prev => ({
+                    ...prev,
+                    sample_media_file: { file, uploading: false, error: null, uploadedFile: null }
+                  }));
+                }
+              }}
+              style={{ display: 'none' }}
+              id="sample-media-file-input"
+            />
+            <Box display="flex" alignItems="center" gap={2}>
+              <label htmlFor="sample-media-file-input">
+                <Button variant="outlined" component="span">
+                  {initialData?.file ? 'تغییر فایل' : 'انتخاب فایل'}
+                </Button>
+              </label>
+              {fileUpload['sample_media_file']?.file && (
+                <Button
+                  variant="contained"
+                  onClick={handleFileUpload}
+                  disabled={fileUpload['sample_media_file']?.uploading}
+                  startIcon={fileUpload['sample_media_file']?.uploading ? 
+                    <CircularProgress size={20} /> : 
+                    <UploadIcon />}
+                >
+                  آپلود فایل
+                </Button>
+              )}
+              {fileUpload['sample_media_file']?.uploadedFile && (
+                <Alert severity="success">فایل با موفقیت آپلود شد</Alert>
+              )}
+            </Box>
+          </Grid>
+        </Grid>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose}>لغو</Button>
+        <Button onClick={handleSave} variant="contained">
+          {initialData ? 'بروزرسانی' : 'ایجاد'}
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+};
+
+// Course Object Form Component
+interface CourseObjectFormProps {
+  open: boolean;
+  onClose: () => void;
+  onSave: (data: any) => void;
+  initialData?: CourseObject | null;
+}
+
+const CourseObjectForm: React.FC<CourseObjectFormProps> = ({ open, onClose, onSave, initialData }) => {
+  const [formData, setFormData] = useState({
+    subject_title: '',
+    status: 'PRIVATE' as 'PUBLIC' | 'PRIVATE',
+    duration: 0,
+    order: 1,
+  });
+  const [lessons, setLessons] = useState<Lesson[]>([]);
+  
+  // New lesson form state
+  const [showNewLessonForm, setShowNewLessonForm] = useState(false);
+  const [newLessonData, setNewLessonData] = useState({
+    title: '',
+    description: '',
+    duration: 0,
+    order: 1,
+    status: 'PRIVATE' as 'PUBLIC' | 'PRIVATE',
+  });
+  const [lessonFileUpload, setLessonFileUpload] = useState<FileUploadState>({});
+
+  useEffect(() => {
+    if (initialData) {
+      setFormData({
+        subject_title: initialData.subject_title,
+        status: initialData.status,
+        duration: initialData.duration,
+        order: initialData.order,
+      });
+      setLessons(initialData.lessons || []);
+    } else {
+      setFormData({
+        subject_title: '',
+        status: 'PRIVATE',
+        duration: 0,
+        order: 1,
+      });
+      setLessons([]);
+    }
+    
+    // Reset new lesson form
+    setShowNewLessonForm(false);
+    setNewLessonData({
+      title: '',
+      description: '',
+      duration: 0,
+      order: 1,
+      status: 'PRIVATE',
+    });
+    setLessonFileUpload({});
+  }, [initialData, open]);
+
+  // Delete specific lesson handler
+  const deleteSpecificLessonHandler = (course_object_id: string, lesson_id: string) => {
+    setLessons(prev => prev.filter(lesson => lesson._id !== lesson_id));
+    showToast('موفق', 'درس با موفقیت حذف شد', 'success');
+  };
+
+  // Handle lesson file upload
+  const handleLessonFileUpload = async () => {
+    const fileState = lessonFileUpload['lesson_file'];
+    if (!fileState?.file) return;
+
+    setLessonFileUpload(prev => ({
+      ...prev,
+      lesson_file: { ...prev.lesson_file, uploading: true, error: null }
+    }));
+
+    try {
+      const formDataUpload = new FormData();
+      formDataUpload.append('file', fileState.file);
+      
+      const response = await fetch(`${SERVER_URL}/admin/setting/upload`, {
+        method: 'POST',
+        body: formDataUpload,
+      });
+      
+      if (!response.ok) throw new Error('Upload failed');
+      
+      const data = await response.json();
+      setLessonFileUpload(prev => ({
+        ...prev,
+        lesson_file: { ...prev.lesson_file, uploading: false, uploadedFile: data.uploadedFile }
+      }));
+      
+      showToast('موفق', 'فایل با موفقیت آپلود شد', 'success');
+    } catch (error) {
+      setLessonFileUpload(prev => ({
+        ...prev,
+        lesson_file: { ...prev.lesson_file, uploading: false, error: 'خطا در آپلود فایل' }
+      }));
+      showToast('خطا', 'خطا در آپلود فایل', 'error');
+    }
+  };
+
+  // Handle new lesson submit
+  const handleNewLessonSubmit = () => {
+    if (!newLessonData.title.trim()) {
+      showToast('خطا', 'عنوان درس الزامی است', 'error');
+      return;
+    }
+
+    const newLesson: Lesson = {
+      _id: Date.now().toString(), // Generate temporary ID
+      title: newLessonData.title,
+      description: newLessonData.description,
+      duration: newLessonData.duration,
+      order: newLessonData.order,
+      status: newLessonData.status,
+      file: lessonFileUpload['lesson_file']?.uploadedFile || null,
+    };
+
+    setLessons(prev => [...prev, newLesson]);
+    
+    // Reset form
+    setNewLessonData({
+      title: '',
+      description: '',
+      duration: 0,
+      order: 1,
+      status: 'PRIVATE',
+    });
+    setLessonFileUpload({});
+    setShowNewLessonForm(false);
+    
+    showToast('موفق', 'درس جدید اضافه شد', 'success');
+  };
+
+  const handleSave = () => {
+    const saveData = {
+      ...formData,
+      lessons,
+      _id: initialData?._id,
+    };
+    onSave(saveData);
+    onClose();
+  };
+
+  return (
+    <Dialog open={open} onClose={onClose} maxWidth="lg" fullWidth>
+      <DialogTitle>{initialData ? 'ویرایش سرفصل دوره' : 'افزودن سرفصل دوره'}</DialogTitle>
+      <DialogContent>
+        <Grid container spacing={2} sx={{ mt: 1 }}>
+          <Grid size={6}>
+            <TextField
+              fullWidth
+              label="عنوان سرفصل"
+              value={formData.subject_title}
+              onChange={(e) => setFormData(prev => ({ ...prev, subject_title: e.target.value }))}
+            />
+          </Grid>
+          <Grid size={3}>
+            <TextField
+              fullWidth
+              type="number"
+              label="مدت زمان (دقیقه)"
+              value={formData.duration}
+              onChange={(e) => setFormData(prev => ({ ...prev, duration: Number(e.target.value) }))}
+            />
+          </Grid>
+          <Grid size={3}>
+            <TextField
+              fullWidth
+              type="number"
+              label="ترتیب"
+              value={formData.order}
+              onChange={(e) => setFormData(prev => ({ ...prev, order: Number(e.target.value) }))}
+            />
+          </Grid>
+          <Grid size={12}>
+            <TextField
+              select
+              fullWidth
+              label="وضعیت"
+              value={formData.status}
+              onChange={(e) => setFormData(prev => ({ ...prev, status: e.target.value as 'PUBLIC' | 'PRIVATE' }))}
+            >
+              <MenuItem value="PUBLIC">عمومی</MenuItem>
+              <MenuItem value="PRIVATE">خصوصی</MenuItem>
+            </TextField>
+          </Grid>
+          
+          {/* Lessons Section */}
+          <Grid size={12}>
+            <Box display="flex" justifyContent="space-between" alignItems="center" sx={{ mt: 2, mb: 1 }}>
+              <Typography variant="h6">درس‌ها</Typography>
+              <Button
+                startIcon={<AddIcon />}
+                onClick={() => setShowNewLessonForm(true)}
+                variant="outlined"
+                size="small"
+              >
+                افزودن درس جدید
+              </Button>
+            </Box>
+            
+            {lessons.length > 0 && (
+              <StyledTableContainer>
+                <StyledTable>
+                  <StyledTableHead>
+                    <StyledTableRow>
+                      <StyledTableCell>شناسه</StyledTableCell>
+                      <StyledTableCell>عنوان</StyledTableCell>
+                      <StyledTableCell>ترتیب</StyledTableCell>
+                      <StyledTableCell>مدت زمان</StyledTableCell>
+                      <StyledTableCell>فایل</StyledTableCell>
+                      <StyledTableCell>عملیات</StyledTableCell>
+                    </StyledTableRow>
+                  </StyledTableHead>
+                  <StyledTableBody>
+                    {lessons.map((lesson) => (
+                      <StyledTableRow key={lesson._id}>
+                        <StyledTableCell>{lesson._id}</StyledTableCell>
+                        <StyledTableCell>{lesson.title}</StyledTableCell>
+                        <StyledTableCell>{lesson.order}</StyledTableCell>
+                        <StyledTableCell>{lesson.duration} دقیقه</StyledTableCell>
+                        <StyledTableCell>
+                          {lesson.file && (
+                            <Button
+                              size="small"
+                              startIcon={<DownloadIcon />}
+                              href={`${SERVER_FILE}/${lesson.file.file_name}`}
+                              target="_blank"
+                            >
+                              دانلود
+                            </Button>
+                          )}
+                        </StyledTableCell>
+                        <StyledTableCell>
+                          <IconButton
+                            color="error"
+                            size="small"
+                            onClick={() => deleteSpecificLessonHandler(initialData?._id || '', lesson._id)}
+                          >
+                            <DeleteIcon />
+                          </IconButton>
+                        </StyledTableCell>
+                      </StyledTableRow>
+                    ))}
+                  </StyledTableBody>
+                </StyledTable>
+              </StyledTableContainer>
+            )}
+
+            {/* New Lesson Form */}
+            {showNewLessonForm && (
+              <Box sx={{ mt: 3, p: 3, border: '1px solid #ddd', borderRadius: 2, backgroundColor: '#f9f9f9' }}>
+                <Typography variant="h6" sx={{ mb: 2 }}>افزودن درس جدید</Typography>
+                
+                <Grid container spacing={2}>
+                  <Grid size={6}>
+                    <TextField
+                      fullWidth
+                      label="عنوان درس"
+                      value={newLessonData.title}
+                      onChange={(e) => setNewLessonData(prev => ({ ...prev, title: e.target.value }))}
+                      required
+                    />
+                  </Grid>
+                  <Grid size={3}>
+                    <TextField
+                      fullWidth
+                      type="number"
+                      label="مدت زمان (دقیقه)"
+                      value={newLessonData.duration}
+                      onChange={(e) => setNewLessonData(prev => ({ ...prev, duration: Number(e.target.value) }))}
+                    />
+                  </Grid>
+                  <Grid size={3}>
+                    <TextField
+                      fullWidth
+                      type="number"
+                      label="ترتیب"
+                      value={newLessonData.order}
+                      onChange={(e) => setNewLessonData(prev => ({ ...prev, order: Number(e.target.value) }))}
+                    />
+                  </Grid>
+                  <Grid size={12}>
+                    <TextField
+                      fullWidth
+                      multiline
+                      rows={3}
+                      label="توضیحات"
+                      value={newLessonData.description}
+                      onChange={(e) => setNewLessonData(prev => ({ ...prev, description: e.target.value }))}
+                    />
+                  </Grid>
+                  <Grid size={6}>
+                    <TextField
+                      select
+                      fullWidth
+                      label="وضعیت"
+                      value={newLessonData.status}
+                      onChange={(e) => setNewLessonData(prev => ({ ...prev, status: e.target.value as 'PUBLIC' | 'PRIVATE' }))}
+                    >
+                      <MenuItem value="PUBLIC">عمومی</MenuItem>
+                      <MenuItem value="PRIVATE">خصوصی</MenuItem>
+                    </TextField>
+                  </Grid>
+                  
+                  {/* File Upload Section */}
+                  <Grid size={12}>
+                    <Typography variant="subtitle2" sx={{ mb: 1 }}>فایل درس</Typography>
+                    <input
+                      type="file"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          setLessonFileUpload(prev => ({
+                            ...prev,
+                            lesson_file: { file, uploading: false, error: null, uploadedFile: null }
+                          }));
+                        }
+                      }}
+                      style={{ display: 'none' }}
+                      id="lesson-file-input"
+                    />
+                    <Box display="flex" alignItems="center" gap={2}>
+                      <label htmlFor="lesson-file-input">
+                        <Button variant="outlined" component="span" size="small">
+                          انتخاب فایل
+                        </Button>
+                      </label>
+                      {lessonFileUpload['lesson_file']?.file && (
+                        <Button
+                          variant="contained"
+                          size="small"
+                          onClick={handleLessonFileUpload}
+                          disabled={lessonFileUpload['lesson_file']?.uploading}
+                          startIcon={lessonFileUpload['lesson_file']?.uploading ? 
+                            <CircularProgress size={16} /> : 
+                            <UploadIcon />}
+                        >
+                          آپلود فایل
+                        </Button>
+                      )}
+                      {lessonFileUpload['lesson_file']?.uploadedFile && (
+                        <Alert severity="success" sx={{ py: 0 }}>
+                          فایل با موفقیت آپلود شد
+                        </Alert>
+                      )}
+                    </Box>
+                  </Grid>
+                  
+                  {/* Form Actions */}
+                  <Grid size={12}>
+                    <Box display="flex" gap={2} sx={{ mt: 2 }}>
+                      <Button
+                        variant="contained"
+                        onClick={handleNewLessonSubmit}
+                        startIcon={<AddIcon />}
+                      >
+                        افزودن درس
+                      </Button>
+                      <Button
+                        variant="outlined"
+                        onClick={() => {
+                          setShowNewLessonForm(false);
+                          setNewLessonData({
+                            title: '',
+                            description: '',
+                            duration: 0,
+                            order: 1,
+                            status: 'PRIVATE',
+                          });
+                          setLessonFileUpload({});
+                        }}
+                      >
+                        لغو
+                      </Button>
+                    </Box>
+                  </Grid>
+                </Grid>
+              </Box>
+            )}
+          </Grid>
+        </Grid>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose}>لغو</Button>
+        <Button onClick={handleSave} variant="contained">
+          {initialData ? 'بروزرسانی' : 'ایجاد'}
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+};
+
 const EditCourse = () => {
-
-  const [fileUploads, setFileUploads] = useState<FileUploadState>({});
-
-
   const navigate = useNavigate();
   const { course_id } = useParams();
   const { data: courseData, isLoading: isLoadingCourse } = useCourse(course_id!);
   const { data: categories = [] } = useCourseCategories();
   const updateCourse = useUpdateCourse(course_id!);
 
+  // State for sample media and course objects
+  const [sampleMedia, setSampleMedia] = useState<SampleMedia[]>([]);
+  const [courseObjects, setCourseObjects] = useState<CourseObject[]>([]);
+  
+  // State for forms
+  const [sampleMediaFormOpen, setSampleMediaFormOpen] = useState(false);
+  const [courseObjectFormOpen, setCourseObjectFormOpen] = useState(false);
+  const [editingSampleMedia, setEditingSampleMedia] = useState<SampleMedia | null>(null);
+  const [editingCourseObject, setEditingCourseObject] = useState<CourseObject | null>(null);
+
   const {
     register,
     handleSubmit,
     formState: { errors },
-    control,
     reset,
   } = useForm<FormData>({
     resolver: yupResolver(schema),
     defaultValues: {
       is_have_licence: false,
       course_status: true,
-      // course_type: '',
-      sample_media: [],
-      course_objects: [],
       price_with_discount: 0,
     },
   });
 
-  const { fields: sampleMediaFields, append: appendSampleMedia, remove: removeSampleMedia } = 
-    useFieldArray({
-      name: 'sample_media',
-      control,
-    });
-
-  const { fields: courseObjectFields, append: appendCourseObject, remove: removeCourseObject } = 
-    useFieldArray({
-      name: 'course_objects',
-      control,
-    });
-
-  // Set form default values when course data is loaded
+  // Set form default values and state when course data is loaded
   useEffect(() => {
     if (courseData) {
       const course = courseData;
       console.log('Course Data:', course);
+      
+      // Set form data
       reset({
         title: course.title,
         sub_title: course.sub_title,
         price: course.price_real,
         price_with_discount: course.price_discount || 0,
-        is_fire_sale: course.is_fire_sale,
-        // course_type: course.course_type,
         course_category: course.course_category?._id,
-        // max_member_accept: course.max_member_accept,
         course_language: course.course_language,
         course_duration: course.course_duration,
-        educational_level: course.educational_level,
         is_have_licence: course.is_have_licence,
-        coach_id: course.coach_id?._id,
         course_status: course.course_status,
-        sample_media: course.sample_media,
-        course_objects: course.course_objects,
         slug: course.slug,
       });
+
+      // Set sample media and course objects state
+      setSampleMedia(course.sample_media || []);
+      setCourseObjects(course.course_objects || []);
     }
   }, [courseData, reset]);
 
+  // Sample Media Handlers
+  const handleDeleteSampleMedia = (id: string) => {
+    // TODO: DELETE API
+    setSampleMedia(prev => prev.filter(item => item._id !== id));
+    showToast('موفق', 'نمونه آموزشی حذف شد', 'success');
+  };
+
+  const handleEditSampleMedia = (id: string) => {
+    // TODO: EDIT API
+    const item = sampleMedia.find(media => media._id === id);
+    if (item) {
+      setEditingSampleMedia(item);
+      setSampleMediaFormOpen(true);
+    }
+  };
+
+  const handleSaveSampleMedia = (data: any) => {
+    // TODO: SAVE API
+    if (data._id) {
+      // Update existing
+      setSampleMedia(prev => prev.map(item => 
+        item._id === data._id ? { ...item, ...data } : item
+      ));
+      showToast('موفق', 'نمونه آموزشی بروزرسانی شد', 'success');
+    } else {
+      // Add new
+      const newItem = { ...data, _id: Date.now().toString() };
+      setSampleMedia(prev => [...prev, newItem]);
+      showToast('موفق', 'نمونه آموزشی اضافه شد', 'success');
+    }
+    setEditingSampleMedia(null);
+  };
+
+  // Course Object Handlers
+  const handleDeleteCourseObject = (id: string) => {
+    setCourseObjects(prev => prev.filter(item => item._id !== id));
+    showToast('موفق', 'سرفصل دوره حذف شد', 'success');
+  };
+
+  const handleEditCourseObject = (id: string) => {
+    const item = courseObjects.find(obj => obj._id === id);
+    if (item) {
+      setEditingCourseObject(item);
+      setCourseObjectFormOpen(true);
+    }
+  };
+
+  const handleSaveCourseObject = (data: any) => {
+    if (data._id) {
+      // Update existing
+      setCourseObjects(prev => prev.map(item => 
+        item._id === data._id ? { ...item, ...data } : item
+      ));
+      showToast('موفق', 'سرفصل دوره بروزرسانی شد', 'success');
+    } else {
+      // Add new
+      const newItem = { ...data, _id: Date.now().toString() };
+      setCourseObjects(prev => [...prev, newItem]);
+      showToast('موفق', 'سرفصل دوره اضافه شد', 'success');
+    }
+    setEditingCourseObject(null);
+  };
+
   const onSubmit = async (data: FormData) => {
     try {
-      // Transform sample_media data
-      const transformedSampleMedia = data.sample_media.map((media, index) => {
-        const uploadKey = `sample_media_${index}`;
-        const newUploadedFile = fileUploads[uploadKey]?.uploadedFile;
-
-        console.log('newUploadedFile', {newUploadedFile, t:media.media_title});
-        console.log('media', {media, fileUploads});
-  
-        return {
-          media_type: media.media_type,
-          media_title: media.media_title,
-          // url_address: media.url_address,
-          // If there's a new file uploaded, use its ID, otherwise use existing file ID
-          file: newUploadedFile?._id || (media.file?._id || media.file),
-        };
-      });
-  
-      // Transform course_objects data
-      const transformedCourseObjects = data.course_objects.map((object, index) => {
-        const uploadKey = `course_object_${index}`;
-        const newUploadedFile = fileUploads[uploadKey]?.uploadedFile;
-  
-        return {
-          subject_title: object.subject_title,
-          status: object.status,
-          duration: object.duration,
-          // If there's a new file uploaded, use its ID, otherwise use existing file ID
-          files: newUploadedFile?._id || (object.files?._id || object.files),
-        };
-      });
-  
       // Prepare the final payload
       const payload = {
         title: data.title,
@@ -202,60 +823,22 @@ const EditCourse = () => {
         price_real: data.price,
         price_discount: data.price_with_discount > 0 ? data.price_with_discount : null,
         is_fire_sale: data.price_with_discount ? true : false,
-        // course_type: data.course_type,
         course_category: data.course_category,
-        // max_member_accept: data.max_member_accept,
         course_language: data.course_language,
         course_duration: data.course_duration,
         is_have_licence: data.is_have_licence,
         course_status: data.course_status,
         slug: data.slug,
-        sample_media: transformedSampleMedia,
-        course_objects: transformedCourseObjects,
+        sample_media: sampleMedia,
+        course_objects: courseObjects,
       };
-  
+
       await updateCourse.mutateAsync(payload);
       showToast('موفق', 'دوره با موفقیت بروزرسانی شد', 'success');
       navigate('/courses');
     } catch (error) {
       showToast('خطا', 'خطا در بروزرسانی دوره', 'error');
       console.error('Error updating course:', error);
-    }
-  };
-   // File upload handler
-   const handleFileUpload = async (key: string) => {
-    const fileState = fileUploads[key];
-    if (!fileState?.file) return;
-
-    setFileUploads(prev => ({
-      ...prev,
-      [key]: { ...prev[key], uploading: true, error: null }
-    }));
-
-    try {
-      const formData = new FormData();
-      formData.append('file', fileState.file);
-      
-      const response = await fetch(`${SERVER_URL}/admin/setting/upload`, {
-        method: 'POST',
-        body: formData,
-      });
-      
-      if (!response.ok) throw new Error('Upload failed');
-      
-      const data = await response.json();
-      setFileUploads(prev => ({
-        ...prev,
-        [key]: { ...prev[key], uploading: false, uploadedFile: data.uploadedFile }
-      }));
-      
-      showToast('موفق', 'فایل با موفقیت آپلود شد', 'success');
-    } catch (error) {
-      setFileUploads(prev => ({
-        ...prev,
-        [key]: { ...prev[key], uploading: false, error: 'خطا در آپلود فایل' }
-      }));
-      showToast('خطا', 'خطا در آپلود فایل', 'error');
     }
   };
 
@@ -301,21 +884,6 @@ const EditCourse = () => {
                     helperText={errors.sub_title?.message}
                   />
                 </Grid>
-
-                {/* <Grid size={{ xs: 12, md: 4 }}>
-                  <TextField
-                    {...register('course_type')}
-                    select
-                    fullWidth
-                    label="نوع دوره"
-                    error={!!errors.course_type}
-                    helperText={errors.course_type?.message}
-                    defaultValue={courseData?.course_type}
-                  >
-                    <MenuItem value="HOZORI">حضوری</MenuItem>
-                    <MenuItem value="OFFLINE">آفلاین</MenuItem>
-                  </TextField>
-                </Grid> */}
 
                 <Grid size={{ xs: 12, md: 4 }}>
                   <TextField
@@ -367,17 +935,6 @@ const EditCourse = () => {
                 جزئیات دوره
               </Typography>
               <Grid container spacing={2}>
-                {/* <Grid size={{ xs: 12, md: 3 }}>
-                  <TextField
-                    {...register('max_member_accept')}
-                    fullWidth
-                    type="number"
-                    label="حداکثر ظرفیت"
-                    error={!!errors.max_member_accept}
-                    helperText={errors.max_member_accept?.message}
-                  />
-                </Grid> */}
-
                 <Grid size={{ xs: 12, md: 3 }}>
                   <TextField
                     {...register('course_duration')}
@@ -414,261 +971,138 @@ const EditCourse = () => {
             </StyledPaper>
           </Grid>
 
-
-           {/* Sample Media Section */}
-    <Grid size={12}>
-      <StyledPaper sx={{ p: 3 }}>
-        <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-          <Typography variant="h6">نمونه‌های آموزشی</Typography>
-          <Button
-            startIcon={<AddIcon className='ml-2' />}
-            onClick={() => appendSampleMedia({ 
-              media_type: '', 
-              media_title: '', 
-              url_address: '' 
-            })}
-          >
-            افزودن نمونه
-          </Button>
-        </Box>
-
-        {sampleMediaFields.map((field, index) => (
-          <Box key={field.id} sx={{ mb: 3, p: 2, border: '1px solid #eee', borderRadius: 1 }}>
-            <Grid container spacing={2}>
-              <Grid size={{ xs: 12, md: 4 }}>
-                <TextField
-                  {...register(`sample_media.${index}.media_title`)}
-                  fullWidth
-                  label="عنوان"
-                  error={!!errors.sample_media?.[index]?.media_title}
-                  helperText={errors.sample_media?.[index]?.media_title?.message}
-                />
-              </Grid>
-
-              <Grid size={{ xs: 12, md: 4 }}>
-                <TextField
-                  {...register(`sample_media.${index}.media_type`)}
-                  select
-                  fullWidth
-                  label="نوع رسانه"
-                  error={!!errors.sample_media?.[index]?.media_type}
-                  helperText={errors.sample_media?.[index]?.media_type?.message}
-                  defaultValue={courseData?.sample_media?.[index]?.media_type}
-                >
-                  <MenuItem value="video">ویدیو</MenuItem>
-                  <MenuItem value="AUDIO">صوت</MenuItem>
-                  <MenuItem value="PDF">PDF</MenuItem>
-                </TextField>
-              </Grid>
-
-              <Grid size={12}>
-                {/* Show existing file if available */}
-                {field.file && (
-                  <Box mb={2}>
-                    <Typography className='pt-2 pb-4' variant="body2" color="green">
-                      فایل فعلی: {field.file.file_name}
-                    </Typography>
-                    <Button
-                      variant="outlined"
-                      size="small"
-                      href={`${SERVER_FILE}/${field.file.file_name}`}
-                      target="_blank"
-                    >
-                      مشاهده فایل
-                    </Button>
-                  </Box>
-                )}
-
-                {/* File upload section */}
-                <input
-                  type="file"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) {
-                      register(`sample_media.${index}.file`).onChange(file);
-                      setFileUploads(prev => ({
-                        ...prev,
-                        [`sample_media_${index}`]: { file, uploading: false, error: null, uploadedFile: null }
-                      }));
-                    }
-                  }}
-                  name={`sample_media.${index}.file`}
-                  style={{ display: 'none' }}
-                  id={`sample-media-file-${index}`}
-                />
-                <Box display="flex" alignItems="center" gap={2}>
-                  <label htmlFor={`sample-media-file-${index}`}>
-                    <Button variant="outlined" component="span">
-                      {field.file ? 'تغییر فایل' : 'انتخاب فایل'}
-                    </Button>
-                  </label>
-                  {fileUploads[`sample_media_${index}`]?.file && (
-                    <Button
-                      variant="contained"
-                      onClick={() => handleFileUpload(`sample_media_${index}`)}
-                      disabled={fileUploads[`sample_media_${index}`]?.uploading}
-                      startIcon={fileUploads[`sample_media_${index}`]?.uploading ? 
-                        <CircularProgress size={20} /> : 
-                        <UploadIcon />}
-                    >
-                      آپلود فایل جدید
-                    </Button>
-                  )}
-                </Box>
-              </Grid>
-
-              <Grid size={12} display="flex" justifyContent="flex-end">
-                <Button
-                  color="error"
-                  startIcon={<DeleteIcon className='ml-2' />}
-                  onClick={() => removeSampleMedia(index)}
-                >
-                  حذف
-                </Button>
-              </Grid>
-            </Grid>
-          </Box>
-        ))}
-      </StyledPaper>
-    </Grid>
-
-
-
-{/* Course Objects Section */}
-<Grid size={12}>
-  <StyledPaper sx={{ p: 3 }}>
-    <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-      <Typography variant="h6">سرفصل‌های دوره</Typography>
-      <Button
-        startIcon={<AddIcon className='ml-2' />}
-        onClick={() => appendCourseObject({ 
-          subject_title: '', 
-          status: 'PRIVATE', 
-          duration: 0,
-        })}
-      >
-        افزودن سرفصل
-      </Button>
-    </Box>
-
-    {courseObjectFields.map((field, index) => (
-      <Box key={field.id} sx={{ mb: 3, p: 2, border: '1px solid #eee', borderRadius: 1 }}>
-        <Grid container spacing={2}>
-          <Grid size={{ xs: 12, md: 6 }}>
-            <TextField
-              {...register(`course_objects.${index}.subject_title`)}
-              fullWidth
-              label="عنوان سرفصل"
-              error={!!errors.course_objects?.[index]?.subject_title}
-              helperText={errors.course_objects?.[index]?.subject_title?.message}
-            />
-          </Grid>
-
-          <Grid size={{ xs: 12, md: 3 }}>
-            <TextField
-              {...register(`course_objects.${index}.duration`)}
-              fullWidth
-              type="number"
-              label="مدت زمان (دقیقه)"
-              error={!!errors.course_objects?.[index]?.duration}
-              helperText={errors.course_objects?.[index]?.duration?.message}
-            />
-          </Grid>
-
-          <Grid size={{ xs: 12, md: 3 }}>
-            <TextField
-              {...register(`course_objects.${index}.status`)}
-              select
-              fullWidth
-              label="وضعیت"
-              error={!!errors.course_objects?.[index]?.status}
-              helperText={errors.course_objects?.[index]?.status?.message}
-              defaultValue={courseData?.course_objects?.[index]?.status}
-            >
-              <MenuItem value="PUBLIC">عمومی</MenuItem>
-              <MenuItem value="PRIVATE">خصوصی</MenuItem>
-            </TextField>
-          </Grid>
-
+          {/* Sample Media Section */}
           <Grid size={12}>
-            {/* Show existing file if available */}
-            {field.files && (
-              <Box mb={2}>
-                <Typography className='pt-2 pb-4' variant="body2" color="green">
-                  فایل فعلی: {field.files.file_name}
-                </Typography>
+            <StyledPaper sx={{ p: 3, border: '1px solid gray' }}>
+              <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+                <Typography variant="h6">نمونه‌های آموزشی</Typography>
                 <Button
-                  variant="outlined"
-                  size="small"
-                  href={`${SERVER_FILE}/${field.files.file_name}`}
-                  target="_blank"
+                  startIcon={<AddIcon className="ml-2" />}
+                  onClick={() => {
+                    setEditingSampleMedia(null);
+                    setSampleMediaFormOpen(true);
+                  }}
+                  variant="contained"
                 >
-                  مشاهده فایل
+                  افزودن نمونه
                 </Button>
               </Box>
-            )}
 
-            {/* File upload section */}
-            <input
-              type="file"
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (file) {
-                  register(`course_objects.${index}.files`).onChange(file);
-                  setFileUploads(prev => ({
-                    ...prev,
-                    [`course_object_${index}`]: { 
-                      file, 
-                      uploading: false, 
-                      error: null, 
-                      uploadedFile: null 
-                    }
-                  }));
-                }
-              }}
-              style={{ display: 'none' }}
-              id={`course-object-file-${index}`}
-            />
-            <Box display="flex" alignItems="center" gap={2}>
-              <label htmlFor={`course-object-file-${index}`}>
-                <Button variant="outlined" component="span">
-                  {field.files ? 'تغییر فایل' : 'انتخاب فایل'}
-                </Button>
-              </label>
-              {fileUploads[`course_object_${index}`]?.file && !fileUploads[`course_object_${index}`]?.uploadedFile && (
+              {sampleMedia.length > 0 ? (
+                <StyledTableContainer>
+                  <StyledTable>
+                    <StyledTableHead>
+                      <StyledTableRow>
+                        <StyledTableCell>شناسه</StyledTableCell>
+                        <StyledTableCell>عنوان</StyledTableCell>
+                        <StyledTableCell>فایل</StyledTableCell>
+                        <StyledTableCell>عملیات</StyledTableCell>
+                      </StyledTableRow>
+                    </StyledTableHead>
+                    <StyledTableBody>
+                      {sampleMedia.map((media) => (
+                        <StyledTableRow key={media._id}>
+                          <StyledTableCell>{media._id}</StyledTableCell>
+                          <StyledTableCell>{media.media_title}</StyledTableCell>
+                          <StyledTableCell>
+                            {media.file && (
+                              <Button
+                                size="small"
+                                startIcon={<DownloadIcon />}
+                                href={`${SERVER_FILE}/${media.file.file_name}`}
+                                target="_blank"
+                              >
+                                دانلود
+                              </Button>
+                            )}
+                          </StyledTableCell>
+                          <StyledTableCell>
+                            <IconButton
+                              color="primary"
+                              onClick={() => handleEditSampleMedia(media._id)}
+                            >
+                              <EditIcon />
+                            </IconButton>
+                            <IconButton
+                              color="error"
+                              onClick={() => handleDeleteSampleMedia(media._id)}
+                            >
+                              <DeleteIcon />
+                            </IconButton>
+                          </StyledTableCell>
+                        </StyledTableRow>
+                      ))}
+                    </StyledTableBody>
+                  </StyledTable>
+                </StyledTableContainer>
+              ) : (
+                <Typography variant="body2" color="text.secondary">
+                  هیچ نمونه آموزشی وجود ندارد
+                </Typography>
+              )}
+            </StyledPaper>
+          </Grid>
+
+          {/* Course Objects Section */}
+          <Grid size={12}>
+            <StyledPaper sx={{ p: 3, border: '1px solid gray' }}>
+              <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+                <Typography variant="h6">سرفصل‌های دوره</Typography>
                 <Button
+                  startIcon={<AddIcon className="ml-2" />}
+                  onClick={() => {
+                    setEditingCourseObject(null);
+                    setCourseObjectFormOpen(true);
+                  }}
                   variant="contained"
-                  onClick={() => handleFileUpload(`course_object_${index}`)}
-                  disabled={fileUploads[`course_object_${index}`]?.uploading}
-                  startIcon={fileUploads[`course_object_${index}`]?.uploading ? 
-                    <CircularProgress size={20} /> : 
-                    <UploadIcon />}
                 >
-                  آپلود فایل جدید
+                  افزودن سرفصل
                 </Button>
-              )}
-              {fileUploads[`course_object_${index}`]?.uploadedFile && (
-                <Alert severity="success">
-                  فایل با موفقیت آپلود شد
-                </Alert>
-              )}
-            </Box>
-          </Grid>
+              </Box>
 
-          <Grid size={12} display="flex" justifyContent="flex-end">
-            <Button
-              color="error"
-              startIcon={<DeleteIcon className='ml-2' />}
-              onClick={() => removeCourseObject(index)}
-            >
-              حذف سرفصل
-            </Button>
+              {courseObjects.length > 0 ? (
+                <StyledTableContainer>
+                  <StyledTable>
+                    <StyledTableHead>
+                      <StyledTableRow>
+                        <StyledTableCell>شناسه</StyledTableCell>
+                        <StyledTableCell>عنوان سرفصل</StyledTableCell>
+                        <StyledTableCell>ترتیب</StyledTableCell>
+                        <StyledTableCell>عملیات</StyledTableCell>
+                      </StyledTableRow>
+                    </StyledTableHead>
+                    <StyledTableBody>
+                      {courseObjects.map((obj) => (
+                        <StyledTableRow key={obj._id}>
+                          <StyledTableCell>{obj._id}</StyledTableCell>
+                          <StyledTableCell>{obj.subject_title}</StyledTableCell>
+                          <StyledTableCell>{obj.order}</StyledTableCell>
+                          <StyledTableCell>
+                            <IconButton
+                              color="primary"
+                              onClick={() => handleEditCourseObject(obj._id)}
+                            >
+                              <EditIcon />
+                            </IconButton>
+                            <IconButton
+                              color="error"
+                              onClick={() => handleDeleteCourseObject(obj._id)}
+                            >
+                              <DeleteIcon />
+                            </IconButton>
+                          </StyledTableCell>
+                        </StyledTableRow>
+                      ))}
+                    </StyledTableBody>
+                  </StyledTable>
+                </StyledTableContainer>
+              ) : (
+                <Typography variant="body2" color="text.secondary">
+                  هیچ سرفصلی وجود ندارد
+                </Typography>
+              )}
+            </StyledPaper>
           </Grid>
-        </Grid>
-      </Box>
-    ))}
-  </StyledPaper>
-</Grid>
 
           {/* Submit Button */}
           <Grid size={12}>
@@ -685,6 +1119,28 @@ const EditCourse = () => {
           </Grid>
         </Grid>
       </form>
+
+      {/* Sample Media Form Dialog */}
+      <SampleMediaForm
+        open={sampleMediaFormOpen}
+        onClose={() => {
+          setSampleMediaFormOpen(false);
+          setEditingSampleMedia(null);
+        }}
+        onSave={handleSaveSampleMedia}
+        initialData={editingSampleMedia}
+      />
+
+      {/* Course Object Form Dialog */}
+      <CourseObjectForm
+        open={courseObjectFormOpen}
+        onClose={() => {
+          setCourseObjectFormOpen(false);
+          setEditingCourseObject(null);
+        }}
+        onSave={handleSaveCourseObject}
+        initialData={editingCourseObject}
+      />
     </Box>
   );
 };
