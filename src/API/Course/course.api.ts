@@ -4,6 +4,8 @@ import {
   CourseResponse,
   CourseCategory,
   CourseCategoryResponse,
+  SampleMedia,
+  CourseObject,
 } from './types'
 
 const courseApi = {
@@ -55,6 +57,46 @@ const courseApi = {
     const { data } = await axios.post<{ category: CourseCategory }>(
       'course/category',
       categoryData,
+    )
+    return data
+  },
+
+
+  // create or update sample media on the specific course
+  createOrUpdateSampleMedia: async (courseId: string, sampleMediaData: Partial<SampleMedia>) => {
+    const { data } = await axios.post<{ sampleMedia: SampleMedia }>(
+      `course/${courseId}/sample-media`,
+      sampleMediaData,
+    )
+    return data
+  },
+
+  /**
+   * Update Course Objects on course Document
+   *
+   *  If on the req.body we have `id` property, it means we should
+   * find selected course objects from course which finded by courseId and
+   * then update that specific course objects
+   */
+
+  // Senario 1  => **  User Want Create New Course Object **
+  // Case: updatedData !== id
+  // Note: cretae new course_object without lessons
+  // ----------------------------------------------------------
+  // Senario 2  => **  User Want Update specific course Object data ( exclude lessons ) **
+  // Case: (updatedData.id && updatedData.controller === update_course_object)
+  // ----------------------------------------------------------
+  // Senario 3  => ** User want Add new Lesson to Specific Course Object **
+  // Case: (updatedData.id && controller === add_new_lesson)
+  // ----------------------------------------------------------
+  // Senario 4  => ** User want Delete Lesson from Specific Course Object **
+  // Case: (updatedData.id && controller === delete_lesson && lesson_id)
+  
+  // create or update course object on the specific course
+  createOrUpdateCourseObject: async (courseId: string, courseObjectData: Partial<CourseObject>) => {
+    const { data } = await axios.post<{ courseObject: CourseObject }>(
+      `course/${courseId}/course-objects`,
+      courseObjectData,
     )
     return data
   },

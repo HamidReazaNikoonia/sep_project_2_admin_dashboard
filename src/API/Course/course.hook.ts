@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import courseApi from './course.api'
-import { Course, CourseCategory } from './types'
+import { Course, CourseCategory, CourseObject, SampleMedia } from './types'
 
 // Query keys
 const COURSES_KEY = 'courses'
@@ -80,6 +80,28 @@ export const useCreateCourseCategory = () => {
     mutationFn: (categoryData: any) => courseApi.createCategory(categoryData),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [COURSE_FILM_CATEGORIES_KEY] })
+    },
+  })
+}
+
+
+export const useCreateOrUpdateSampleMedia = (courseId: string) => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (sampleMediaData: Partial<SampleMedia>) => courseApi.createOrUpdateSampleMedia(courseId, sampleMediaData),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [COURSES_KEY] })
+    },
+  })
+}
+
+
+export const useCreateOrUpdateCourseObject = (courseId: string) => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (courseObjectData: Partial<CourseObject>) => courseApi.createOrUpdateCourseObject(courseId, courseObjectData),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [COURSES_KEY] })
     },
   })
 }

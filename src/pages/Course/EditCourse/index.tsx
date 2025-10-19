@@ -34,7 +34,7 @@ import {
 } from '@mui/icons-material';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { useUpdateCourse, useCourse, useCourseCategories } from '../../../API/Course/course.hook';
+import { useUpdateCourse, useCourse, useCourseCategories, useCreateOrUpdateSampleMedia, useCreateOrUpdateCourseObject } from '../../../API/Course/course.hook';
 import StyledPaper from '../../../components/StyledPaper';
 import { showToast } from '../../../utils/toast';
 
@@ -202,6 +202,7 @@ const SampleMediaForm: React.FC<SampleMediaFormProps> = ({ open, onClose, onSave
       file: fileUpload['sample_media_file']?.uploadedFile?._id || initialData?.file?._id,
       _id: initialData?._id,
     };
+    console.log({saveData})
     onSave(saveData);
     onClose();
   };
@@ -227,9 +228,9 @@ const SampleMediaForm: React.FC<SampleMediaFormProps> = ({ open, onClose, onSave
               value={formData.media_type}
               onChange={(e) => setFormData(prev => ({ ...prev, media_type: e.target.value }))}
             >
-              <MenuItem value="video">ویدیو</MenuItem>
+              <MenuItem value="VIDEO">ویدیو</MenuItem>
               <MenuItem value="AUDIO">صوت</MenuItem>
-              <MenuItem value="PDF">PDF</MenuItem>
+              <MenuItem value="IMAGE">تصویر</MenuItem>
             </TextField>
           </Grid>
           <Grid size={12}>
@@ -305,9 +306,11 @@ interface CourseObjectFormProps {
   onClose: () => void;
   onSave: (data: any) => void;
   initialData?: CourseObject | null;
+  onDeleteLesson: (course_object_id: string, lesson_id: string) => void;
+  onSaveNewLesson: (course_object_id: string, data: Lesson) => void;
 }
 
-const CourseObjectForm: React.FC<CourseObjectFormProps> = ({ open, onClose, onSave, initialData }) => {
+const CourseObjectForm: React.FC<CourseObjectFormProps> = ({ open, onClose, onSave, onDeleteLesson, onSaveNewLesson, initialData }) => {
   const [formData, setFormData] = useState({
     subject_title: '',
     status: 'PRIVATE' as 'PUBLIC' | 'PRIVATE',
@@ -360,8 +363,16 @@ const CourseObjectForm: React.FC<CourseObjectFormProps> = ({ open, onClose, onSa
 
   // Delete specific lesson handler
   const deleteSpecificLessonHandler = (course_object_id: string, lesson_id: string) => {
-    setLessons(prev => prev.filter(lesson => lesson._id !== lesson_id));
-    showToast('موفق', 'درس با موفقیت حذف شد', 'success');
+    if (!lesson_id) {
+      showToast('خطا', 'شناسه درس الزامی است', 'error');
+      return;
+    }
+    // setLessons(prev => prev.filter(lesson => lesson._id !== lesson_id));
+    onDeleteLesson(course_object_id, lesson_id);
+    setTimeout(() => {
+      onClose();
+    }, 2000);
+    // showToast('موفق', 'درس با موفقیت حذف شد', 'success');
   };
 
   // Handle lesson file upload
@@ -409,7 +420,7 @@ const CourseObjectForm: React.FC<CourseObjectFormProps> = ({ open, onClose, onSa
     }
 
     const newLesson: Lesson = {
-      _id: Date.now().toString(), // Generate temporary ID
+      // _id: Date.now().toString(), // Generate temporary ID
       title: newLessonData.title,
       description: newLessonData.description,
       duration: newLessonData.duration,
@@ -418,7 +429,8 @@ const CourseObjectForm: React.FC<CourseObjectFormProps> = ({ open, onClose, onSa
       file: lessonFileUpload['lesson_file']?.uploadedFile || null,
     };
 
-    setLessons(prev => [...prev, newLesson]);
+    // setLessons(prev => [...prev, newLesson]);
+    onSaveNewLesson(initialData?._id || '', newLesson);
     
     // Reset form
     setNewLessonData({
@@ -430,14 +442,18 @@ const CourseObjectForm: React.FC<CourseObjectFormProps> = ({ open, onClose, onSa
     });
     setLessonFileUpload({});
     setShowNewLessonForm(false);
-    
-    showToast('موفق', 'درس جدید اضافه شد', 'success');
+
+    setTimeout(() => {
+      onClose();
+    }, 2000);
+
+    // showToast('موفق', 'درس جدید اضافه شد', 'success');
   };
 
   const handleSave = () => {
     const saveData = {
       ...formData,
-      lessons,
+      // lessons,
       _id: initialData?._id,
     };
     onSave(saveData);
@@ -446,9 +462,9 @@ const CourseObjectForm: React.FC<CourseObjectFormProps> = ({ open, onClose, onSa
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="lg" fullWidth>
-      <DialogTitle>{initialData ? 'ویرایش سرفصل دوره' : 'افزودن سرفصل دوره'}</DialogTitle>
+      <DialogTitle dir="rtl">{initialData ? 'ویرایش سرفصل دوره' : 'افزودن سرفصل دوره'}</DialogTitle>
       <DialogContent>
-        <Grid container spacing={2} sx={{ mt: 1 }}>
+        <Grid dir="rtl" container spacing={2} sx={{ mt: 1 }}>
           <Grid size={6}>
             <TextField
               fullWidth
@@ -701,6 +717,11 @@ const EditCourse = () => {
   const { data: categories = [] } = useCourseCategories();
   const updateCourse = useUpdateCourse(course_id!);
 
+
+  // create or Update Sample media on course
+  const createOrUpdateSampleMediaMutation = useCreateOrUpdateSampleMedia(course_id!);
+  const createOrUpdateCourseObjectMutation = useCreateOrUpdateCourseObject(course_id!);
+
   // State for sample media and course objects
   const [sampleMedia, setSampleMedia] = useState<SampleMedia[]>([]);
   const [courseObjects, setCourseObjects] = useState<CourseObject[]>([]);
@@ -751,11 +772,37 @@ const EditCourse = () => {
     }
   }, [courseData, reset]);
 
+
+  // use effect for create and update Sample media
+  useEffect(() => {
+    if (createOrUpdateSampleMediaMutation.isSuccess) {
+      showToast('موفق', 'نمونه آموزشی بروزرسانی شد', 'success');
+    }
+
+    if (createOrUpdateSampleMediaMutation.isError) {
+      showToast('خطا', 'خطا در بروزرسانی نمونه آموزشی', 'error');
+    }
+  }, [createOrUpdateSampleMediaMutation.isSuccess, createOrUpdateSampleMediaMutation.isError]);
+
+
+
+  useEffect(() => {
+    if (createOrUpdateCourseObjectMutation.isSuccess) {
+      showToast('موفق', 'سرفصل دوره بروزرسانی شد', 'success');
+    }
+
+    if (createOrUpdateCourseObjectMutation.isError) {
+      showToast('خطا', 'خطا در بروزرسانی سرفصل دوره', 'error');
+    }
+  }, [createOrUpdateCourseObjectMutation.isSuccess, createOrUpdateCourseObjectMutation.isError]);
+
   // Sample Media Handlers
   const handleDeleteSampleMedia = (id: string) => {
-    // TODO: DELETE API
-    setSampleMedia(prev => prev.filter(item => item._id !== id));
-    showToast('موفق', 'نمونه آموزشی حذف شد', 'success');
+    createOrUpdateSampleMediaMutation.mutate({
+      delete_id: id,
+    });
+    // setSampleMedia(prev => prev.filter(item => item._id !== id));
+    // showToast('موفق', 'نمونه آموزشی حذف شد', 'success');
   };
 
   const handleEditSampleMedia = (id: string) => {
@@ -767,27 +814,62 @@ const EditCourse = () => {
     }
   };
 
+  
+  /**
+   * This handler could save new sample media when data have not `_id` property
+   * and update existing sample media when data have `id` property
+   */
   const handleSaveSampleMedia = (data: any) => {
-    // TODO: SAVE API
+    console.log({data})
+    // Case 1 : update Sample Media by id for This course
     if (data._id) {
+      createOrUpdateSampleMediaMutation.mutate({
+        id: data._id,
+        ...(data.media_title && { media_title: data.media_title }),
+        ...(data.media_type && { media_type: data.media_type }),
+        ...(data.file && { file: data.file }),
+      });
+
       // Update existing
-      setSampleMedia(prev => prev.map(item => 
-        item._id === data._id ? { ...item, ...data } : item
-      ));
-      showToast('موفق', 'نمونه آموزشی بروزرسانی شد', 'success');
+      // setSampleMedia(prev => prev.map(item => 
+      //   item._id === data._id ? { ...item, ...data } : item
+      // ));
     } else {
-      // Add new
-      const newItem = { ...data, _id: Date.now().toString() };
-      setSampleMedia(prev => [...prev, newItem]);
-      showToast('موفق', 'نمونه آموزشی اضافه شد', 'success');
+      // Case 2 : Add new Sample media for this course
+      if (!data.file) {
+        showToast('خطا', 'لطفا فایل را انتخاب کنید', 'error');
+        return;
+      }
+
+      if (!data.media_title) {
+        showToast('خطا', 'عنوان نمونه آموزشی الزامی است', 'error');
+        return;
+      }
+
+      if (!data.media_type) {
+        showToast('خطا', 'نوع نمونه آموزشی الزامی است', 'error');
+        return;
+      }
+      const newItem = {
+        media_title: data.media_title,
+        media_type: data.media_type,
+        file: data.file,
+      };
+      createOrUpdateSampleMediaMutation.mutate({
+        ...newItem,
+      });
     }
-    setEditingSampleMedia(null);
   };
 
   // Course Object Handlers
   const handleDeleteCourseObject = (id: string) => {
-    setCourseObjects(prev => prev.filter(item => item._id !== id));
-    showToast('موفق', 'سرفصل دوره حذف شد', 'success');
+    // setCourseObjects(prev => prev.filter(item => item._id !== id));
+    console.log({id})
+    createOrUpdateCourseObjectMutation.mutate({
+      id: id,
+      controller: 'delete_course_object',
+    });
+    // showToast('موفق', 'سرفصل دوره حذف شد', 'success');
   };
 
   const handleEditCourseObject = (id: string) => {
@@ -798,20 +880,101 @@ const EditCourse = () => {
     }
   };
 
+  // Create new Course object or update Specific
   const handleSaveCourseObject = (data: any) => {
+    console.log({data});
+    // if data include `_id` we should update course object
     if (data._id) {
       // Update existing
-      setCourseObjects(prev => prev.map(item => 
-        item._id === data._id ? { ...item, ...data } : item
-      ));
-      showToast('موفق', 'سرفصل دوره بروزرسانی شد', 'success');
+      // setCourseObjects(prev => prev.map(item => 
+      //   item._id === data._id ? { ...item, ...data } : item
+      // ));
+
+      createOrUpdateCourseObjectMutation.mutate({
+        id: data._id,
+        controller: 'update_course_object',
+        ...(data.subject_title && { subject_title: data.subject_title }),
+        ...(data.status && { status: data.status }),
+        ...(data.duration && { duration: data.duration }),
+        ...(data.order && { order: data.order }),
+      });
+      // showToast('موفق', 'سرفصل دوره بروزرسانی شد', 'success');
     } else {
-      // Add new
-      const newItem = { ...data, _id: Date.now().toString() };
-      setCourseObjects(prev => [...prev, newItem]);
+      // Add new Course Object
+
+      // validate for create new course object
+
+      if (!data.subject_title) {
+        showToast('خطا', 'عنوان سرفصل الزامی است', 'error');
+        return;
+      }
+
+      if (!data.status) {
+        showToast('خطا', 'وضعیت سرفصل الزامی است', 'error');
+        return;
+      }
+
+      if (!data.duration) {
+        showToast('خطا', 'مدت زمان سرفصل الزامی است', 'error');
+        return;
+      }
+
+      if (!data.order) {
+        showToast('خطا', 'ترتیب سرفصل الزامی است', 'error');
+        return;
+      }
+
+        createOrUpdateCourseObjectMutation.mutate({
+        ...(data.subject_title && { subject_title: data.subject_title }),
+        ...(data.status && { status: data.status }),
+        ...(data.duration && { duration: data.duration }),
+        ...(data.order && { order: data.order }),
+      });
       showToast('موفق', 'سرفصل دوره اضافه شد', 'success');
     }
     setEditingCourseObject(null);
+  };
+
+
+  const handleSaveNewLesson = (course_object_id: string, data: Lesson) => {
+    if (!course_object_id) {
+      showToast('خطا', 'شناسه به درستی انتخاب نشده ', 'error');
+      return;
+    }
+
+    if (!data.title || !data.order || !data.status || !data.duration || !data.file) {
+      showToast('خطا', 'اطلاعات به درستی وارد نشده است', 'error');
+      return;
+    }
+
+
+    createOrUpdateCourseObjectMutation.mutate({
+      id: course_object_id,
+      controller: 'add_new_lesson',
+      title: data.title,
+      order: data.order,
+      status: data.status,
+      duration: data.duration,
+      file: data.file._id,
+      ...(data.description && { description: data.description }),
+    });
+    
+    
+
+    console.log({course_object_id, data});
+  };
+
+  const handleDeleteLesson = (course_object_id: string, lesson_id: string) => {
+    if (!course_object_id || !lesson_id) {
+      showToast('خطا', 'شناسه به درستی انتخاب نشده ', 'error');
+      return;
+    }
+
+    createOrUpdateCourseObjectMutation.mutate({
+      id: course_object_id,
+      controller: 'delete_lesson',
+      lesson_id: lesson_id,
+    });
   };
 
   const onSubmit = async (data: FormData) => {
@@ -1139,8 +1302,30 @@ const EditCourse = () => {
           setEditingCourseObject(null);
         }}
         onSave={handleSaveCourseObject}
+        onDeleteLesson={handleDeleteLesson}
+        onSaveNewLesson={handleSaveNewLesson}
         initialData={editingCourseObject}
       />
+
+      {(updateCourse.isPending || createOrUpdateSampleMediaMutation.isPending || createOrUpdateCourseObjectMutation.isPending) && (
+        <Box 
+          sx={{
+            position: 'fixed', 
+            top: 0, 
+            left: 0, 
+            width: '100%', 
+            height: '100%', 
+            backgroundColor: 'rgba(0, 0, 0, 0.5)', 
+            zIndex: 9999, 
+            display: 'flex', 
+            justifyContent: 'center', 
+            alignItems: 'center',
+            backdropFilter: 'blur(1px)'
+          }}
+        >
+          <CircularProgress size={60} color="white" />
+        </Box>
+      )}
     </Box>
   );
 };

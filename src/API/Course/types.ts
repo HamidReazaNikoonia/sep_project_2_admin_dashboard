@@ -17,10 +17,13 @@ export interface CourseCategory {
 }
 
 export interface SampleMedia {
+  _id?: string
+  delete_id?: string
   media_type: string
   media_title: string
   url_address: string
   file?: Upload
+  controller?: string //
 }
 
 export interface CourseMember {
@@ -28,10 +31,18 @@ export interface CourseMember {
 }
 
 export interface CourseObject {
-  subject_title: string
-  status: 'PUBLIC' | 'PRIVATE'
-  duration: number
-  files: Upload
+  _id?: string
+  id?: string
+  title?: string
+  controller?: string
+  order?: number
+  status?: 'PUBLIC' | 'PRIVATE'
+  duration?: number
+  description?: string
+  files?: Upload[] | string
+  file?: Upload[] | string
+  delete_id?: string
+  lesson_id?: string
 }
 
 export interface Course {
