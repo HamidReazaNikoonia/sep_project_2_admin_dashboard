@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import {
   Box,
@@ -89,7 +89,7 @@ interface SampleMedia {
 }
 
 interface Lesson {
-  _id: string;
+  _id?: string;
   title: string;
   description: string;
   order: number;
@@ -208,7 +208,7 @@ const SampleMediaForm: React.FC<SampleMediaFormProps> = ({ open, onClose, onSave
   };
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
+    <Dialog dir="rtl" open={open} onClose={onClose} maxWidth="md" fullWidth>
       <DialogTitle>{initialData ? 'ویرایش نمونه آموزشی' : 'افزودن نمونه آموزشی'}</DialogTitle>
       <DialogContent>
         <Grid container spacing={2} sx={{ mt: 1 }}>
@@ -233,10 +233,10 @@ const SampleMediaForm: React.FC<SampleMediaFormProps> = ({ open, onClose, onSave
               <MenuItem value="IMAGE">تصویر</MenuItem>
             </TextField>
           </Grid>
-          <Grid size={12}>
+          <Grid dir="rtl" size={12}>
             {initialData?.file && (
               <Box mb={2}>
-                <Typography variant="body2" color="green">
+                <Typography className='py-3' variant="body2" color="green">
                   فایل فعلی: {initialData.file.file_name}
                 </Typography>
                 <Button
@@ -244,7 +244,7 @@ const SampleMediaForm: React.FC<SampleMediaFormProps> = ({ open, onClose, onSave
                   size="small"
                   href={`${SERVER_FILE}/${initialData.file.file_name}`}
                   target="_blank"
-                  startIcon={<DownloadIcon />}
+                  startIcon={<DownloadIcon className='ml-2' />}
                 >
                   مشاهده فایل
                 </Button>
@@ -291,10 +291,12 @@ const SampleMediaForm: React.FC<SampleMediaFormProps> = ({ open, onClose, onSave
         </Grid>
       </DialogContent>
       <DialogActions>
+        <div className='px-6 py-4'>
         <Button onClick={onClose}>لغو</Button>
         <Button onClick={handleSave} variant="contained">
           {initialData ? 'بروزرسانی' : 'ایجاد'}
         </Button>
+        </div>
       </DialogActions>
     </Dialog>
   );
@@ -313,7 +315,7 @@ interface CourseObjectFormProps {
 const CourseObjectForm: React.FC<CourseObjectFormProps> = ({ open, onClose, onSave, onDeleteLesson, onSaveNewLesson, initialData }) => {
   const [formData, setFormData] = useState({
     subject_title: '',
-    status: 'PRIVATE' as 'PUBLIC' | 'PRIVATE',
+    // status: 'PRIVATE' as 'PUBLIC' | 'PRIVATE',
     duration: 0,
     order: 1,
   });
@@ -321,6 +323,7 @@ const CourseObjectForm: React.FC<CourseObjectFormProps> = ({ open, onClose, onSa
   
   // New lesson form state
   const [showNewLessonForm, setShowNewLessonForm] = useState(false);
+  const newLessonFormRef = useRef<HTMLDivElement>(null);
   const [newLessonData, setNewLessonData] = useState({
     title: '',
     description: '',
@@ -334,7 +337,7 @@ const CourseObjectForm: React.FC<CourseObjectFormProps> = ({ open, onClose, onSa
     if (initialData) {
       setFormData({
         subject_title: initialData.subject_title,
-        status: initialData.status,
+        // status: initialData.status,
         duration: initialData.duration,
         order: initialData.order,
       });
@@ -342,7 +345,7 @@ const CourseObjectForm: React.FC<CourseObjectFormProps> = ({ open, onClose, onSa
     } else {
       setFormData({
         subject_title: '',
-        status: 'PRIVATE',
+        // status: 'PRIVATE',
         duration: 0,
         order: 1,
       });
@@ -361,6 +364,17 @@ const CourseObjectForm: React.FC<CourseObjectFormProps> = ({ open, onClose, onSa
     setLessonFileUpload({});
   }, [initialData, open]);
 
+
+    // Effect to handle scrolling when new lesson form is shown
+  useEffect(() => {
+    if (showNewLessonForm && newLessonFormRef.current) {
+      newLessonFormRef.current.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'start' 
+      });
+    }
+  }, [showNewLessonForm]);
+
   // Delete specific lesson handler
   const deleteSpecificLessonHandler = (course_object_id: string, lesson_id: string) => {
     if (!lesson_id) {
@@ -369,9 +383,7 @@ const CourseObjectForm: React.FC<CourseObjectFormProps> = ({ open, onClose, onSa
     }
     // setLessons(prev => prev.filter(lesson => lesson._id !== lesson_id));
     onDeleteLesson(course_object_id, lesson_id);
-    setTimeout(() => {
-      onClose();
-    }, 2000);
+    onClose();
     // showToast('موفق', 'درس با موفقیت حذف شد', 'success');
   };
 
@@ -443,9 +455,8 @@ const CourseObjectForm: React.FC<CourseObjectFormProps> = ({ open, onClose, onSa
     setLessonFileUpload({});
     setShowNewLessonForm(false);
 
-    setTimeout(() => {
+
       onClose();
-    }, 2000);
 
     // showToast('موفق', 'درس جدید اضافه شد', 'success');
   };
@@ -491,8 +502,10 @@ const CourseObjectForm: React.FC<CourseObjectFormProps> = ({ open, onClose, onSa
               onChange={(e) => setFormData(prev => ({ ...prev, order: Number(e.target.value) }))}
             />
           </Grid>
-          <Grid size={12}>
+          {/* <Grid size={12}>
             <TextField
+              dir="rtl"
+              sx={{textAlign: 'right'}}
               select
               fullWidth
               label="وضعیت"
@@ -502,14 +515,15 @@ const CourseObjectForm: React.FC<CourseObjectFormProps> = ({ open, onClose, onSa
               <MenuItem value="PUBLIC">عمومی</MenuItem>
               <MenuItem value="PRIVATE">خصوصی</MenuItem>
             </TextField>
-          </Grid>
+          </Grid> */}
           
           {/* Lessons Section */}
-          <Grid size={12}>
+          {initialData ? (
+            <Grid size={12}>
             <Box display="flex" justifyContent="space-between" alignItems="center" sx={{ mt: 2, mb: 1 }}>
               <Typography variant="h6">درس‌ها</Typography>
               <Button
-                startIcon={<AddIcon />}
+                startIcon={<AddIcon className='ml-2' />}
                 onClick={() => setShowNewLessonForm(true)}
                 variant="outlined"
                 size="small"
@@ -568,7 +582,7 @@ const CourseObjectForm: React.FC<CourseObjectFormProps> = ({ open, onClose, onSa
 
             {/* New Lesson Form */}
             {showNewLessonForm && (
-              <Box sx={{ mt: 3, p: 3, border: '1px solid #ddd', borderRadius: 2, backgroundColor: '#f9f9f9' }}>
+              <Box ref={newLessonFormRef} sx={{ mt: 3, p: 3, border: '1px solid #ddd', borderRadius: 2, backgroundColor: '#f9f9f9' }}>
                 <Typography variant="h6" sx={{ mb: 2 }}>افزودن درس جدید</Typography>
                 
                 <Grid container spacing={2}>
@@ -698,13 +712,24 @@ const CourseObjectForm: React.FC<CourseObjectFormProps> = ({ open, onClose, onSa
               </Box>
             )}
           </Grid>
+          ) : (
+            <div className='w-full h-full bg-gray-100'>
+              <Alert severity="info">
+                <h4 className='px-3'> 
+                  برای ثبت فایل هایی ویدیویی , ابتدا مشخصات سر فصل را وارد کنید و سر فصل را ایجاد کنید , سپس از لیست سر فصل ها با کلیک روی گزینه تغییر فایل هایی ویدیویی را ایجاد کنید
+                </h4>
+              </Alert>
+            </div>
+          )}
         </Grid>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose}>لغو</Button>
+       <div className='px-6 py-4'>
+       <Button onClick={onClose}>لغو</Button>
         <Button onClick={handleSave} variant="contained">
           {initialData ? 'بروزرسانی' : 'ایجاد'}
         </Button>
+       </div>
       </DialogActions>
     </Dialog>
   );
@@ -894,7 +919,7 @@ const EditCourse = () => {
         id: data._id,
         controller: 'update_course_object',
         ...(data.subject_title && { subject_title: data.subject_title }),
-        ...(data.status && { status: data.status }),
+        // ...(data.status && { status: data.status }),
         ...(data.duration && { duration: data.duration }),
         ...(data.order && { order: data.order }),
       });
@@ -909,10 +934,10 @@ const EditCourse = () => {
         return;
       }
 
-      if (!data.status) {
-        showToast('خطا', 'وضعیت سرفصل الزامی است', 'error');
-        return;
-      }
+      // if (!data.status) {
+      //   showToast('خطا', 'وضعیت سرفصل الزامی است', 'error');
+      //   return;
+      // }
 
       if (!data.duration) {
         showToast('خطا', 'مدت زمان سرفصل الزامی است', 'error');
@@ -926,7 +951,7 @@ const EditCourse = () => {
 
         createOrUpdateCourseObjectMutation.mutate({
         ...(data.subject_title && { subject_title: data.subject_title }),
-        ...(data.status && { status: data.status }),
+        // ...(data.status && { status: data.status }),
         ...(data.duration && { duration: data.duration }),
         ...(data.order && { order: data.order }),
       });
