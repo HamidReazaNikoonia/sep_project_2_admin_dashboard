@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import CourseDescriptionForm from './CourseDescriptionForm';
 import { useNavigate, useParams } from 'react-router';
 import {
   Box,
@@ -25,12 +26,12 @@ import {
   DialogActions,
 } from '@mui/material';
 import { useForm } from 'react-hook-form';
-import { 
-  Add as AddIcon, 
-  Delete as DeleteIcon, 
+import {
+  Add as AddIcon,
+  Delete as DeleteIcon,
   Edit as EditIcon,
   Download as DownloadIcon,
-  Upload as UploadIcon 
+  Upload as UploadIcon
 } from '@mui/icons-material';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -52,23 +53,23 @@ const SERVER_FILE = process.env.REACT_APP_SERVER_FILE;
 
 // Updated validation schema without sample_media and course_objects
 const schema = yup.object({
-    title: yup.string().required('عنوان دوره الزامی است'),
-    sub_title: yup.string().required('زیرعنوان دوره الزامی است'),
-    price: yup
-      .number()
-      .required('قیمت دوره الزامی است')
-      .min(10000, 'حداقل قیمت ۱۰,۰۰۰ ریال است'),
-    price_with_discount: yup
-      .number()
-      .optional()
-      .nullable(),
-    course_category: yup.string().required('دسته‌بندی دوره الزامی است'),
-    course_language: yup.string(),
-    course_duration: yup.number().required('مدت دوره الزامی است'),
-    slug: yup.string(),
-    is_have_licence: yup.boolean().default(false),
-    course_status: yup.boolean().default(true),
-  });
+  title: yup.string().required('عنوان دوره الزامی است'),
+  sub_title: yup.string().required('زیرعنوان دوره الزامی است'),
+  price: yup
+    .number()
+    .required('قیمت دوره الزامی است')
+    .min(10000, 'حداقل قیمت ۱۰,۰۰۰ ریال است'),
+  price_with_discount: yup
+    .number()
+    .optional()
+    .nullable(),
+  course_category: yup.string().required('دسته‌بندی دوره الزامی است'),
+  course_language: yup.string(),
+  course_duration: yup.number().required('مدت دوره الزامی است'),
+  slug: yup.string(),
+  is_have_licence: yup.boolean().default(false),
+  course_status: yup.boolean().default(true),
+});
 
 type FormData = yup.InferType<typeof schema>;
 
@@ -157,7 +158,7 @@ const SampleMediaForm: React.FC<SampleMediaFormProps> = ({ open, onClose, onSave
       setFileUpload({});
     }
 
-    
+
   }, [initialData, open]);
 
   const handleFileUpload = async () => {
@@ -172,20 +173,20 @@ const SampleMediaForm: React.FC<SampleMediaFormProps> = ({ open, onClose, onSave
     try {
       const formDataUpload = new FormData();
       formDataUpload.append('file', fileState.file);
-      
+
       const response = await fetch(`${SERVER_URL}/admin/setting/upload`, {
         method: 'POST',
         body: formDataUpload,
       });
-      
+
       if (!response.ok) throw new Error('Upload failed');
-      
+
       const data = await response.json();
       setFileUpload(prev => ({
         ...prev,
         sample_media_file: { ...prev.sample_media_file, uploading: false, uploadedFile: data.uploadedFile }
       }));
-      
+
       showToast('موفق', 'فایل با موفقیت آپلود شد', 'success');
     } catch (error) {
       setFileUpload(prev => ({
@@ -202,7 +203,7 @@ const SampleMediaForm: React.FC<SampleMediaFormProps> = ({ open, onClose, onSave
       file: fileUpload['sample_media_file']?.uploadedFile?._id || initialData?.file?._id,
       _id: initialData?._id,
     };
-    console.log({saveData})
+    console.log({ saveData })
     onSave(saveData);
     onClose();
   };
@@ -250,7 +251,7 @@ const SampleMediaForm: React.FC<SampleMediaFormProps> = ({ open, onClose, onSave
                 </Button>
               </Box>
             )}
-            
+
             <input
               type="file"
               onChange={(e) => {
@@ -276,9 +277,9 @@ const SampleMediaForm: React.FC<SampleMediaFormProps> = ({ open, onClose, onSave
                   variant="contained"
                   onClick={handleFileUpload}
                   disabled={fileUpload['sample_media_file']?.uploading}
-                  startIcon={fileUpload['sample_media_file']?.uploading ? 
-                    <CircularProgress size={20} /> : 
-                    <UploadIcon />}
+                  startIcon={fileUpload['sample_media_file']?.uploading ?
+                    <CircularProgress className='ml-2' size={20} /> :
+                    <UploadIcon className='ml-2' />}
                 >
                   آپلود فایل
                 </Button>
@@ -292,10 +293,10 @@ const SampleMediaForm: React.FC<SampleMediaFormProps> = ({ open, onClose, onSave
       </DialogContent>
       <DialogActions>
         <div className='px-6 py-4'>
-        <Button onClick={onClose}>لغو</Button>
-        <Button onClick={handleSave} variant="contained">
-          {initialData ? 'بروزرسانی' : 'ایجاد'}
-        </Button>
+          <Button onClick={onClose}>لغو</Button>
+          <Button onClick={handleSave} variant="contained">
+            {initialData ? 'بروزرسانی' : 'ایجاد'}
+          </Button>
         </div>
       </DialogActions>
     </Dialog>
@@ -320,7 +321,7 @@ const CourseObjectForm: React.FC<CourseObjectFormProps> = ({ open, onClose, onSa
     order: 1,
   });
   const [lessons, setLessons] = useState<Lesson[]>([]);
-  
+
   // New lesson form state
   const [showNewLessonForm, setShowNewLessonForm] = useState(false);
   const newLessonFormRef = useRef<HTMLDivElement>(null);
@@ -351,7 +352,7 @@ const CourseObjectForm: React.FC<CourseObjectFormProps> = ({ open, onClose, onSa
       });
       setLessons([]);
     }
-    
+
     // Reset new lesson form
     setShowNewLessonForm(false);
     setNewLessonData({
@@ -365,12 +366,12 @@ const CourseObjectForm: React.FC<CourseObjectFormProps> = ({ open, onClose, onSa
   }, [initialData, open]);
 
 
-    // Effect to handle scrolling when new lesson form is shown
+  // Effect to handle scrolling when new lesson form is shown
   useEffect(() => {
     if (showNewLessonForm && newLessonFormRef.current) {
-      newLessonFormRef.current.scrollIntoView({ 
-        behavior: 'smooth', 
-        block: 'start' 
+      newLessonFormRef.current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
       });
     }
   }, [showNewLessonForm]);
@@ -400,20 +401,20 @@ const CourseObjectForm: React.FC<CourseObjectFormProps> = ({ open, onClose, onSa
     try {
       const formDataUpload = new FormData();
       formDataUpload.append('file', fileState.file);
-      
+
       const response = await fetch(`${SERVER_URL}/admin/setting/upload`, {
         method: 'POST',
         body: formDataUpload,
       });
-      
+
       if (!response.ok) throw new Error('Upload failed');
-      
+
       const data = await response.json();
       setLessonFileUpload(prev => ({
         ...prev,
         lesson_file: { ...prev.lesson_file, uploading: false, uploadedFile: data.uploadedFile }
       }));
-      
+
       showToast('موفق', 'فایل با موفقیت آپلود شد', 'success');
     } catch (error) {
       setLessonFileUpload(prev => ({
@@ -443,7 +444,7 @@ const CourseObjectForm: React.FC<CourseObjectFormProps> = ({ open, onClose, onSa
 
     // setLessons(prev => [...prev, newLesson]);
     onSaveNewLesson(initialData?._id || '', newLesson);
-    
+
     // Reset form
     setNewLessonData({
       title: '',
@@ -456,7 +457,7 @@ const CourseObjectForm: React.FC<CourseObjectFormProps> = ({ open, onClose, onSa
     setShowNewLessonForm(false);
 
 
-      onClose();
+    onClose();
 
     // showToast('موفق', 'درس جدید اضافه شد', 'success');
   };
@@ -516,206 +517,206 @@ const CourseObjectForm: React.FC<CourseObjectFormProps> = ({ open, onClose, onSa
               <MenuItem value="PRIVATE">خصوصی</MenuItem>
             </TextField>
           </Grid> */}
-          
+
           {/* Lessons Section */}
           {initialData ? (
             <Grid size={12}>
-            <Box display="flex" justifyContent="space-between" alignItems="center" sx={{ mt: 2, mb: 1 }}>
-              <Typography variant="h6">درس‌ها</Typography>
-              <Button
-                startIcon={<AddIcon className='ml-2' />}
-                onClick={() => setShowNewLessonForm(true)}
-                variant="outlined"
-                size="small"
-              >
-                افزودن درس جدید
-              </Button>
-            </Box>
-            
-            {lessons.length > 0 && (
-              <StyledTableContainer>
-                <StyledTable>
-                  <StyledTableHead>
-                    <StyledTableRow>
-                      <StyledTableCell>شناسه</StyledTableCell>
-                      <StyledTableCell>عنوان</StyledTableCell>
-                      <StyledTableCell>ترتیب</StyledTableCell>
-                      <StyledTableCell>مدت زمان</StyledTableCell>
-                      <StyledTableCell>فایل</StyledTableCell>
-                      <StyledTableCell>عملیات</StyledTableCell>
-                    </StyledTableRow>
-                  </StyledTableHead>
-                  <StyledTableBody>
-                    {lessons.map((lesson) => (
-                      <StyledTableRow key={lesson._id}>
-                        <StyledTableCell>{lesson._id}</StyledTableCell>
-                        <StyledTableCell>{lesson.title}</StyledTableCell>
-                        <StyledTableCell>{lesson.order}</StyledTableCell>
-                        <StyledTableCell>{lesson.duration} دقیقه</StyledTableCell>
-                        <StyledTableCell>
-                          {lesson.file && (
-                            <Button
-                              size="small"
-                              startIcon={<DownloadIcon />}
-                              href={`${SERVER_FILE}/${lesson.file.file_name}`}
-                              target="_blank"
-                            >
-                              دانلود
-                            </Button>
-                          )}
-                        </StyledTableCell>
-                        <StyledTableCell>
-                          <IconButton
-                            color="error"
-                            size="small"
-                            onClick={() => deleteSpecificLessonHandler(initialData?._id || '', lesson._id)}
-                          >
-                            <DeleteIcon />
-                          </IconButton>
-                        </StyledTableCell>
-                      </StyledTableRow>
-                    ))}
-                  </StyledTableBody>
-                </StyledTable>
-              </StyledTableContainer>
-            )}
+              <Box display="flex" justifyContent="space-between" alignItems="center" sx={{ mt: 2, mb: 1 }}>
+                <Typography variant="h6">درس‌ها</Typography>
+                <Button
+                  startIcon={<AddIcon className='ml-2' />}
+                  onClick={() => setShowNewLessonForm(true)}
+                  variant="outlined"
+                  size="small"
+                >
+                  افزودن درس جدید
+                </Button>
+              </Box>
 
-            {/* New Lesson Form */}
-            {showNewLessonForm && (
-              <Box ref={newLessonFormRef} sx={{ mt: 3, p: 3, border: '1px solid #ddd', borderRadius: 2, backgroundColor: '#f9f9f9' }}>
-                <Typography variant="h6" sx={{ mb: 2 }}>افزودن درس جدید</Typography>
-                
-                <Grid container spacing={2}>
-                  <Grid size={6}>
-                    <TextField
-                      fullWidth
-                      label="عنوان درس"
-                      value={newLessonData.title}
-                      onChange={(e) => setNewLessonData(prev => ({ ...prev, title: e.target.value }))}
-                      required
-                    />
-                  </Grid>
-                  <Grid size={3}>
-                    <TextField
-                      fullWidth
-                      type="number"
-                      label="مدت زمان (دقیقه)"
-                      value={newLessonData.duration}
-                      onChange={(e) => setNewLessonData(prev => ({ ...prev, duration: Number(e.target.value) }))}
-                    />
-                  </Grid>
-                  <Grid size={3}>
-                    <TextField
-                      fullWidth
-                      type="number"
-                      label="ترتیب"
-                      value={newLessonData.order}
-                      onChange={(e) => setNewLessonData(prev => ({ ...prev, order: Number(e.target.value) }))}
-                    />
-                  </Grid>
-                  <Grid size={12}>
-                    <TextField
-                      fullWidth
-                      multiline
-                      rows={3}
-                      label="توضیحات"
-                      value={newLessonData.description}
-                      onChange={(e) => setNewLessonData(prev => ({ ...prev, description: e.target.value }))}
-                    />
-                  </Grid>
-                  <Grid size={6}>
-                    <TextField
-                      select
-                      fullWidth
-                      label="وضعیت"
-                      value={newLessonData.status}
-                      onChange={(e) => setNewLessonData(prev => ({ ...prev, status: e.target.value as 'PUBLIC' | 'PRIVATE' }))}
-                    >
-                      <MenuItem value="PUBLIC">عمومی</MenuItem>
-                      <MenuItem value="PRIVATE">خصوصی</MenuItem>
-                    </TextField>
-                  </Grid>
-                  
-                  {/* File Upload Section */}
-                  <Grid size={12}>
-                    <Typography variant="subtitle2" sx={{ mb: 1 }}>فایل درس</Typography>
-                    <input
-                      type="file"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) {
-                          setLessonFileUpload(prev => ({
-                            ...prev,
-                            lesson_file: { file, uploading: false, error: null, uploadedFile: null }
-                          }));
-                        }
-                      }}
-                      style={{ display: 'none' }}
-                      id="lesson-file-input"
-                    />
-                    <Box display="flex" alignItems="center" gap={2}>
-                      <label htmlFor="lesson-file-input">
-                        <Button variant="outlined" component="span" size="small">
-                          انتخاب فایل
-                        </Button>
-                      </label>
-                      {lessonFileUpload['lesson_file']?.file && (
+              {lessons.length > 0 && (
+                <StyledTableContainer>
+                  <StyledTable>
+                    <StyledTableHead>
+                      <StyledTableRow>
+                        <StyledTableCell>شناسه</StyledTableCell>
+                        <StyledTableCell>عنوان</StyledTableCell>
+                        <StyledTableCell>ترتیب</StyledTableCell>
+                        <StyledTableCell>مدت زمان</StyledTableCell>
+                        <StyledTableCell>فایل</StyledTableCell>
+                        <StyledTableCell>عملیات</StyledTableCell>
+                      </StyledTableRow>
+                    </StyledTableHead>
+                    <StyledTableBody>
+                      {lessons.map((lesson) => (
+                        <StyledTableRow key={lesson._id}>
+                          <StyledTableCell>{lesson._id}</StyledTableCell>
+                          <StyledTableCell>{lesson.title}</StyledTableCell>
+                          <StyledTableCell>{lesson.order}</StyledTableCell>
+                          <StyledTableCell>{lesson.duration} دقیقه</StyledTableCell>
+                          <StyledTableCell>
+                            {lesson.file && (
+                              <Button
+                                size="small"
+                                startIcon={<DownloadIcon />}
+                                href={`${SERVER_FILE}/${lesson.file.file_name}`}
+                                target="_blank"
+                              >
+                                دانلود
+                              </Button>
+                            )}
+                          </StyledTableCell>
+                          <StyledTableCell>
+                            <IconButton
+                              color="error"
+                              size="small"
+                              onClick={() => deleteSpecificLessonHandler(initialData?._id || '', lesson._id)}
+                            >
+                              <DeleteIcon />
+                            </IconButton>
+                          </StyledTableCell>
+                        </StyledTableRow>
+                      ))}
+                    </StyledTableBody>
+                  </StyledTable>
+                </StyledTableContainer>
+              )}
+
+              {/* New Lesson Form */}
+              {showNewLessonForm && (
+                <Box ref={newLessonFormRef} sx={{ mt: 3, p: 3, border: '1px solid #ddd', borderRadius: 2, backgroundColor: '#f9f9f9' }}>
+                  <Typography variant="h6" sx={{ mb: 2 }}>افزودن درس جدید</Typography>
+
+                  <Grid container spacing={2}>
+                    <Grid size={6}>
+                      <TextField
+                        fullWidth
+                        label="عنوان درس"
+                        value={newLessonData.title}
+                        onChange={(e) => setNewLessonData(prev => ({ ...prev, title: e.target.value }))}
+                        required
+                      />
+                    </Grid>
+                    <Grid size={3}>
+                      <TextField
+                        fullWidth
+                        type="number"
+                        label="مدت زمان (دقیقه)"
+                        value={newLessonData.duration}
+                        onChange={(e) => setNewLessonData(prev => ({ ...prev, duration: Number(e.target.value) }))}
+                      />
+                    </Grid>
+                    <Grid size={3}>
+                      <TextField
+                        fullWidth
+                        type="number"
+                        label="ترتیب"
+                        value={newLessonData.order}
+                        onChange={(e) => setNewLessonData(prev => ({ ...prev, order: Number(e.target.value) }))}
+                      />
+                    </Grid>
+                    <Grid size={12}>
+                      <TextField
+                        fullWidth
+                        multiline
+                        rows={3}
+                        label="توضیحات"
+                        value={newLessonData.description}
+                        onChange={(e) => setNewLessonData(prev => ({ ...prev, description: e.target.value }))}
+                      />
+                    </Grid>
+                    <Grid size={6}>
+                      <TextField
+                        select
+                        fullWidth
+                        label="وضعیت"
+                        value={newLessonData.status}
+                        onChange={(e) => setNewLessonData(prev => ({ ...prev, status: e.target.value as 'PUBLIC' | 'PRIVATE' }))}
+                      >
+                        <MenuItem value="PUBLIC">عمومی</MenuItem>
+                        <MenuItem value="PRIVATE">خصوصی</MenuItem>
+                      </TextField>
+                    </Grid>
+
+                    {/* File Upload Section */}
+                    <Grid size={12}>
+                      <Typography variant="subtitle2" sx={{ mb: 1 }}>فایل درس</Typography>
+                      <input
+                        type="file"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            setLessonFileUpload(prev => ({
+                              ...prev,
+                              lesson_file: { file, uploading: false, error: null, uploadedFile: null }
+                            }));
+                          }
+                        }}
+                        style={{ display: 'none' }}
+                        id="lesson-file-input"
+                      />
+                      <Box display="flex" alignItems="center" gap={2}>
+                        <label htmlFor="lesson-file-input">
+                          <Button variant="outlined" component="span" size="small">
+                            انتخاب فایل
+                          </Button>
+                        </label>
+                        {lessonFileUpload['lesson_file']?.file && (
+                          <Button
+                            variant="contained"
+                            size="small"
+                            onClick={handleLessonFileUpload}
+                            disabled={lessonFileUpload['lesson_file']?.uploading}
+                            startIcon={lessonFileUpload['lesson_file']?.uploading ?
+                              <CircularProgress className='ml-2' size={16} /> :
+                              <UploadIcon className='ml-2' />}
+                          >
+                            آپلود فایل
+                          </Button>
+                        )}
+                        {lessonFileUpload['lesson_file']?.uploadedFile && (
+                          <Alert severity="success" sx={{ py: 0 }}>
+                            فایل با موفقیت آپلود شد
+                          </Alert>
+                        )}
+                      </Box>
+                    </Grid>
+
+                    {/* Form Actions */}
+                    <Grid size={12}>
+                      <Box display="flex" gap={2} sx={{ mt: 2 }}>
                         <Button
                           variant="contained"
-                          size="small"
-                          onClick={handleLessonFileUpload}
-                          disabled={lessonFileUpload['lesson_file']?.uploading}
-                          startIcon={lessonFileUpload['lesson_file']?.uploading ? 
-                            <CircularProgress size={16} /> : 
-                            <UploadIcon />}
+                          onClick={handleNewLessonSubmit}
+                          startIcon={<AddIcon className='ml-4' />}
                         >
-                          آپلود فایل
+                          افزودن درس
                         </Button>
-                      )}
-                      {lessonFileUpload['lesson_file']?.uploadedFile && (
-                        <Alert severity="success" sx={{ py: 0 }}>
-                          فایل با موفقیت آپلود شد
-                        </Alert>
-                      )}
-                    </Box>
+                        <Button
+                          variant="outlined"
+                          onClick={() => {
+                            setShowNewLessonForm(false);
+                            setNewLessonData({
+                              title: '',
+                              description: '',
+                              duration: 0,
+                              order: 1,
+                              status: 'PRIVATE',
+                            });
+                            setLessonFileUpload({});
+                          }}
+                        >
+                          لغو
+                        </Button>
+                      </Box>
+                    </Grid>
                   </Grid>
-                  
-                  {/* Form Actions */}
-                  <Grid size={12}>
-                    <Box display="flex" gap={2} sx={{ mt: 2 }}>
-                      <Button
-                        variant="contained"
-                        onClick={handleNewLessonSubmit}
-                        startIcon={<AddIcon />}
-                      >
-                        افزودن درس
-                      </Button>
-                      <Button
-                        variant="outlined"
-                        onClick={() => {
-                          setShowNewLessonForm(false);
-                          setNewLessonData({
-                            title: '',
-                            description: '',
-                            duration: 0,
-                            order: 1,
-                            status: 'PRIVATE',
-                          });
-                          setLessonFileUpload({});
-                        }}
-                      >
-                        لغو
-                      </Button>
-                    </Box>
-                  </Grid>
-                </Grid>
-              </Box>
-            )}
-          </Grid>
+                </Box>
+              )}
+            </Grid>
           ) : (
             <div className='w-full h-full bg-gray-100'>
               <Alert severity="info">
-                <h4 className='px-3'> 
+                <h4 className='px-3'>
                   برای ثبت فایل هایی ویدیویی , ابتدا مشخصات سر فصل را وارد کنید و سر فصل را ایجاد کنید , سپس از لیست سر فصل ها با کلیک روی گزینه تغییر فایل هایی ویدیویی را ایجاد کنید
                 </h4>
               </Alert>
@@ -724,12 +725,12 @@ const CourseObjectForm: React.FC<CourseObjectFormProps> = ({ open, onClose, onSa
         </Grid>
       </DialogContent>
       <DialogActions>
-       <div className='px-6 py-4'>
-       <Button onClick={onClose}>لغو</Button>
-        <Button onClick={handleSave} variant="contained">
-          {initialData ? 'بروزرسانی' : 'ایجاد'}
-        </Button>
-       </div>
+        <div className='px-6 py-4'>
+          <Button onClick={onClose}>لغو</Button>
+          <Button onClick={handleSave} variant="contained">
+            {initialData ? 'بروزرسانی' : 'ایجاد'}
+          </Button>
+        </div>
       </DialogActions>
     </Dialog>
   );
@@ -750,12 +751,17 @@ const EditCourse = () => {
   // State for sample media and course objects
   const [sampleMedia, setSampleMedia] = useState<SampleMedia[]>([]);
   const [courseObjects, setCourseObjects] = useState<CourseObject[]>([]);
-  
+
   // State for forms
   const [sampleMediaFormOpen, setSampleMediaFormOpen] = useState(false);
   const [courseObjectFormOpen, setCourseObjectFormOpen] = useState(false);
   const [editingSampleMedia, setEditingSampleMedia] = useState<SampleMedia | null>(null);
   const [editingCourseObject, setEditingCourseObject] = useState<CourseObject | null>(null);
+
+
+  // State for Description
+  const [shortDescription, setShortDescription] = useState<string>(courseData?.description || '');
+  const [longDescription, setLongDescription] = useState<string>(courseData?.description_long || '');
 
   const {
     register,
@@ -776,7 +782,7 @@ const EditCourse = () => {
     if (courseData) {
       const course = courseData;
       console.log('Course Data:', course);
-      
+
       // Set form data
       reset({
         title: course.title,
@@ -794,6 +800,10 @@ const EditCourse = () => {
       // Set sample media and course objects state
       setSampleMedia(course.sample_media || []);
       setCourseObjects(course.course_objects || []);
+
+      // details
+      // setShortDescription(course.description || '');
+      // setLongDescription(course.description_long || '');
     }
   }, [courseData, reset]);
 
@@ -839,13 +849,13 @@ const EditCourse = () => {
     }
   };
 
-  
+
   /**
    * This handler could save new sample media when data have not `_id` property
    * and update existing sample media when data have `id` property
    */
   const handleSaveSampleMedia = (data: any) => {
-    console.log({data})
+    console.log({ data })
     // Case 1 : update Sample Media by id for This course
     if (data._id) {
       createOrUpdateSampleMediaMutation.mutate({
@@ -889,7 +899,7 @@ const EditCourse = () => {
   // Course Object Handlers
   const handleDeleteCourseObject = (id: string) => {
     // setCourseObjects(prev => prev.filter(item => item._id !== id));
-    console.log({id})
+    console.log({ id })
     createOrUpdateCourseObjectMutation.mutate({
       id: id,
       controller: 'delete_course_object',
@@ -907,7 +917,7 @@ const EditCourse = () => {
 
   // Create new Course object or update Specific
   const handleSaveCourseObject = (data: any) => {
-    console.log({data});
+    console.log({ data });
     // if data include `_id` we should update course object
     if (data._id) {
       // Update existing
@@ -949,7 +959,7 @@ const EditCourse = () => {
         return;
       }
 
-        createOrUpdateCourseObjectMutation.mutate({
+      createOrUpdateCourseObjectMutation.mutate({
         ...(data.subject_title && { subject_title: data.subject_title }),
         // ...(data.status && { status: data.status }),
         ...(data.duration && { duration: data.duration }),
@@ -983,10 +993,10 @@ const EditCourse = () => {
       file: data.file._id,
       ...(data.description && { description: data.description }),
     });
-    
-    
 
-    console.log({course_object_id, data});
+
+
+    console.log({ course_object_id, data });
   };
 
   const handleDeleteLesson = (course_object_id: string, lesson_id: string) => {
@@ -1001,6 +1011,16 @@ const EditCourse = () => {
       lesson_id: lesson_id,
     });
   };
+
+
+  const handleSaveDescription = (description: string, descriptionType: string) => {
+    if (descriptionType === 'short') {
+      setShortDescription(description);
+    } else if (descriptionType === 'long') {
+      setLongDescription(description);
+    }
+    console.log({ descriptionType })
+  }
 
   const onSubmit = async (data: FormData) => {
     try {
@@ -1019,7 +1039,11 @@ const EditCourse = () => {
         slug: data.slug,
         sample_media: sampleMedia,
         course_objects: courseObjects,
+        ...(shortDescription && { description: shortDescription }),
+        ...(longDescription && { description_long: longDescription }),
       };
+
+
 
       await updateCourse.mutateAsync(payload);
       showToast('موفق', 'دوره با موفقیت بروزرسانی شد', 'success');
@@ -1039,7 +1063,7 @@ const EditCourse = () => {
   }
 
   return (
-    <Box dir="rtl" p={{xs: 0, md:4}}>
+    <Box dir="rtl" p={{ xs: 0, md: 4 }}>
       <Typography variant="h4" gutterBottom>
         ویرایش دوره
       </Typography>
@@ -1292,6 +1316,9 @@ const EditCourse = () => {
             </StyledPaper>
           </Grid>
 
+          {/* Description Section */}
+          <CourseDescriptionForm shortDescription={courseData?.description} longDescription={courseData?.description_long} setShortDescription={(data) => handleSaveDescription(data, 'short')} setLongDescription={(data) => handleSaveDescription(data, 'long')} />
+
           {/* Submit Button */}
           <Grid size={12}>
             <Button
@@ -1305,6 +1332,7 @@ const EditCourse = () => {
               {updateCourse.isPending ? 'در حال بروزرسانی...' : 'بروزرسانی دوره'}
             </Button>
           </Grid>
+
         </Grid>
       </form>
 
@@ -1333,22 +1361,22 @@ const EditCourse = () => {
       />
 
       {(updateCourse.isPending || createOrUpdateSampleMediaMutation.isPending || createOrUpdateCourseObjectMutation.isPending) && (
-        <Box 
+        <Box
           sx={{
-            position: 'fixed', 
-            top: 0, 
-            left: 0, 
-            width: '100%', 
-            height: '100%', 
-            backgroundColor: 'rgba(0, 0, 0, 0.5)', 
-            zIndex: 9999, 
-            display: 'flex', 
-            justifyContent: 'center', 
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            zIndex: 9999,
+            display: 'flex',
+            justifyContent: 'center',
             alignItems: 'center',
             backdropFilter: 'blur(1px)'
           }}
         >
-          <CircularProgress size={60} color="white" />
+          <CircularProgress size={60} color="primary" />
         </Box>
       )}
     </Box>
