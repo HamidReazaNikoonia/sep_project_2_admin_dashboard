@@ -1,5 +1,5 @@
 import StyledPaper from '@/components/StyledPaper';
-import { Box, Button, TextField, Typography } from '@mui/material';
+import { Alert, Box, Button, TextField, Typography } from '@mui/material';
 import Editor from '@/components/TextEditor'
 import { Grid2 as Grid } from '@mui/material';
 import { useState } from 'react'
@@ -36,15 +36,24 @@ const CourseDescriptionForm = ({ shortDescription, longDescription, setShortDesc
             </StyledPaper>
           </Grid>
 
-          <Grid size={12}>
-            <Button variant="contained" color="primary" onClick={() => setShortDescription(descriptionShort)}>ثبت توضیح کوتاه</Button>
+          <Grid sx={{ px: 3 }} size={12}>
+            <Alert severity="info">
+              <Typography sx={{ px: 1 }} variant="body2">
+                    در صورت اصلاح متن روی دکمه  (‌ ثبت توضیح کوتاه ) کلیک کنید تا متن جدید آپدیت شود
+                    و برای تغییر نهایی دوره را بروز رسانی کنید
+              </Typography>
+            </Alert>
+            <Button 
+            variant="outlined" 
+            color="primary" 
+            onClick={() => setShortDescription(descriptionShort)}>ثبت توضیح کوتاه</Button>
           </Grid>
         </div>
 
            {/* Description Long (WYSIWYG) */}
-           <Grid size={12}>
+           <Grid sx={{ pt: 3 }} size={12}>
             <StyledPaper sx={{ p: 3 }}>
-              <Typography fontWeight={800} variant="subtitle1" sx={{ mb: 1 }}>
+              <Typography fontWeight={800} variant="body1" sx={{ mb: 1 }}>
                 توضیح کامل
               </Typography>
               <Box sx={{ marginBottom: '60px' }}>

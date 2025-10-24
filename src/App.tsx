@@ -34,7 +34,18 @@ const App: React.FC = () => (
     <ThemeProvider theme={theme}>
       <QueryClientProvider client={queryClient}>
         <RouterProvider router={router} />
-        <Toaster />
+        <Toaster
+          containerStyle={{
+            width: '100%',
+            maxWidth: '100%',
+          }}
+          toastOptions={{
+            style: {
+              maxWidth: '100%',
+              width: '100%',
+            }
+          }}
+        />
       </QueryClientProvider>
     </ThemeProvider>
   </ErrorBoundary>

@@ -10,6 +10,7 @@ interface CustomToastProps {
   title: string;
   message: string;
   type?: ToastType;
+  fullWidth?: boolean; // Add this prop
 }
 
 const getIcon = (type: ToastType = 'info') => {
@@ -26,12 +27,18 @@ const getIcon = (type: ToastType = 'info') => {
   }
 };
 
-const CustomToast: React.FC<CustomToastProps> = ({ t, title, message, type = 'info' }) => {
+const CustomToast: React.FC<CustomToastProps> = ({ 
+  t, 
+  title, 
+  message, 
+  type = 'info',
+  fullWidth = false 
+}) => {
   return (
     <div
       className={`${
         t.visible ? 'animate-enter' : 'animate-leave'
-      } max-w-md w-full bg-gray-600 shadow-lg rounded-lg pointer-events-auto flex flex-row-reverse ring-1 ring-black ring-opacity-5`}
+      } ${fullWidth ? 'w-full' : 'max-w-md w-full'} bg-gray-600 shadow-lg rounded-lg pointer-events-auto flex flex-row-reverse ring-1 ring-black ring-opacity-5`}
     >
       <div dir="rtl" className="flex-1 w-0 p-4">
         <div className="flex items-start">
