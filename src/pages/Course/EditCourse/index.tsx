@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import CourseDescriptionForm from './CourseDescriptionForm';
 import { useNavigate, useParams } from 'react-router';
+import ImageUploader from 'react-images-upload';
 import {
   Box,
   TextField,
@@ -37,7 +38,7 @@ import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useUpdateCourse, useCourse, useCourseCategories, useCreateOrUpdateSampleMedia, useCreateOrUpdateCourseObject } from '../../../API/Course/course.hook';
 import StyledPaper from '../../../components/StyledPaper';
-import { showToast } from '../../../utils/toast';
+import { showPromiseToast, showToast } from '../../../utils/toast';
 
 import {
   StyledTableContainer,
@@ -762,6 +763,11 @@ const EditCourse = () => {
   // State for Description
   const [shortDescription, setShortDescription] = useState<string>(courseData?.description || '');
   const [longDescription, setLongDescription] = useState<string>(courseData?.description_long || '');
+  
+  // state for thumbnail
+  const [tumbnailImage, setTumbnailImage] = useState<string | null>(null);
+  const [newTumbnailImageId, setNewTumbnailImageId] = useState<string | null>(null);
+
 
   const {
     register,
@@ -801,6 +807,11 @@ const EditCourse = () => {
       setSampleMedia(course.sample_media || []);
       setCourseObjects(course.course_objects || []);
 
+      // Set tumbnail image
+      if (course.tumbnail_image?.file_name) {
+        setTumbnailImage(`${process.env.REACT_APP_SERVER_FILE}/${course.tumbnail_image?.file_name}`);
+      }
+
       // details
       // setShortDescription(course.description || '');
       // setLongDescription(course.description_long || '');
@@ -831,6 +842,40 @@ const EditCourse = () => {
     }
   }, [createOrUpdateCourseObjectMutation.isSuccess, createOrUpdateCourseObjectMutation.isError]);
 
+  // Upload Thumbnail Image Handler 
+  const handleUploadThumbnailImage = async (file: File): Promise<void> => {
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    const uploadPromise = fetch(`${process.env.REACT_APP_SERVER_URL}/admin/setting/upload`, {
+      method: 'POST',
+      body: formData,
+    }).then(response => response.json());
+
+    try {
+      const data = await showPromiseToast(uploadPromise, {
+        loading: 'در حال آپلود تصویر...',
+        success: 'تصویر با موفقیت آپلود شد',
+        error: 'خطا در آپلود تصویر'
+      });
+
+      if (!data.uploadedFile) {
+        return;
+      }
+
+      if (!data?.uploadedFile?.file_name) {
+        return;
+      }
+
+      setTumbnailImage(`${process.env.REACT_APP_SERVER_FILE}/${data.uploadedFile.file_name}`);
+      setNewTumbnailImageId(data?.uploadedFile?._id);
+
+    } catch (error) {
+      showToast('خطا', 'خطا در آپلود تصویر', 'error');
+    }
+  }
+  
+  
   // Sample Media Handlers
   const handleDeleteSampleMedia = (id: string) => {
     createOrUpdateSampleMediaMutation.mutate({
@@ -1042,6 +1087,11 @@ const EditCourse = () => {
         ...(shortDescription && { description: shortDescription }),
         ...(longDescription && { description_long: longDescription }),
       };
+
+
+      if (newTumbnailImageId && /^[0-9a-fA-F]{24}$/.test(newTumbnailImageId) && newTumbnailImageId !== courseData?.tumbnail_image?._id) {
+        payload.tumbnail_image = newTumbnailImageId;
+      }
 
 
 
@@ -1318,6 +1368,31 @@ const EditCourse = () => {
 
           {/* Description Section */}
           <CourseDescriptionForm shortDescription={courseData?.description} longDescription={courseData?.description_long} setShortDescription={(data) => handleSaveDescription(data, 'short')} setLongDescription={(data) => handleSaveDescription(data, 'long')} />
+
+
+          {/* Thumbnail Image */}
+          <Grid size={12}>
+            <StyledPaper sx={{ p: 3 }}>
+            <Typography variant="h6" gutterBottom>
+              تصویر شاخص
+            </Typography>
+
+            <div className='mb-4'>
+              {tumbnailImage && (
+                <img src={tumbnailImage} alt="Tumbnail" className='w-full max-w-xl h-auto rounded-lg border' />
+              )}
+            </div>
+            <ImageUploader
+              withIcon={true}
+              buttonText="انتخاب تصویر شاخص"
+              onChange={(files) => handleUploadThumbnailImage(files[0])}
+              imgExtension={['.jpg', '.jpeg', '.png']}
+              maxFileSize={5242880}
+                singleImage={true}
+                withPreview={true}
+              />
+            </StyledPaper>
+          </Grid>
 
           {/* Submit Button */}
           <Grid size={12}>
