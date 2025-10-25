@@ -48,6 +48,7 @@ import {
   StyledTableRow,
   StyledTableCell,
 } from '../../../components/StyledTableContainer'
+import CourseCategorySelection from '@/components/CourseCategorySelection';
 
 const SERVER_URL = process.env.REACT_APP_SERVER_URL;
 const SERVER_FILE = process.env.REACT_APP_SERVER_FILE;
@@ -64,7 +65,7 @@ const schema = yup.object({
     .number()
     .optional()
     .nullable(),
-  course_category: yup.string().required('دسته‌بندی دوره الزامی است'),
+  // course_category: yup.string().required('دسته‌بندی دوره الزامی است'),
   course_language: yup.string(),
   course_duration: yup.number().required('مدت دوره الزامی است'),
   slug: yup.string(),
@@ -763,6 +764,10 @@ const EditCourse = () => {
   // State for Description
   const [shortDescription, setShortDescription] = useState<string>(courseData?.description || '');
   const [longDescription, setLongDescription] = useState<string>(courseData?.description_long || '');
+
+
+  // state for categories
+  const [categoriesState, setCategoriesState] = useState<string[]>([]);
   
   // state for thumbnail
   const [tumbnailImage, setTumbnailImage] = useState<string | null>(null);
@@ -795,7 +800,7 @@ const EditCourse = () => {
         sub_title: course.sub_title,
         price: course.price_real,
         price_with_discount: course.price_discount || 0,
-        course_category: course.course_category?._id,
+        // course_category: course.course_category?._id,
         course_language: course.course_language,
         course_duration: course.course_duration,
         is_have_licence: course.is_have_licence,
@@ -1067,6 +1072,11 @@ const EditCourse = () => {
     console.log({ descriptionType })
   }
 
+
+  const implementCategories = (data: [string] | any) => {
+    setCategoriesState(data);
+  }
+
   const onSubmit = async (data: FormData) => {
     try {
       // Prepare the final payload
@@ -1076,7 +1086,7 @@ const EditCourse = () => {
         price_real: data.price,
         price_discount: data.price_with_discount > 0 ? data.price_with_discount : null,
         is_fire_sale: data.price_with_discount ? true : false,
-        course_category: data.course_category,
+        // course_category: data.course_category,
         course_language: data.course_language,
         course_duration: data.course_duration,
         is_have_licence: data.is_have_licence,
@@ -1091,6 +1101,11 @@ const EditCourse = () => {
 
       if (newTumbnailImageId && /^[0-9a-fA-F]{24}$/.test(newTumbnailImageId) && newTumbnailImageId !== courseData?.tumbnail_image?._id) {
         payload.tumbnail_image = newTumbnailImageId;
+      }
+
+
+      if (categoriesState?.length > 0) {
+        payload.course_category = categoriesState;
       }
 
 
@@ -1147,7 +1162,7 @@ const EditCourse = () => {
                   />
                 </Grid>
 
-                <Grid size={{ xs: 12, md: 4 }}>
+                {/* <Grid size={{ xs: 12, md: 4 }}>
                   <TextField
                     {...register('course_category')}
                     select
@@ -1163,7 +1178,7 @@ const EditCourse = () => {
                       </MenuItem>
                     ))}
                   </TextField>
-                </Grid>
+                </Grid> */}
 
                 <Grid size={{ xs: 12, md: 4 }}>
                   <TextField
@@ -1230,6 +1245,18 @@ const EditCourse = () => {
                   />
                 </Grid>
               </Grid>
+            </StyledPaper>
+          </Grid>
+
+          <Grid size={12}>
+            <StyledPaper sx={{ p: 3 }}>
+              <Typography variant="h6" gutterBottom>
+                دسته بندی دوره
+              </Typography>
+              <CourseCategorySelection
+                passSelectedCategories={implementCategories}
+                defaultCategories={courseData?.course_category}
+              />
             </StyledPaper>
           </Grid>
 

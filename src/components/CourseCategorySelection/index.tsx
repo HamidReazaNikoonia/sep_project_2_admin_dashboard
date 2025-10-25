@@ -11,81 +11,6 @@ import {
 import { useCourseCategories } from '@/API/Course/course.hook'
 import { showToast } from '@/utils/toast'
 
-const mockData = [
-  {
-    parent: null,
-    level: 0,
-    isActive: true,
-    _id: '6843123e3740b87d2fac7f65',
-    name: 'هنری',
-    createdAt: '2025-06-06T16:07:26.661Z',
-    updatedAt: '2025-06-06T16:07:26.661Z',
-    __v: 0,
-    children: [
-      {
-        parent: '6843123e3740b87d2fac7f65',
-        level: 1,
-        isActive: true,
-        _id: '684312ca0bb8f9819ea0f89d',
-        name: 'هنرای',
-        createdAt: '2025-06-06T16:09:46.069Z',
-        updatedAt: '2025-06-06T16:09:46.069Z',
-        path: '6843123e3740b87d2fac7f65,684312ca0bb8f9819ea0f89d',
-        __v: 0,
-        children: [
-          {
-            parent: '684312ca0bb8f9819ea0f89d',
-            level: 2,
-            isActive: true,
-            _id: '684312ca0bb8f9819ea0f89e',
-            name: 'زیرشاخه هنری',
-            createdAt: '2025-06-06T16:09:46.069Z',
-            updatedAt: '2025-06-06T16:09:46.069Z',
-            path: '6843123e3740b87d2fac7f65,684312ca0bb8f9819ea0f89d,684312ca0bb8f9819ea0f89e',
-            __v: 0,
-            children: [],
-          },
-        ],
-      },
-      {
-        parent: '6843123e3740b87d2fac7f65',
-        level: 1,
-        isActive: true,
-        _id: '6843254d119f1d8b23c8212d',
-        name: 'طراحی',
-        createdAt: '2025-06-06T17:28:45.973Z',
-        updatedAt: '2025-06-06T17:28:45.973Z',
-        path: '6843123e3740b87d2fac7f65,6843254d119f1d8b23c8212d',
-        __v: 0,
-        children: [],
-      },
-    ],
-  },
-  {
-    parent: null,
-    level: 0,
-    isActive: true,
-    _id: '6843123e3740b87d2fac7f66',
-    name: 'تکنولوژی',
-    createdAt: '2025-06-06T16:07:26.661Z',
-    updatedAt: '2025-06-06T16:07:26.661Z',
-    __v: 0,
-    children: [
-      {
-        parent: '6843123e3740b87d2fac7f66',
-        level: 1,
-        isActive: true,
-        _id: '684312ca0bb8f9819ea0f89f',
-        name: 'برنامه نویسی',
-        createdAt: '2025-06-06T16:09:46.069Z',
-        updatedAt: '2025-06-06T16:09:46.069Z',
-        path: '6843123e3740b87d2fac7f66,684312ca0bb8f9819ea0f89f',
-        __v: 0,
-        children: [],
-      },
-    ],
-  },
-]
 
 // Mock hook - replace with your actual hook
 
@@ -100,6 +25,16 @@ interface Category {
   createdAt: string
   updatedAt: string
   __v: number
+}
+
+// Add this new interface for the server category structure
+interface ServerCategory {
+  id: string
+  name: string
+  level: number
+  isActive: boolean
+  path?: string
+  parent: ServerCategory | null
 }
 
 interface CategoryItemProps {
@@ -174,19 +109,78 @@ const CategoryItem: React.FC<CategoryItemProps> = ({
   )
 }
 
-const CourseCategorySelection: React.FC = ({ passSelectedCategories }) => {
+// Add this new interface for component props
+interface CourseCategorySelectionProps {
+  passSelectedCategories: (categories: string[]) => void
+  defaultCategories?: ServerCategory[] | null
+}
+
+// Helper function to extract all category IDs from a single hierarchical category
+const extractCategoryIds = (category: ServerCategory | null): string[] => {
+  if (!category) return []
+  
+  const ids: string[] = []
+  let current: ServerCategory | null = category
+  
+  // Traverse from the deepest category to the root
+  while (current) {
+    ids.unshift(current.id) // Add to the beginning to maintain order
+    current = current.parent
+  }
+  
+  return ids
+}
+
+// Helper using the path string (more efficient)
+const extractCategoryIdsFromPath = (category: ServerCategory | null): string[] => {
+  if (!category) return []
+  
+  // If path exists, split it and add the current category ID
+  if (category.path) {
+    const pathIds = category.path.split(',').filter(id => id.trim())
+    return [...pathIds, category.id]
+  }
+  
+  // Fallback to traversing parent hierarchy
+  return extractCategoryIds(category)
+}
+
+// Extract all category IDs from an array of categories
+const extractAllCategoryIds = (categories: ServerCategory[] | null): string[] => {
+  if (!categories || categories.length === 0) return []
+  
+  const allIds = new Set<string>()
+  
+  categories.forEach(category => {
+    const categoryIds = extractCategoryIdsFromPath(category)
+    categoryIds.forEach(id => allIds.add(id))
+  })
+  
+  return Array.from(allIds)
+}
+
+const CourseCategorySelection: React.FC<CourseCategorySelectionProps> = ({ 
+  passSelectedCategories,
+  defaultCategories = null 
+}) => {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([])
-  // This is a mock implementation - replace with your actual hook
   const [categoriesData, setCategoriesData] = useState(null)
 
   const { data, isLoading, isSuccess, isError } = useCourseCategories()
 
   useEffect(() => {
-    // Mock API call
     if (data && isSuccess) {
       setCategoriesData(data)
     }
   }, [data, isSuccess])
+
+  // Initialize selected categories with default values from array
+  useEffect(() => {
+    if (defaultCategories && defaultCategories.length > 0) {
+      const categoryIds = extractAllCategoryIds(defaultCategories)
+      setSelectedCategories(categoryIds)
+    }
+  }, [defaultCategories])
 
   const handleCategoryToggle = (categoryId: string) => {
     setSelectedCategories((prev) => {
