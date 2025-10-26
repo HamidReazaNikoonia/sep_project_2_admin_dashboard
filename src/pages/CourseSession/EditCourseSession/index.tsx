@@ -144,6 +144,7 @@ const EditCourseSession: React.FC = () => {
 
         // Set categories
         if (_courseSessionData.course_session_category) {
+          console.log({ _courseSessionData: _courseSessionData.course_session_category })
           setCategories(_courseSessionData.course_session_category)
         }
 
@@ -228,7 +229,8 @@ const EditCourseSession: React.FC = () => {
     }
   }
 
-  const implementCategories = (data: any[]) => {
+  const implementCategories = (data: [string] | any) => {
+    console.log({ data })
     setCategories(data)
   }
 
@@ -424,6 +426,11 @@ const EditCourseSession: React.FC = () => {
 
       courseSessionRequestBody.sample_media = sampleMediaWithFiles
 
+
+      if (categories.length > 0) {
+        courseSessionRequestBody.course_session_category = categories
+      }
+
       await updateCourseSessionMutation.mutateAsync(courseSessionRequestBody)
       showToast('موفق', 'جلسه با موفقیت بروزرسانی شد', 'success')
       navigate('/courses-sessions')
@@ -523,7 +530,7 @@ const EditCourseSession: React.FC = () => {
                 <img
                   src={thumbnailImageUrl}
                   alt="thumbnail"
-                  className='border-4 border-gray-200 rounded-lg shadow-2xl'
+                  className='border-4 max-w-xl border-gray-200 rounded-lg shadow-2xl'
                  
                 />
               </div>
@@ -549,10 +556,13 @@ const EditCourseSession: React.FC = () => {
             <StyledPaper sx={{ p: 3 }}>
               <div className="w-full flex flex-col">
                 <div className="w-full">
-                  <CategorySelection
+                  {courseSession?.results?.[0] && (
+                    <CategorySelection
                     passSelectedCategories={implementCategories}
-                    initialCategories={categories}
+                    defaultCategories={courseSession?.results?.[0]?.course_session_category}
                   />
+                  )}
+                  
                 </div>
               </div>
             </StyledPaper>

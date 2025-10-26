@@ -20,6 +20,10 @@ const CategoryTreeChips: React.FC<CategoryTreeChipsProps> = ({
   categories, 
   className = '' 
 }) => {
+
+
+
+  
   if (!categories || categories.length === 0) {
     return (
       <div className={`text-gray-500 text-sm ${className}`}>

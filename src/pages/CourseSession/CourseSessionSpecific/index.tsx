@@ -8,6 +8,9 @@ import {
   Button,
   Avatar,
 } from '@mui/material'
+
+import { RichTextReadOnly } from 'mui-tiptap'
+import he from 'he';
 import { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router'
 // import { useCourse, useUpdateCourse } from '../../../API/Course/course.hook';
@@ -19,12 +22,17 @@ import {
   useUpdateCourseSession,
 } from '@/API/CourseSession/courseSession.hook'
 import ScheduleCoachTimeView from '@/components/ScheduleCoachTimeView'
+import CategoryTreeChips from '@/components/CategoryTreeChips'
+import useExtensions from '@/components/TextEditor/useExtensions'
 const label = { inputProps: { 'aria-label': 'Switch Course Status' } }
 
 const SERVER_URL = process.env.REACT_APP_SERVER_URL
 const SERVER_FILE = process.env.REACT_APP_SERVER_FILE
 
 const CourseSessionSpecific = () => {
+  const extensions = useExtensions({
+    placeholder: 'Add your own content here...',
+  })
   const [checked, setChecked] = useState(false)
   const { course_id } = useParams()
   const { data, isLoading, isError, error } = useCourseSession(course_id!)
@@ -106,25 +114,25 @@ const CourseSessionSpecific = () => {
           </Link> */}
 
           <div className='flex gap-2'>
-          <Link to={`/courses-sessions/${course_id}/assign-coach/`}>
-            <Button
-              endIcon={<AddCircleOutline />}
-              variant="contained"
-              color="info"
-            >
-              افزودن کلاس&nbsp;&nbsp;
-            </Button>
-          </Link>
+            <Link to={`/courses-sessions/${course_id}/assign-coach/`}>
+              <Button
+                endIcon={<AddCircleOutline />}
+                variant="contained"
+                color="info"
+              >
+                افزودن کلاس&nbsp;&nbsp;
+              </Button>
+            </Link>
 
-          <Link to={`/courses-sessions/${course_id}/edit`}>
-          <Button
-              endIcon={<EditIcon />}
-              variant="contained"
-              color="warning"
-            >
-              ویرایش دوره&nbsp;&nbsp;
-            </Button>
-          </Link>
+            <Link to={`/courses-sessions/${course_id}/edit`}>
+              <Button
+                endIcon={<EditIcon />}
+                variant="contained"
+                color="warning"
+              >
+                ویرایش دوره&nbsp;&nbsp;
+              </Button>
+            </Link>
           </div>
         </div>
       </div>
@@ -168,7 +176,7 @@ const CourseSessionSpecific = () => {
                 </Box>
               </Grid> */}
 
-              <Grid size={6}>
+              {/* <Grid size={6}>
                 <Box sx={{ maxWidth: '100px' }}>
                   <Typography
                     sx={{ paddingBottom: '8px' }}
@@ -186,7 +194,7 @@ const CourseSessionSpecific = () => {
                       </div>
                     ))}
                 </Box>
-              </Grid>
+              </Grid> */}
 
               {/* <Grid size={6}>
                 <Box>
@@ -201,23 +209,23 @@ const CourseSessionSpecific = () => {
                 </Box>
               </Grid> */}
 
-              <Grid size={3}>
+              {/* <Grid size={3}>
                 <Box>
                   <Typography variant="subtitle2" color="textSecondary">
                     زبان دوره
                   </Typography>
                   <Typography>{course.course_language || '-'}</Typography>
                 </Box>
-              </Grid>
+              </Grid> */}
 
-              <Grid size={3}>
+              {/* <Grid size={3}>
                 <Box>
                   <Typography variant="subtitle2" color="textSecondary">
                     زمان دوره
                   </Typography>
                   <Typography>{course.course_duration || '-'}</Typography>
                 </Box>
-              </Grid>
+              </Grid> */}
             </Grid>
           </StyledPaper>
         </Grid>
@@ -310,6 +318,16 @@ const CourseSessionSpecific = () => {
           </StyledPaper>
         </Grid>
 
+        {/* Category */}
+        <Grid size={12}>
+          <StyledPaper sx={{ p: 3 }}>
+            <Typography variant="h6" gutterBottom>
+              دسته‌بندی
+            </Typography>
+            <CategoryTreeChips categories={course?.course_session_category || []} />
+          </StyledPaper>
+        </Grid>
+
         {/* Description */}
         <Grid size={12}>
           <StyledPaper sx={{ p: { xs: 0, md: 4 } }}>
@@ -336,17 +354,22 @@ const CourseSessionSpecific = () => {
               توضیحات کامل
             </Typography>
 
-            <div
-              className="w-full px-2 md:px-4 py-4 flex flex-wrap leading-8"
-              style={{
-                wordBreak: 'break-word',
-                overflowWrap: 'break-word',
-              }}
-            >
+            {course?.description_long && (
               <div
-                dangerouslySetInnerHTML={{ __html: course.description_long }}
-              />
-            </div>
+                className="w-full px-2 md:px-4 py-4 flex flex-wrap leading-8"
+
+              >
+
+                <div className="w-full border-3 border-gray-300 border-dashed px-4 py-6 ">
+                  <RichTextReadOnly
+                    content={he.decode(course?.description_long || '')}
+                    extensions={extensions}
+                  />
+                </div>
+              </div>
+            )}
+
+
           </StyledPaper>
         </Grid>
 

@@ -1248,6 +1248,7 @@ const EditCourse = () => {
             </StyledPaper>
           </Grid>
 
+          {/* Category */}
           <Grid size={12}>
             <StyledPaper sx={{ p: 3 }}>
               <Typography variant="h6" gutterBottom>
