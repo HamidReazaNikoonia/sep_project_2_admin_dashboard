@@ -60,6 +60,13 @@ const OrderList = () => {
   const [customerId, setCustomerId] = useState('');
   const [customer, setCustomer] = useState('');
 
+  // Add these new boolean filter states
+  const [haveProduct, setHaveProduct] = useState(false);
+  const [haveCourse, setHaveCourse] = useState(false);
+  const [haveCoupon, setHaveCoupon] = useState(false);
+  const [haveDiscount, setHaveDiscount] = useState(false);
+  const [haveShipping, setHaveShipping] = useState(false);
+
   // Debounced text inputs
   const debouncedTransactionId = useDebounce(transactionId, 500);
   const debouncedOrderId = useDebounce(orderId, 500);
@@ -100,6 +107,13 @@ const OrderList = () => {
     if (debouncedCustomerId) params.customer_id = debouncedCustomerId;
     if (debouncedCustomer) params.customer = debouncedCustomer;
 
+    // Add boolean filters
+    if (haveProduct) params.have_product = true;
+    if (haveCourse) params.have_course = true;
+    if (haveCoupon) params.have_coupon = true;
+    if (haveDiscount) params.have_discount = true;
+    if (haveShipping) params.have_shipping = true;
+
     // Add created date range
     if (createdDateRange.created_from_date) {
       params.created_from_date = createdDateRange.created_from_date.format('YYYY-MM-DD');
@@ -127,6 +141,11 @@ const OrderList = () => {
     debouncedReference,
     debouncedCustomerId,
     debouncedCustomer,
+    haveProduct,
+    haveCourse,
+    haveCoupon,
+    haveDiscount,
+    haveShipping,
     createdDateRange,
     updatedDateRange,
   ]);
@@ -207,6 +226,11 @@ const OrderList = () => {
     setReference('');
     setCustomerId('');
     setCustomer('');
+    setHaveProduct(false);
+    setHaveCourse(false);
+    setHaveCoupon(false);
+    setHaveDiscount(false);
+    setHaveShipping(false);
     resetCreatedDateRange();
     resetUpdatedDateRange();
     setPage(1);
@@ -506,6 +530,77 @@ const OrderList = () => {
                 onChange={(e) => handleFilterChange(setCustomer)(e.target.value)}
                 placeholder="جستجو بر اساس نام مشتری"
               />
+            </div>
+
+            {/* Boolean Filters Box - All Checkboxes in One Container */}
+            <div className="mt-6 p-4 bg-white border border-gray-300 rounded-md">
+              <h4 className="text-sm font-medium text-gray-700 mb-3">فیلترهای اضافی</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="have_product"
+                    checked={haveProduct}
+                    onChange={(e) => handleFilterChange(setHaveProduct)(e.target.checked)}
+                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded ml-2"
+                  />
+                  <label htmlFor="have_product" className="text-sm text-gray-700 cursor-pointer">
+                    سفارش های داری محصول فیزیکی
+                  </label>
+                </div>
+
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="have_course"
+                    checked={haveCourse}
+                    onChange={(e) => handleFilterChange(setHaveCourse)(e.target.checked)}
+                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded ml-2"
+                  />
+                  <label htmlFor="have_course" className="text-sm text-gray-700 cursor-pointer">
+                    سفارش های داری دوره
+                  </label>
+                </div>
+
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="have_coupon"
+                    checked={haveCoupon}
+                    onChange={(e) => handleFilterChange(setHaveCoupon)(e.target.checked)}
+                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded ml-2"
+                  />
+                  <label htmlFor="have_coupon" className="text-sm text-gray-700 cursor-pointer">
+                    دارای کوپن
+                  </label>
+                </div>
+
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="have_discount"
+                    checked={haveDiscount}
+                    onChange={(e) => handleFilterChange(setHaveDiscount)(e.target.checked)}
+                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded ml-2"
+                  />
+                  <label htmlFor="have_discount" className="text-sm text-gray-700 cursor-pointer">
+                    دارای تخفیف
+                  </label>
+                </div>
+
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="have_shipping"
+                    checked={haveShipping}
+                    onChange={(e) => handleFilterChange(setHaveShipping)(e.target.checked)}
+                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded ml-2"
+                  />
+                  <label htmlFor="have_shipping" className="text-sm text-gray-700 cursor-pointer">
+                    مرسوله پستی
+                  </label>
+                </div>
+              </div>
             </div>
           </AccordionDetails>
         </Accordion>
