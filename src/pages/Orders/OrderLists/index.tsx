@@ -1,19 +1,19 @@
-import { useState, useCallback } from 'react';
-import { Box, Chip, Typography } from '@mui/material';
-import { Visibility as VisibilityIcon } from '@mui/icons-material';
+// @ts-nocheck
+import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router';
-import {
-  GridColDef,
-  GridFilterModel,
-  GridPaginationModel,
-  GridSortModel,
-  GridToolbar,
-} from '@mui/x-data-grid';
+import { useDebounce } from '../../../hooks/useDebounce';
+import Accordion from '@mui/material/Accordion';
+import AccordionSummary from '@mui/material/AccordionSummary';
+import AccordionDetails from '@mui/material/AccordionDetails';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import { MenuItem, Select, FormControl, InputLabel, TextField } from '@mui/material';
+import DatePicker from 'react-datepicker2';
 import { useOrders } from '../../../API/Order/order.hook';
+import { Visibility as VisibilityIcon } from '@mui/icons-material';
 import { formatDate } from '../../../utils/date';
 import { formatPrice } from '../../../utils/price';
+import { Chip } from '@mui/material';
 import { OrderStatus, PaymentStatus } from '../../../API/Order/types';
-import StyledDataGrid from './StyledGridComponent';
 
 const statusColors: Record<OrderStatus, 'default' | 'primary' | 'secondary' | 'success' | 'error' | 'warning'> = {
   waiting: 'warning',
@@ -30,153 +30,674 @@ const paymentStatusColors: Record<PaymentStatus, 'success' | 'error'> = {
   unpaid: 'error',
 };
 
+// Status translations
+const orderStatusTranslations = {
+  waiting: 'در انتظار',
+  confirmed: 'تایید شده',
+  shipped: 'ارسال شده',
+  delivered: 'تحویل داده شده',
+  cancelled: 'لغو شده',
+  returned: 'مرجوع شده',
+  finish: 'تکمیل شده',
+};
+
+const paymentStatusTranslations = {
+  paid: 'پرداخت شده',
+  unpaid: 'پرداخت نشده',
+};
+
 const OrderList = () => {
-  const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({
-    page: 0,
-    pageSize: 10,
+  // State for pagination
+  const [page, setPage] = useState(1);
+  const [limit] = useState(10);
+
+  // State for filters
+  const [orderStatus, setOrderStatus] = useState('');
+  const [paymentStatus, setPaymentStatus] = useState('');
+  const [transactionId, setTransactionId] = useState('');
+  const [orderId, setOrderId] = useState('');
+  const [reference, setReference] = useState('');
+  const [customerId, setCustomerId] = useState('');
+  const [customer, setCustomer] = useState('');
+
+  // Debounced text inputs
+  const debouncedTransactionId = useDebounce(transactionId, 500);
+  const debouncedOrderId = useDebounce(orderId, 500);
+  const debouncedReference = useDebounce(reference, 500);
+  const debouncedCustomerId = useDebounce(customerId, 500);
+  const debouncedCustomer = useDebounce(customer, 500);
+
+  // State for accordions
+  const [expandedFilters, setExpandedFilters] = useState(false);
+  const [expandedCreatedDate, setExpandedCreatedDate] = useState(false);
+  const [expandedUpdatedDate, setExpandedUpdatedDate] = useState(false);
+
+  // State for date ranges
+  const [createdDateRange, setCreatedDateRange] = useState({
+    created_from_date: null,
+    created_to_date: null,
   });
-  const [filterModel, setFilterModel] = useState<GridFilterModel>({
-    items: [],
-  });
-  const [sortModel, setSortModel] = useState<GridSortModel>([]);
-  const [quickFilterValue, setQuickFilterValue] = useState('');
 
-  const { data, isLoading } = useOrders({
-    page: paginationModel.page + 1,
-    limit: paginationModel.pageSize,
-    ...(quickFilterValue && { q: quickFilterValue }),
-    ...(sortModel.length > 0 && {
-      sortBy: `${sortModel[0].field}:${sortModel[0].sort}`,
-    }),
+  const [updatedDateRange, setUpdatedDateRange] = useState({
+    updated_from_date: null,
+    updated_to_date: null,
   });
 
-  const columns: GridColDef[] = [
-    {
-      field: 'reference',
-      headerName: 'شماره سفارش',
-      width: 150,
-    },
-    {
-      field: 'customer',
-      headerName: 'مشتری',
-      width: 200,
-      renderCell: (params) => (
-        <span>
-          {`${params.row.customer.first_name} ${params.row.customer.last_name}`}
-        </span>
-      ),
-    },
-    {
-      field: 'productCount',
-      headerName: 'تعداد محصولات',
-      width: 130,
-      renderCell: (params) => params.row.products.length,
-    },
-    {
-      field: 'totalAmount',
-      headerName: 'مبلغ کل',
-      width: 150,
-      renderCell: (params) => (
-        <div className="font-bold">
-          {formatPrice(params.value)}
-        </div>
-      ),
-    },
-    {
-      field: 'status',
-      headerName: 'وضعیت سفارش',
-      width: 130,
-      renderCell: (params) => (
-        <Chip
-          label={params.value}
-          color={statusColors[params.value as OrderStatus]}
-          size="small"
-        />
-      ),
-    },
-    {
-      field: 'paymentStatus',
-      headerName: 'وضعیت پرداخت',
-      width: 130,
-      renderCell: (params) => (
-        <Chip
-          label={params.value}
-          color={paymentStatusColors[params.value as PaymentStatus]}
-          size="small"
-        />
-      ),
-    },
-    {
-      field: 'createdAt',
-      headerName: 'تاریخ ثبت',
-      width: 150,
-      renderCell: (params) => formatDate(params.value),
-    },
-    {
-      field: 'actions',
-      headerName: 'عملیات',
-      width: 100,
-      renderCell: (params) => (
-        <Link to={`/orders/${params.row._id}`}>
-          <VisibilityIcon color="primary" />
-        </Link>
-      ),
-    },
-  ];
+  // Build query parameters for the hook
+  const queryParams = useMemo(() => {
+    const params: any = {
+      page,
+      limit,
+      sortBy: 'createdAt:desc',
+    };
 
-  const handlePaginationModelChange = useCallback((newModel: GridPaginationModel) => {
-    setPaginationModel(newModel);
-  }, []);
+    // Add filters
+    if (orderStatus) params.order_status = orderStatus;
+    if (paymentStatus) params.payment_status = paymentStatus;
+    if (debouncedTransactionId) params.transaction_id = debouncedTransactionId;
+    if (debouncedOrderId) params.order_id = debouncedOrderId;
+    if (debouncedReference) params.reference = debouncedReference;
+    if (debouncedCustomerId) params.customer_id = debouncedCustomerId;
+    if (debouncedCustomer) params.customer = debouncedCustomer;
 
-  const handleFilterModelChange = useCallback((newModel: GridFilterModel) => {
-    setFilterModel(newModel);
-  }, []);
+    // Add created date range
+    if (createdDateRange.created_from_date) {
+      params.created_from_date = createdDateRange.created_from_date.format('YYYY-MM-DD');
+    }
+    if (createdDateRange.created_to_date) {
+      params.created_to_date = createdDateRange.created_to_date.format('YYYY-MM-DD');
+    }
 
-  const handleSortModelChange = useCallback((newModel: GridSortModel) => {
-    setSortModel(newModel);
-  }, []);
+    // Add updated date range
+    if (updatedDateRange.updated_from_date) {
+      params.updated_from_date = updatedDateRange.updated_from_date.format('YYYY-MM-DD');
+    }
+    if (updatedDateRange.updated_to_date) {
+      params.updated_to_date = updatedDateRange.updated_to_date.format('YYYY-MM-DD');
+    }
 
-  const handleQuickFilterChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setQuickFilterValue(event.target.value);
+    return params;
+  }, [
+    page,
+    limit,
+    orderStatus,
+    paymentStatus,
+    debouncedTransactionId,
+    debouncedOrderId,
+    debouncedReference,
+    debouncedCustomerId,
+    debouncedCustomer,
+    createdDateRange,
+    updatedDateRange,
+  ]);
+
+  // Use the useOrders hook
+  const { data: queryData, isLoading, error } = useOrders(queryParams);
+
+
+  console.log({queryData})
+
+  // Extract data from query result
+  const data = queryData
+    ? {
+        results: queryData.results || [],
+        page,
+        limit,
+        totalPages: queryData.totalPages || 0,
+        totalResults: queryData.totalResults || 0,
+      }
+    : {
+        results: [],
+        page: 1,
+        limit: 10,
+        totalPages: 0,
+        totalResults: 0,
+      };
+
+  // Accordion handlers
+  const handleFiltersAccordionChange = () => {
+    setExpandedFilters(!expandedFilters);
   };
 
+  const handleCreatedDateAccordionChange = () => {
+    setExpandedCreatedDate(!expandedCreatedDate);
+  };
 
-  const ordersData = data?.data?.orders || [];
+  const handleUpdatedDateAccordionChange = () => {
+    setExpandedUpdatedDate(!expandedUpdatedDate);
+  };
+
+  // Date change handlers
+  const handleCreatedDateChange = (name: string) => (date: any) => {
+    setCreatedDateRange({
+      ...createdDateRange,
+      [name]: date,
+    });
+    setPage(1);
+  };
+
+  const handleUpdatedDateChange = (name: string) => (date: any) => {
+    setUpdatedDateRange({
+      ...updatedDateRange,
+      [name]: date,
+    });
+    setPage(1);
+  };
+
+  // Reset handlers
+  const resetCreatedDateRange = () => {
+    setCreatedDateRange({
+      created_from_date: null,
+      created_to_date: null,
+    });
+  };
+
+  const resetUpdatedDateRange = () => {
+    setUpdatedDateRange({
+      updated_from_date: null,
+      updated_to_date: null,
+    });
+  };
+
+  const resetAllFilters = () => {
+    setOrderStatus('');
+    setPaymentStatus('');
+    setTransactionId('');
+    setOrderId('');
+    setReference('');
+    setCustomerId('');
+    setCustomer('');
+    resetCreatedDateRange();
+    resetUpdatedDateRange();
+    setPage(1);
+  };
+
+  // Page change handler
+  const handlePageChange = (newPage: number) => {
+    setPage(newPage);
+  };
+
+  // Handle filter changes with page reset
+  const handleFilterChange = (setter: Function) => (value: any) => {
+    setter(value);
+    setPage(1);
+  };
+
+  // Render single order item
+  const renderOrderItem = (order: any) => {
+    // Helper function to check what types of items are in the order
+    const getOrderItemTypes = () => {
+      const itemTypes = {
+        have_product_on_order: false,
+        have_course_on_order: false,
+      };
+
+      order.products?.forEach((item: any) => {
+        if (item.product) {
+          itemTypes.have_product_on_order = true;
+        }
+        if (item.course) {
+          itemTypes.have_course_on_order = true;
+        }
+      });
+
+      return itemTypes;
+    };
+
+    const itemTypes = getOrderItemTypes();
+
+    return (
+      <div
+        key={order._id}
+        className="border border-gray-500 rounded-lg p-4 mb-4 hover:shadow-md transition-shadow"
+      >
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" dir="rtl">
+          {/* Order Reference */}
+          <div>
+            <span className="text-sm text-gray-500">شماره سفارش:</span>
+            <p className="font-semibold">{order.reference}</p>
+          </div>
+
+          {/* Customer Information */}
+          <div>
+            <span className="text-sm text-gray-500">مشتری:</span>
+            <p className="font-semibold">
+              {order.customer?.first_name} {order.customer?.last_name}
+            </p>
+            {order.customer?.mobile && (
+              <p className="text-sm text-gray-600 mt-1">{order.customer.mobile}</p>
+            )}
+            {order.customer?.student_id && (
+              <p className="text-sm text-gray-600">شماره دانشجویی: {order.customer.student_id}</p>
+            )}
+          </div>
+
+          {/* Order Item Types */}
+          <div>
+            <span className="text-sm text-gray-500">سفارش شامل:</span>
+            <div className="flex gap-2 mt-1 flex-wrap">
+              {itemTypes.have_product_on_order && (
+                <Chip label="محصول فیزیکی" color="primary" size="small" variant="outlined" />
+              )}
+              {itemTypes.have_course_on_order && (
+                <Chip label="دوره" color="secondary" size="small" variant="outlined" />
+              )}
+            </div>
+          </div>
+
+          {/* Order Status */}
+          <div>
+            <span className="text-sm text-gray-500">وضعیت سفارش:</span>
+            <div className="flex gap-2 mt-1 flex-wrap">
+              <Chip
+                label={orderStatusTranslations[order.status as OrderStatus] || order.status}
+                color={statusColors[order.status as OrderStatus]}
+                size="small"
+              />
+              {order.returned && (
+                <Chip label="سفارش بازگشت داده شده" color="error" size="small" />
+              )}
+            </div>
+          </div>
+
+          {/* Payment Status */}
+          <div>
+            <span className="text-sm text-gray-500">وضعیت پرداخت:</span>
+            <div className="mt-1">
+              <Chip
+                label={paymentStatusTranslations[order.paymentStatus as PaymentStatus] || order.paymentStatus}
+                color={paymentStatusColors[order.paymentStatus as PaymentStatus]}
+                size="small"
+              />
+            </div>
+          </div>
+
+          {/* Shipping Address */}
+          {order.shippingAddress && (
+            <div>
+              <span className="text-sm text-gray-500">نوع ارسال:</span>
+              <div className="mt-1">
+                <Chip label="ارسال پستی" color="info" size="small" variant="outlined" />
+              </div>
+            </div>
+          )}
+
+          {/* Price Information */}
+          <div className="lg:col-span-3">
+            <span className="text-sm text-gray-500 block mb-2">اطلاعات مالی:</span>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 bg-gray-50 p-3 rounded">
+              <div>
+                <span className="text-xs text-gray-500">مبلغ کل:</span>
+                <p className="font-bold text-blue-600">{formatPrice(order.totalAmount)}</p>
+              </div>
+              
+              {order.final_order_price !== undefined && (
+                <div>
+                  <span className="text-xs text-gray-500">مبلغ نهایی:</span>
+                  <p className="font-bold text-green-600">{formatPrice(order.final_order_price)}</p>
+                </div>
+              )}
+
+              {order.total_discount_price !== undefined && order.total_discount_price > 0 && (
+                <div>
+                  <span className="text-xs text-gray-500">تخفیف:</span>
+                  <p className="font-bold text-red-600">{formatPrice(order.total_discount_price)}</p>
+                </div>
+              )}
+
+              {order.taxes !== undefined && order.taxes > 0 && (
+                <div>
+                  <span className="text-xs text-gray-500">مالیات:</span>
+                  <p className="font-semibold">{formatPrice(order.taxes)}</p>
+                  {order.taxRate && (
+                    <p className="text-xs text-gray-500">نرخ: {order.taxRate}%</p>
+                  )}
+                </div>
+              )}
+
+              {order.appliedCoupons && order.appliedCoupons.length > 0 && (
+                <div className="flex items-center">
+                  <Chip label="دارای کوپن" color="warning" size="small" icon={<span>🎟️</span>} />
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Dates */}
+          <div>
+            <span className="text-sm text-gray-500">تاریخ ثبت:</span>
+            <p className="text-sm">{formatDate(order.createdAt)}</p>
+          </div>
+
+          <div>
+            <span className="text-sm text-gray-500">تاریخ آخرین تغییر:</span>
+            <p className="text-sm">{formatDate(order.updatedAt)}</p>
+          </div>
+
+          {/* Transaction ID */}
+          {order.transactionId && (
+            <div>
+              <span className="text-sm text-gray-500">شناسه تراکنش:</span>
+              <p className="font-mono text-sm">{order.transactionId}</p>
+            </div>
+          )}
+
+          {/* View Details Button */}
+          <div className="flex items-end lg:col-span-3">
+            <Link
+              to={`/orders/${order._id}`}
+              className="inline-flex items-center px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
+            >
+              <VisibilityIcon className="ml-2" fontSize="small" />
+              مشاهده جزئیات
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   return (
-    <Box sx={{ width: '100%', p: 3 }}>
-      <Box display="flex" justifyContent="flex-end" alignItems="center" mb={3}>
-        <Typography variant="h4">لیست سفارش‌ها</Typography>
-      </Box>
+    <div className="list-container flex flex-col gap-4">
+      {/* Header and Filters Section */}
+      <div dir="rtl" className="list-header bg-white pb-12 pt-4 px-4 md:px-8 rounded-lg shadow">
+        <div className="flex justify-between items-center mb-8 pt-4">
+          <h2 className="text-xl font-semibold">لیست سفارشات</h2>
+          <button
+            onClick={resetAllFilters}
+            className="text-sm px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors"
+          >
+            پاک کردن همه فیلترها
+          </button>
+        </div>
 
-      <StyledDataGrid
-        rows={ordersData || []}
-        columns={columns}
-        rowCount={data?.data?.count || 0}
-        loading={isLoading}
-        pageSizeOptions={[10, 25, 50]}
-        paginationMode="server"
-        filterMode="server"
-        paginationModel={paginationModel}
-        onPaginationModelChange={handlePaginationModelChange}
-        filterModel={filterModel}
-        sortModel={sortModel}
-        onFilterModelChange={handleFilterModelChange}
-        onSortModelChange={handleSortModelChange}
-        getRowId={(row) => row._id}
-        slots={{ toolbar: GridToolbar }}
-        disableRowSelectionOnClick
-        slotProps={{
-          toolbar: {
-            showQuickFilter: true,
-            quickFilterProps: {
-              value: quickFilterValue,
-              onChange: handleQuickFilterChange,
-            },
-          },
-        }}
-      />
-    </Box>
+        {/* Main Filters Accordion */}
+        <Accordion
+          sx={{ backgroundColor: '#f0f0f0', boxShadow: '0px 10px 15px -3px rgba(0,0,0,0.1)', mb: 2 }}
+          expanded={expandedFilters}
+          onChange={handleFiltersAccordionChange}
+        >
+          <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="filters-content" id="filters-header">
+            <h3 className="text-sm md:text-base font-medium text-gray-700">فیلترها</h3>
+          </AccordionSummary>
+          <AccordionDetails>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {/* Order Status Filter */}
+              <FormControl fullWidth size="small">
+                <InputLabel id="order-status-label">وضعیت سفارش</InputLabel>
+                <Select
+                  labelId="order-status-label"
+                  value={orderStatus}
+                  label="وضعیت سفارش"
+                  onChange={(e) => handleFilterChange(setOrderStatus)(e.target.value)}
+                >
+                  <MenuItem value="">همه</MenuItem>
+                  <MenuItem value="waiting">{orderStatusTranslations.waiting}</MenuItem>
+                  <MenuItem value="confirmed">{orderStatusTranslations.confirmed}</MenuItem>
+                  <MenuItem value="shipped">{orderStatusTranslations.shipped}</MenuItem>
+                  <MenuItem value="delivered">{orderStatusTranslations.delivered}</MenuItem>
+                  <MenuItem value="cancelled">{orderStatusTranslations.cancelled}</MenuItem>
+                  <MenuItem value="returned">{orderStatusTranslations.returned}</MenuItem>
+                  <MenuItem value="finish">{orderStatusTranslations.finish}</MenuItem>
+                </Select>
+              </FormControl>
+
+              {/* Payment Status Filter */}
+              <FormControl fullWidth size="small">
+                <InputLabel id="payment-status-label">وضعیت پرداخت</InputLabel>
+                <Select
+                  labelId="payment-status-label"
+                  value={paymentStatus}
+                  label="وضعیت پرداخت"
+                  onChange={(e) => handleFilterChange(setPaymentStatus)(e.target.value)}
+                >
+                  <MenuItem value="">همه</MenuItem>
+                  <MenuItem value="paid">{paymentStatusTranslations.paid}</MenuItem>
+                  <MenuItem value="unpaid">{paymentStatusTranslations.unpaid}</MenuItem>
+                </Select>
+              </FormControl>
+
+              {/* Transaction ID Filter */}
+              <TextField
+                label="شناسه تراکنش"
+                size="small"
+                fullWidth
+                value={transactionId}
+                onChange={(e) => handleFilterChange(setTransactionId)(e.target.value)}
+                placeholder="جستجو بر اساس شناسه تراکنش"
+              />
+
+              {/* Order ID Filter */}
+              <TextField
+                label="شناسه سفارش"
+                size="small"
+                fullWidth
+                value={orderId}
+                onChange={(e) => handleFilterChange(setOrderId)(e.target.value)}
+                placeholder="جستجو بر اساس شناسه سفارش"
+              />
+
+              {/* Reference Filter */}
+              <TextField
+                label="شماره سفارش"
+                size="small"
+                fullWidth
+                value={reference}
+                onChange={(e) => handleFilterChange(setReference)(e.target.value)}
+                placeholder="جستجو بر اساس شماره سفارش"
+              />
+
+              {/* Customer ID Filter */}
+              <TextField
+                label="شناسه مشتری"
+                size="small"
+                fullWidth
+                value={customerId}
+                onChange={(e) => handleFilterChange(setCustomerId)(e.target.value)}
+                placeholder="جستجو بر اساس شناسه مشتری"
+              />
+
+              {/* Customer Name Filter */}
+              <TextField
+                label="نام مشتری"
+                size="small"
+                fullWidth
+                value={customer}
+                onChange={(e) => handleFilterChange(setCustomer)(e.target.value)}
+                placeholder="جستجو بر اساس نام مشتری"
+              />
+            </div>
+          </AccordionDetails>
+        </Accordion>
+
+        {/* Created Date Range Accordion */}
+        <Accordion
+          sx={{ backgroundColor: '#f0f0f0', boxShadow: '0px 10px 15px -3px rgba(0,0,0,0.1)', mb: 2 }}
+          expanded={expandedCreatedDate}
+          onChange={handleCreatedDateAccordionChange}
+        >
+          <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="created-date-content" id="created-date-header">
+            <h3 className="text-sm md:text-base font-medium text-gray-700">بر اساس تاریخ ایجاد</h3>
+          </AccordionSummary>
+          <AccordionDetails>
+            <div className="date-filter-section py-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="created_from_date" className="block text-sm text-gray-600 mb-1">
+                    از تاریخ
+                  </label>
+                  <DatePicker
+                    value={createdDateRange.created_from_date}
+                    onChange={handleCreatedDateChange('created_from_date')}
+                    name="created_from_date"
+                    isGregorian={false}
+                    timePicker={false}
+                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    inputFormat="jYYYY/jMM/jDD"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="created_to_date" className="block text-sm text-gray-600 mb-1">
+                    تا تاریخ
+                  </label>
+                  <DatePicker
+                    value={createdDateRange.created_to_date}
+                    onChange={handleCreatedDateChange('created_to_date')}
+                    name="created_to_date"
+                    isGregorian={false}
+                    timePicker={false}
+                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    inputFormat="jYYYY/jMM/jDD"
+                  />
+                </div>
+                <div>
+                  <button
+                    type="button"
+                    className="text-sm px-4 py-2 bg-purple-600 text-white rounded-sm hover:bg-purple-700 transition-colors"
+                    onClick={resetCreatedDateRange}
+                  >
+                    حذف فیلتر تاریخ ایجاد
+                  </button>
+                </div>
+              </div>
+            </div>
+          </AccordionDetails>
+        </Accordion>
+
+        {/* Updated Date Range Accordion */}
+        <Accordion
+          sx={{ backgroundColor: '#f0f0f0', boxShadow: '0px 10px 15px -3px rgba(0,0,0,0.1)' }}
+          expanded={expandedUpdatedDate}
+          onChange={handleUpdatedDateAccordionChange}
+        >
+          <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="updated-date-content" id="updated-date-header">
+            <h3 className="text-sm md:text-base font-medium text-gray-700">بر اساس تاریخ تغییر</h3>
+          </AccordionSummary>
+          <AccordionDetails>
+            <div className="date-filter-section py-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="updated_from_date" className="block text-sm text-gray-600 mb-1">
+                    از تاریخ
+                  </label>
+                  <DatePicker
+                    value={updatedDateRange.updated_from_date}
+                    onChange={handleUpdatedDateChange('updated_from_date')}
+                    name="updated_from_date"
+                    isGregorian={false}
+                    timePicker={false}
+                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    inputFormat="jYYYY/jMM/jDD"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="updated_to_date" className="block text-sm text-gray-600 mb-1">
+                    تا تاریخ
+                  </label>
+                  <DatePicker
+                    value={updatedDateRange.updated_to_date}
+                    onChange={handleUpdatedDateChange('updated_to_date')}
+                    name="updated_to_date"
+                    isGregorian={false}
+                    timePicker={false}
+                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    inputFormat="jYYYY/jMM/jDD"
+                  />
+                </div>
+                <div>
+                  <button
+                    type="button"
+                    className="text-sm px-4 py-2 bg-purple-600 text-white rounded-sm hover:bg-purple-700 transition-colors"
+                    onClick={resetUpdatedDateRange}
+                  >
+                    حذف فیلتر تاریخ تغییر
+                  </button>
+                </div>
+              </div>
+            </div>
+          </AccordionDetails>
+        </Accordion>
+      </div>
+
+      {/* List Content */}
+      <div className="list-content bg-white p-4 rounded-lg shadow flex-1">
+        {isLoading ? (
+          <div className="flex justify-center items-center h-64">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+          </div>
+        ) : (
+          <>
+            {/* Render items */}
+            <div className="">
+              {data.results.length > 0 ? (
+                data.results.map((order) => renderOrderItem(order))
+              ) : (
+                <div className="text-center py-10 text-gray-500">سفارشی یافت نشد</div>
+              )}
+            </div>
+
+            {/* Pagination */}
+            {data.totalPages > 1 && (
+              <div dir="ltr" className="mt-6 flex items-center justify-between">
+                <div className="text-sm text-gray-600">
+                  Showing page {data.page} of {data.totalPages} • {data.totalResults} total items
+                </div>
+                <div className="flex space-x-2">
+                  <button
+                    onClick={() => handlePageChange(data.page - 1)}
+                    disabled={data.page === 1}
+                    className={`px-4 py-2 border rounded-md ${
+                      data.page === 1
+                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                        : 'bg-white text-gray-700 hover:bg-gray-50'
+                    }`}
+                  >
+                    Previous
+                  </button>
+                  {Array.from({ length: Math.min(5, data.totalPages) }, (_, i) => {
+                    let pageNum;
+                    if (data.totalPages <= 5) {
+                      pageNum = i + 1;
+                    } else if (data.page <= 3) {
+                      pageNum = i + 1;
+                    } else if (data.page >= data.totalPages - 2) {
+                      pageNum = data.totalPages - 4 + i;
+                    } else {
+                      pageNum = data.page - 2 + i;
+                    }
+
+                    return (
+                      <button
+                        key={pageNum}
+                        onClick={() => handlePageChange(pageNum)}
+                        className={`px-4 py-2 border rounded-md ${
+                          data.page === pageNum
+                            ? 'bg-blue-500 text-white'
+                            : 'bg-white text-gray-700 hover:bg-gray-50'
+                        }`}
+                      >
+                        {pageNum}
+                      </button>
+                    );
+                  })}
+                  <button
+                    onClick={() => handlePageChange(data.page + 1)}
+                    disabled={data.page === data.totalPages}
+                    className={`px-4 py-2 border rounded-md ${
+                      data.page === data.totalPages
+                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                        : 'bg-white text-gray-700 hover:bg-gray-50'
+                    }`}
+                  >
+                    Next
+                  </button>
+                </div>
+              </div>
+            )}
+          </>
+        )}
+      </div>
+    </div>
   );
 };
 
