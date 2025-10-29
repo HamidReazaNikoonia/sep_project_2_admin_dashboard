@@ -18,7 +18,7 @@ export const orderAPI = {
   },
 
   updateOrderStatus: async (id: string, status: string): Promise<{ order: Order }> => {
-    const { data } = await axios.patch(`/admin/orders/${id}/status`, { status });
+    const { data } = await axios.put(`/admin/order/${id}`, { status });
     return data;
   },
 };

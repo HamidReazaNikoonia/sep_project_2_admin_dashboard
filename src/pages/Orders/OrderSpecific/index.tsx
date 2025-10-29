@@ -307,7 +307,7 @@ const OrderSpecific = () => {
 
         {/* Payment Information - Bill Style */}
         <Grid item xs={12} md={6}>
-          <Card>
+          <Card sx={{minHeight: '562px'}}>
             <CardContent>
               <Box className='mb-2'>
                 <Link className='flex items-center gap-2 hover:text-blue-500' to={`/transactions/${order?.transactionId}`}>
@@ -531,9 +531,18 @@ const OrderSpecific = () => {
         <Grid item xs={12} md={6}>
           <Card>
             <CardContent>
-              <Typography variant="h6" sx={{ mb: 2 }}>
-                بروزرسانی وضعیت سفارش
-              </Typography>
+              <div className='w-full mb-2 flex justify-between items-center'>
+                <Typography variant="h6">
+                  بروزرسانی وضعیت سفارش
+                </Typography>
+                <Box sx={{ mt: 1 }}>
+                <Chip
+                  label={orderStatusTranslations[order.status] || order.status}
+                  color={statusColors[order.status]}
+                  size="medium"
+                />
+              </Box>
+              </div>
               <Divider sx={{ mb: 2 }} />
               <FormControl fullWidth sx={{ mb: 2 }}>
                 <InputLabel id="update-status-label">وضعیت جدید</InputLabel>
