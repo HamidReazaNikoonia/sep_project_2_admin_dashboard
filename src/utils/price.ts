@@ -9,7 +9,7 @@ export const formatPrice = (price: number, withCurrency: boolean = true): string
     const formattedNumber = new Intl.NumberFormat('fa-IR').format(price);
   
     // Return with or without currency label
-    return withCurrency ? `${formattedNumber} تومان` : formattedNumber;
+    return withCurrency ? `${formattedNumber} ریال` : formattedNumber;
   };
   
   /**

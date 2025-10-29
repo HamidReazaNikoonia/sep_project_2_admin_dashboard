@@ -6,7 +6,8 @@ import moment from 'moment-jalaali';
  * @returns Formatted Jalali date string
  */
 export const formatDate = (date: string): string => {
-  return moment(date).format('jYYYY/jMM/jDD HH:mm');
+  const formatedDate = moment(date).format('jYYYY/jMM/jDD HH:mm:ss');
+  return formatedDate ? formatedDate.replace(/\d/g, (d: string) => '۰۱۲۳۴۵۶۷۸۹'[parseInt(d)]) : '';
 };
 
 // If you need more specific formats, you can create variations:
