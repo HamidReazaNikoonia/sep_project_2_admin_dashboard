@@ -18,11 +18,11 @@ import { showToast } from '@/utils/toast';
 
 const TransactionSpecific = () => {
   const { transaction_id } = useParams();
-  const { data, isLoading, isError, error } = useTransactions({_id: transaction_id});
+  const { data, isLoading, isError, error } = useTransactions({id: transaction_id});
   
   const [status, setStatus] = useState(false);
 
-  const transaction = data?.data?.results[0] || [];
+  const transaction = data?.results?.[0] || [];
 
   useEffect(() => {
     if (transaction) {

@@ -10,7 +10,7 @@ export const transactionKeys = {
 };
 
 // Hooks
-export const useTransactions = (params?: { page?: number; limit?: number; q?: string }) => {
+export const useTransactions = (params?: { page?: number; limit?: number; q?: string; id?: string }) => {
   return useQuery({
     queryKey: transactionKeys.list(params || {}),
     queryFn: () => transactionApi.getTransactions(params),
