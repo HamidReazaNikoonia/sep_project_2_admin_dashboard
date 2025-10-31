@@ -1,6 +1,6 @@
 // @ts-nocheck
-import React, { useState, useMemo } from 'react';
-import { Link } from 'react-router';
+import React, { useState, useMemo, useEffect } from 'react';
+import { Link, useSearchParams } from 'react-router';
 import { useDebounce } from '../../../hooks/useDebounce';
 import Accordion from '@mui/material/Accordion';
 import AccordionSummary from '@mui/material/AccordionSummary';
@@ -15,16 +15,20 @@ import { formatPrice } from '../../../utils/price';
 import { Chip } from '@mui/material';
 
 const TransactionList = () => {
+  // Get search params from URL
+  const [searchParams, setSearchParams] = useSearchParams();
+  
   // State for pagination
   const [page, setPage] = useState(1);
   const [limit] = useState(10);
 
-  // State for filters
-  const [id, setId] = useState('');
-  const [customerId, setCustomerId] = useState('');
+  // State for filters - Initialize from URL params if they exist
+  const [id, setId] = useState(searchParams.get('id') || '');
+  const [customerId, setCustomerId] = useState(searchParams.get('customer_id') || '');
   const [customer, setCustomer] = useState('');
-  const [orderId, setOrderId] = useState('');
+  const [orderId, setOrderId] = useState(searchParams.get('order_id') || '');
   const [status, setStatus] = useState(false);
+
 
   // Debounced text inputs
   const debouncedId = useDebounce(id, 500);
@@ -48,7 +52,6 @@ const TransactionList = () => {
     updated_to_date: null,
   });
 
-  // Build query parameters for the hook
   const queryParams = useMemo(() => {
     const params: any = {
       page,
@@ -56,11 +59,33 @@ const TransactionList = () => {
       sortBy: 'createdAt:desc',
     };
 
-    // Add filters
-    if (debouncedId) params.id = debouncedId;
-    if (debouncedCustomerId) params.customer_id = debouncedCustomerId;
+    // Get URL params directly
+    const urlId = searchParams.get('id');
+    const urlCustomerId = searchParams.get('customer_id');
+    const urlOrderId = searchParams.get('order_id');
+
+    // Priority: URL params > debounced state values
+    // This ensures URL params take effect immediately
+    if (urlId) {
+      params.id = urlId;
+    } else if (debouncedId) {
+      params.id = debouncedId;
+    }
+
+    if (urlCustomerId) {
+      params.customer_id = urlCustomerId;
+    } else if (debouncedCustomerId) {
+      params.customer_id = debouncedCustomerId;
+    }
+
+    if (urlOrderId) {
+      params.order_id = urlOrderId;
+    } else if (debouncedOrderId) {
+      params.order_id = debouncedOrderId;
+    }
+
+    // Other filters that don't come from URL
     if (debouncedCustomer) params.customer = debouncedCustomer;
-    if (debouncedOrderId) params.order_id = debouncedOrderId;
     if (status) params.status = true;
 
     // Add created date range
@@ -83,6 +108,7 @@ const TransactionList = () => {
   }, [
     page,
     limit,
+    searchParams, // Add searchParams as dependency
     debouncedId,
     debouncedCustomerId,
     debouncedCustomer,

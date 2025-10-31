@@ -14,6 +14,7 @@ import { formatDate } from '../../../utils/date';
 import { formatPrice } from '../../../utils/price';
 import { Chip } from '@mui/material';
 import { OrderStatus, PaymentStatus } from '../../../API/Order/types';
+import { useSearchParams } from 'react-router';
 
 const statusColors: Record<OrderStatus, 'default' | 'primary' | 'secondary' | 'success' | 'error' | 'warning'> = {
   waiting: 'warning',
@@ -47,6 +48,11 @@ const paymentStatusTranslations = {
 };
 
 const OrderList = () => {
+
+  // Get search params from URL
+  const [searchParams] = useSearchParams();
+
+
   // State for pagination
   const [page, setPage] = useState(1);
   const [limit] = useState(10);
@@ -54,10 +60,10 @@ const OrderList = () => {
   // State for filters
   const [orderStatus, setOrderStatus] = useState('');
   const [paymentStatus, setPaymentStatus] = useState('');
-  const [transactionId, setTransactionId] = useState('');
-  const [orderId, setOrderId] = useState('');
+  const [transactionId, setTransactionId] = useState(searchParams.get('transaction_id') || '');
+  const [orderId, setOrderId] = useState(searchParams.get('order_id') || '');
   const [reference, setReference] = useState('');
-  const [customerId, setCustomerId] = useState('');
+  const [customerId, setCustomerId] = useState(searchParams.get('customer_id') || '');
   const [customer, setCustomer] = useState('');
 
   // Add these new boolean filter states
@@ -98,13 +104,36 @@ const OrderList = () => {
       sortBy: 'createdAt:desc',
     };
 
+    // Get URL params directly
+    const urlTransactionId = searchParams.get('transaction_id');
+    const urlCustomerId = searchParams.get('customer_id');
+
     // Add filters
     if (orderStatus) params.order_status = orderStatus;
     if (paymentStatus) params.payment_status = paymentStatus;
-    if (debouncedTransactionId) params.transaction_id = debouncedTransactionId;
+
+    // Priority: URL params > debounced state values
+    if (urlTransactionId) {
+      params.transaction_id = urlTransactionId;
+    } else if (debouncedTransactionId) {
+      params.transaction_id = debouncedTransactionId;
+    }
+
+    if (urlCustomerId) {
+      params.customer_id = urlCustomerId;
+    } else if (debouncedCustomerId) {
+      params.customer_id = debouncedCustomerId;
+    }
+
+    if (orderId) {
+      params.order_id = urlOrderId;
+    } else if (debouncedOrderId) {
+      params.order_id = debouncedOrderId;
+    }
+
+    // Other debounced filters
     if (debouncedOrderId) params.order_id = debouncedOrderId;
     if (debouncedReference) params.reference = debouncedReference;
-    if (debouncedCustomerId) params.customer_id = debouncedCustomerId;
     if (debouncedCustomer) params.customer = debouncedCustomer;
 
     // Add boolean filters
@@ -134,6 +163,7 @@ const OrderList = () => {
   }, [
     page,
     limit,
+    searchParams, // Add searchParams as dependency
     orderStatus,
     paymentStatus,
     debouncedTransactionId,
@@ -154,24 +184,24 @@ const OrderList = () => {
   const { data: queryData, isLoading, error } = useOrders(queryParams);
 
 
-  console.log({queryData})
+  console.log({ queryData })
 
   // Extract data from query result
   const data = queryData
     ? {
-        results: queryData.results || [],
-        page,
-        limit,
-        totalPages: queryData.totalPages || 0,
-        totalResults: queryData.totalResults || 0,
-      }
+      results: queryData.results || [],
+      page,
+      limit,
+      totalPages: queryData.totalPages || 0,
+      totalResults: queryData.totalResults || 0,
+    }
     : {
-        results: [],
-        page: 1,
-        limit: 10,
-        totalPages: 0,
-        totalResults: 0,
-      };
+      results: [],
+      page: 1,
+      limit: 10,
+      totalPages: 0,
+      totalResults: 0,
+    };
 
   // Accordion handlers
   const handleFiltersAccordionChange = () => {
@@ -354,7 +384,7 @@ const OrderList = () => {
                 <span className="text-xs text-gray-500">مبلغ کل:</span>
                 <p className="font-bold text-blue-600">{formatPrice(order.totalAmount)}</p>
               </div>
-              
+
               {order.final_order_price !== undefined && (
                 <div>
                   <span className="text-xs text-gray-500">مبلغ نهایی:</span>
@@ -741,11 +771,10 @@ const OrderList = () => {
                   <button
                     onClick={() => handlePageChange(data.page - 1)}
                     disabled={data.page === 1}
-                    className={`px-4 py-2 border rounded-md ${
-                      data.page === 1
+                    className={`px-4 py-2 border rounded-md ${data.page === 1
                         ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                         : 'bg-white text-gray-700 hover:bg-gray-50'
-                    }`}
+                      }`}
                   >
                     Previous
                   </button>
@@ -765,11 +794,10 @@ const OrderList = () => {
                       <button
                         key={pageNum}
                         onClick={() => handlePageChange(pageNum)}
-                        className={`px-4 py-2 border rounded-md ${
-                          data.page === pageNum
+                        className={`px-4 py-2 border rounded-md ${data.page === pageNum
                             ? 'bg-blue-500 text-white'
                             : 'bg-white text-gray-700 hover:bg-gray-50'
-                        }`}
+                          }`}
                       >
                         {pageNum}
                       </button>
@@ -778,11 +806,10 @@ const OrderList = () => {
                   <button
                     onClick={() => handlePageChange(data.page + 1)}
                     disabled={data.page === data.totalPages}
-                    className={`px-4 py-2 border rounded-md ${
-                      data.page === data.totalPages
+                    className={`px-4 py-2 border rounded-md ${data.page === data.totalPages
                         ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                         : 'bg-white text-gray-700 hover:bg-gray-50'
-                    }`}
+                      }`}
                   >
                     Next
                   </button>
