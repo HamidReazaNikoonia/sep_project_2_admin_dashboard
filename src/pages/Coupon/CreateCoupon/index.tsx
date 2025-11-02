@@ -12,13 +12,11 @@ import {
   Typography,
   Paper,
   Grid2 as Grid,
-  FormHelperText,
 } from '@mui/material'
 import DatePicker from 'react-datepicker2'
 import moment from 'moment-jalaali'
-import { useCourses } from '@/API/Course/course.hook'
-import { useCourseSessions } from '@/API/CourseSession/courseSession.hook'
 import { useCreateCoupon } from '@/API/Coupon/coupon.hook'
+import CourseSelector from '@/components/CourseSelector' // Adjust path as needed
 
 const CreateCoupon = () => {
   // Form state
@@ -42,10 +40,6 @@ const CreateCoupon = () => {
   const [isSpecificProducts, setIsSpecificProducts] = useState(false)
   const [selectedCourses, setSelectedCourses] = useState<string[]>([])
   const [selectedSessions, setSelectedSessions] = useState<string[]>([])
-
-  // Fetch courses and sessions
-  const { data: coursesData } = useCourses()
-  const { data: courseSessionsData } = useCourseSessions()
 
   // Create coupon mutation
   const createCouponMutation = useCreateCoupon()
@@ -108,20 +102,6 @@ const CreateCoupon = () => {
     }
   }
 
-  // Handle multi-select for courses
-  const handleCourseSelectChange = (
-    e: React.ChangeEvent<{ value: unknown }>,
-  ) => {
-    setSelectedCourses(e.target.value as string[])
-  }
-
-  // Handle multi-select for sessions
-  const handleSessionSelectChange = (
-    e: React.ChangeEvent<{ value: unknown }>,
-  ) => {
-    setSelectedSessions(e.target.value as string[])
-  }
-
   // Handle form submission
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -131,23 +111,22 @@ const CreateCoupon = () => {
       return
     }
 
-    const _selectedCourses = selectedCourses.map((course) => ({
-      target_type :"COURSE_SESSION",
-      target_id: course,
+    // Map courses with correct target_type
+    const _selectedCourses = selectedCourses.map((courseId) => ({
+      target_type: 'COURSE',
+      target_id: courseId,
     }))
 
-    const _selectedSessions = selectedSessions.map((session) => ({
-      target_id: session,
-      target_type: "COURSE"
+    // Map sessions with correct target_type
+    const _selectedSessions = selectedSessions.map((sessionId) => ({
+      target_type: 'COURSE_SESSION',
+      target_id: sessionId,
     }))
-
-    console.log({_selectedCourses, _selectedSessions})
-    console.log({both: [..._selectedCourses, ..._selectedSessions]})
 
     // Prepare data for API
     const couponData = {
       ...formData,
-      type: "DISCOUNT",
+      type: 'DISCOUNT',
       max_uses: Number(formData.max_uses),
       discount_value: Number(formData.discount_value),
       min_purchase_amount: formData.min_purchase_amount
@@ -155,15 +134,16 @@ const CreateCoupon = () => {
         : undefined,
       valid_from: formData.valid_from.format('YYYY-MM-DD'),
       valid_until: formData.valid_until.format('YYYY-MM-DD'),
-      ...(isSpecificProducts ? {
-        applicable_courses: [..._selectedCourses, ..._selectedSessions]
-      } : {})
+      ...(isSpecificProducts && {
+        applicable_courses: [..._selectedCourses, ..._selectedSessions],
+      }),
     }
+
+    console.log('Submitting coupon data:', couponData)
 
     // Submit data
     createCouponMutation.mutate(couponData, {
       onSuccess: () => {
-        // Reset form or navigate away as needed
         alert('کد تخفیف با موفقیت ایجاد شد')
         // Reset form state here if needed
       },
@@ -291,7 +271,7 @@ const CreateCoupon = () => {
           </Grid>
 
           {/* Product Specific Checkbox */}
-          <Grid size={{ xs: 12, md: 6 }}>
+          <Grid size={{ xs: 12 }}>
             <FormControlLabel
               control={
                 <Checkbox
@@ -305,75 +285,27 @@ const CreateCoupon = () => {
             />
           </Grid>
 
-          {/* Applicable Courses Section (Conditional) */}
+          {/* Course and Session Selectors (Conditional) */}
           {isSpecificProducts && (
             <>
-              {/* Courses */}
+              {/* Courses Selector */}
               <Grid size={{ xs: 12, md: 6 }}>
-                <FormControl fullWidth>
-                  <InputLabel id="courses-label">فیلم های آموزشی</InputLabel>
-                  <Select
-                    labelId="courses-label"
-                    id="courses"
-                    multiple
-                    value={selectedCourses}
-                    onChange={handleCourseSelectChange}
-                    label="فیلم های آموزشی"
-                    renderValue={(selected) => {
-                      const selectedNames = (selected as string[]).map((id) => {
-                        const course = coursesData?.data.results.find(
-                          (c) => c.id === id,
-                        )
-                        return course ? course.title : id
-                      })
-                      return selectedNames.join(', ')
-                    }}
-                  >
-                    {coursesData?.data.results.map((course) => (
-                      <MenuItem key={course.id} value={course.id}>
-                        <Checkbox
-                          checked={selectedCourses.indexOf(course.id) > -1}
-                        />
-                        {course.title}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                  <FormHelperText>اضافه کردن فیلم های آموزشی</FormHelperText>
-                </FormControl>
+                <CourseSelector
+                  type="COURSE"
+                  selectedIds={selectedCourses}
+                  onSelectionChange={setSelectedCourses}
+                  label="انتخاب فیلم های آموزشی"
+                />
               </Grid>
 
-              {/* Course Sessions */}
+              {/* Course Sessions Selector */}
               <Grid size={{ xs: 12, md: 6 }}>
-                <FormControl fullWidth>
-                  <InputLabel id="sessions-label">دوره ها</InputLabel>
-                  <Select
-                    labelId="sessions-label"
-                    id="sessions"
-                    multiple
-                    value={selectedSessions}
-                    onChange={handleSessionSelectChange}
-                    label="دوره ها"
-                    renderValue={(selected) => {
-                      const selectedNames = (selected as string[]).map((id) => {
-                        const session = courseSessionsData?.data.results.find(
-                          (s) => s.id === id,
-                        )
-                        return session ? session.title : id
-                      })
-                      return selectedNames.join(', ')
-                    }}
-                  >
-                    {courseSessionsData?.data.results.map((session) => (
-                      <MenuItem key={session.id} value={session.id}>
-                        <Checkbox
-                          checked={selectedSessions.indexOf(session.id) > -1}
-                        />
-                        {session.title}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                  <FormHelperText>دوره ها</FormHelperText>
-                </FormControl>
+                <CourseSelector
+                  type="COURSE_SESSION"
+                  selectedIds={selectedSessions}
+                  onSelectionChange={setSelectedSessions}
+                  label="انتخاب دوره ها"
+                />
               </Grid>
             </>
           )}

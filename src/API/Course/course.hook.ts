@@ -11,10 +11,11 @@ export const useCourses = (params?: {
   page?: number
   limit?: number
   q?: string
-}) => {
+}, options?: { enabled?: boolean }) => {
   return useQuery({
     queryKey: [COURSES_KEY, params],
     queryFn: () => courseApi.getCourses(params),
+    enabled: options?.enabled,
   })
 }
 

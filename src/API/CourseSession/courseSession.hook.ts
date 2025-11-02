@@ -101,10 +101,11 @@ export const useGetAllCourseSessionPrograms = (filters: {
   role?: string;
   mobile?: string;
   sortBy?: string;
-}) => {
+}, options?: { enabled?: boolean }) => {
   return useQuery<any>({
     queryKey: programsKeys.list(filters),
     queryFn: () => courseSessionApi.getAllCourseSessionPrograms(filters),
+    enabled: options?.enabled,
   });
 };
 
