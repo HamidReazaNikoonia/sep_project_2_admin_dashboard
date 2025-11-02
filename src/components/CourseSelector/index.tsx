@@ -4,20 +4,18 @@ import {
   TextField,
   Paper,
   List,
-  ListItem,
-  ListItemText,
-  Checkbox,
   Pagination,
   Typography,
-  Chip,
-  IconButton,
   CircularProgress,
   InputAdornment,
 } from '@mui/material'
 import SearchIcon from '@mui/icons-material/Search'
-import CloseIcon from '@mui/icons-material/Close'
 import { useCourses } from '@/API/Course/course.hook'
 import { useGetAllCourseSessionPrograms } from '@/API/CourseSession/courseSession.hook'
+import CourseListItem from './component/CourseListItem'
+import CourseSessionListItem from './component/CourseSessionListItem'
+import CourseSelectedItem from './component/CourseSelectedItem'
+import CourseSessionSelectedItem from './component/CourseSessionSelectedItem'
 
 interface CourseSelectorProps {
   type: 'COURSE' | 'COURSE_SESSION'
@@ -52,7 +50,6 @@ const CourseSelector: React.FC<CourseSelectorProps> = ({
     page,
     limit: itemsPerPage,
     q: debouncedSearch,
-  }, {
     enabled: type === 'COURSE',
   })
 
@@ -62,7 +59,6 @@ const CourseSelector: React.FC<CourseSelectorProps> = ({
       page,
       limit: itemsPerPage,
       search: debouncedSearch,
-    }, {
       enabled: type === 'COURSE_SESSION',
     })
 
@@ -94,6 +90,9 @@ const CourseSelector: React.FC<CourseSelectorProps> = ({
     setPage(value)
   }
 
+  // Get selected items for display
+  const selectedItems = items.filter((item: any) => selectedIds.includes(item.id))
+
   return (
     <Box>
       <Typography variant="subtitle1" gutterBottom>
@@ -117,14 +116,19 @@ const CourseSelector: React.FC<CourseSelectorProps> = ({
           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mt: 1 }}>
             {selectedIds.map((id) => {
               const item = items.find((i: any) => i.id === id)
-              return (
-                <Chip
+              if (!item) return null
+
+              return type === 'COURSE' ? (
+                <CourseSelectedItem
                   key={id}
-                  label={item?.title || id}
-                  onDelete={() => handleRemoveItem(id)}
-                  deleteIcon={<CloseIcon />}
-                  color="primary"
-                  variant="outlined"
+                  course={item}
+                  onRemove={handleRemoveItem}
+                />
+              ) : (
+                <CourseSessionSelectedItem
+                  key={id}
+                  courseSession={item}
+                  onRemove={handleRemoveItem}
                 />
               )
             })}
@@ -174,29 +178,23 @@ const CourseSelector: React.FC<CourseSelectorProps> = ({
           </Box>
         ) : (
           <List>
-            {items.map((item: any) => (
-              <ListItem
-                key={item.id}
-                button
-                onClick={() => handleToggleItem(item.id)}
-                sx={{
-                  borderBottom: '1px solid #e0e0e0',
-                  '&:last-child': { borderBottom: 'none' },
-                }}
-              >
-                <Checkbox
-                  edge="start"
-                  checked={selectedIds.includes(item.id)}
-                  tabIndex={-1}
-                  disableRipple
+            {items.map((item: any) =>
+              type === 'COURSE' ? (
+                <CourseListItem
+                  key={item.id}
+                  course={item}
+                  isSelected={selectedIds.includes(item.id)}
+                  onToggle={handleToggleItem}
                 />
-                <ListItemText
-                  primary={item.title}
-                  secondary={item.description || ''}
-                  sx={{ textAlign: 'right' }}
+              ) : (
+                <CourseSessionListItem
+                  key={item.id}
+                  courseSession={item}
+                  isSelected={selectedIds.includes(item.id)}
+                  onToggle={handleToggleItem}
                 />
-              </ListItem>
-            ))}
+              )
+            )}
           </List>
         )}
       </Paper>

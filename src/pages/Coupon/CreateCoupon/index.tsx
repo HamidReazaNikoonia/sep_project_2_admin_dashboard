@@ -289,7 +289,7 @@ const CreateCoupon = () => {
           {isSpecificProducts && (
             <>
               {/* Courses Selector */}
-              <Grid size={{ xs: 12, md: 6 }}>
+              <Grid size={{ xs: 12 }}>
                 <CourseSelector
                   type="COURSE"
                   selectedIds={selectedCourses}
@@ -299,7 +299,7 @@ const CreateCoupon = () => {
               </Grid>
 
               {/* Course Sessions Selector */}
-              <Grid size={{ xs: 12, md: 6 }}>
+              <Grid size={{ xs: 12 }}>
                 <CourseSelector
                   type="COURSE_SESSION"
                   selectedIds={selectedSessions}
