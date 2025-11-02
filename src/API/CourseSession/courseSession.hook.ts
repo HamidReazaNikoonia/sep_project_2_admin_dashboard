@@ -291,7 +291,7 @@ export const useCreateCourseSessionPackage = () => {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (requestData: { title: string; price: number }) =>
+    mutationFn: (requestData: { title: string; price: number; avatar: string }) =>
       courseSessionApi.createCourseSessionPackage(requestData),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [COURSE_SESSION_PACKAGES] })
@@ -299,6 +299,27 @@ export const useCreateCourseSessionPackage = () => {
   })
 }
 
+export const useUpdateCourseSessionPackage = (packageId: string) => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (requestData: { title: string; price: number; avatar: string }) =>
+      courseSessionApi.updateCourseSessionPackage(packageId, requestData),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [COURSE_SESSION_PACKAGES] })
+    },
+  })
+}
+
+export const useDeleteCourseSessionPackage = (packageId: string) => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: () => courseSessionApi.deleteCourseSessionPackage(packageId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [COURSE_SESSION_PACKAGES] })
+    },
+  })
+}
 // Class Room
 export const useGetAllClassRooms = () => {
   return useQuery({

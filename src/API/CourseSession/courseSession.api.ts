@@ -1,3 +1,4 @@
+import { Avatar } from '@mui/material';
 import axios from '../axios'
 import { CourseCategory, CourseCategoryResponse } from '../Course/types'
 import {
@@ -167,12 +168,27 @@ const courseSessionApi = {
   createCourseSessionPackage: async (requestData: {
     title: string
     price: number
+    avatar: string
   }) => {
     const { data } = await axios.post(
       `course-session/admin/course-session-package`,
       requestData,
     )
     return data
+  },
+
+  updateCourseSessionPackage: async (packageId: string, requestData: {
+    title: string
+    price: number
+    avatar: string
+  }) => {
+    const { data } = await axios.put(`course-session/admin/course-session-package/${packageId}`, requestData);
+    return data;
+  },
+
+  deleteCourseSessionPackage: async (packageId: string) => {
+    const { data } = await axios.delete(`course-session/admin/course-session-package/${packageId}`);
+    return data;
   },
 
   // Class Room
