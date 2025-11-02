@@ -20,6 +20,7 @@ import { Delete as DeleteIcon } from '@mui/icons-material'
 import { useCreateCoach } from '../../../API/Coach/coach.hook'
 import { useNavigate } from 'react-router'
 import { styled } from '@mui/material/styles'
+import { showToast } from '@/utils/toast'
 
 // Styled component for image upload
 const UploadBox = styled(Box)(({ theme }) => ({
@@ -380,8 +381,16 @@ const NewCoach = () => {
       }
 
       createCoach(payload, {
-        onSuccess: () => {
-          navigate('/coach')
+        onSuccess: (data) => {
+          navigate(`/coach`)
+        },
+        onError: (error) => {
+          // check for the error 
+          if (error?.response?.data?.message) {
+            if (error.response.data.message.includes('E11000')) {
+              showToast('خطا', 'شماره موبایل قبلا استفاده شده است', 'error')
+            }
+          }
         },
       })
     }
