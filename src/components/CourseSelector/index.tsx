@@ -8,6 +8,7 @@ import {
   Typography,
   CircularProgress,
   InputAdornment,
+  Alert,
 } from '@mui/material'
 import SearchIcon from '@mui/icons-material/Search'
 import { useCourses } from '@/API/Course/course.hook'
@@ -22,6 +23,7 @@ interface CourseSelectorProps {
   selectedIds: string[]
   onSelectionChange: (ids: string[]) => void
   label?: string
+  isExceptMode?: boolean
 }
 
 const CourseSelector: React.FC<CourseSelectorProps> = ({
@@ -29,6 +31,7 @@ const CourseSelector: React.FC<CourseSelectorProps> = ({
   selectedIds,
   onSelectionChange,
   label,
+  isExceptMode = false,
 }) => {
   const [searchQuery, setSearchQuery] = useState('')
   const [page, setPage] = useState(1)
@@ -90,14 +93,18 @@ const CourseSelector: React.FC<CourseSelectorProps> = ({
     setPage(value)
   }
 
-  // Get selected items for display
-  const selectedItems = items.filter((item: any) => selectedIds.includes(item.id))
-
   return (
     <Box>
       <Typography variant="subtitle1" gutterBottom>
         {label || (type === 'COURSE' ? 'فیلم های آموزشی' : 'دوره ها')}
       </Typography>
+
+      {/* Except Mode Info */}
+      {isExceptMode && selectedIds.length > 0 && (
+        <Alert severity="info" sx={{ mb: 2 }}>
+          کوپن روی همه محصولات به جز {selectedIds.length} مورد انتخاب شده اعمال خواهد شد
+        </Alert>
+      )}
 
       {/* Selected Items Display */}
       {selectedIds.length > 0 && (
@@ -106,12 +113,15 @@ const CourseSelector: React.FC<CourseSelectorProps> = ({
           sx={{
             p: 2,
             mb: 2,
-            backgroundColor: '#f5f5f5',
+            backgroundColor: isExceptMode ? '#fff3e0' : '#f5f5f5',
             minHeight: '60px',
+            border: isExceptMode ? '2px dashed #ff9800' : undefined,
           }}
         >
           <Typography variant="body2" color="text.secondary" gutterBottom>
-            موارد انتخاب شده ({selectedIds.length})
+            {isExceptMode
+              ? `موارد استثنا شده (${selectedIds.length})`
+              : `موارد انتخاب شده (${selectedIds.length})`}
           </Typography>
           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mt: 1 }}>
             {selectedIds.map((id) => {

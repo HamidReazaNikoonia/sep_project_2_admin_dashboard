@@ -12,12 +12,11 @@ import {
   Typography,
   Paper,
   Grid2 as Grid,
-  Alert,
 } from '@mui/material'
 import DatePicker from 'react-datepicker2'
 import moment from 'moment-jalaali'
 import { useCreateCoupon } from '@/API/Coupon/coupon.hook'
-import CourseSelector from '@/components/CourseSelector' // Adjust path as needed
+import CourseSelector from '@/components/CourseSelector'
 
 const CreateCoupon = () => {
   // Form state
@@ -41,6 +40,7 @@ const CreateCoupon = () => {
 
   // State for course/session specific coupon
   const [isSpecificProducts, setIsSpecificProducts] = useState(false)
+  const [isExceptMode, setIsExceptMode] = useState(false)
   const [selectedCourses, setSelectedCourses] = useState<string[]>([])
   const [selectedSessions, setSelectedSessions] = useState<string[]>([])
 
@@ -102,7 +102,15 @@ const CreateCoupon = () => {
     if (!e.target.checked) {
       setSelectedCourses([])
       setSelectedSessions([])
+      setIsExceptMode(false)
     }
+  }
+
+  // Handle checkbox change for except mode
+  const handleExceptModeChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    setIsExceptMode(e.target.checked)
   }
 
   // Handle checkbox change for is_combined
@@ -136,6 +144,9 @@ const CreateCoupon = () => {
       target_id: sessionId,
     }))
 
+    // Combine selected items
+    const selectedItems = [..._selectedCourses, ..._selectedSessions]
+
     // Prepare data for API
     const couponData = {
       ...formData,
@@ -149,9 +160,11 @@ const CreateCoupon = () => {
       valid_until: formData.valid_until.format('YYYY-MM-DD'),
       is_combined: formData.is_combined,
       coupon_variant: formData.coupon_variant,
-      ...(isSpecificProducts && {
-        applicable_courses: [..._selectedCourses, ..._selectedSessions],
-      }),
+      // Add to except_courses if isExceptMode is true, otherwise applicable_courses
+      ...(isSpecificProducts &&
+        selectedItems.length > 0 && {
+          [isExceptMode ? 'except_courses' : 'applicable_courses']: selectedItems,
+        }),
     }
 
     console.log('Submitting coupon data:', couponData)
@@ -243,11 +256,6 @@ const CreateCoupon = () => {
 
           {/* Coupon Variant */}
           <Grid size={{ xs: 12, md: 6 }}>
-            <Alert severity="info" sx={{ mb: 2 }}>
-              <div dir="rtl" className="mr-2">
-                با انتخاب کلاس های آموزشی کوپن فقط روی دوره های  آموزشی اجرا میشود و با انتخاب سفارش کوپن روی محصولات و فیلم های آموزشی آفلاین اجرا میشود
-              </div>
-            </Alert>
             <FormControl fullWidth required>
               <InputLabel id="coupon-variant-label">نوع کوپن</InputLabel>
               <Select
@@ -255,30 +263,14 @@ const CreateCoupon = () => {
                 id="coupon_variant"
                 name="coupon_variant"
                 value={formData.coupon_variant}
-                onChange={(event) => handleChange(event as React.ChangeEvent<HTMLInputElement>)}
+                onChange={handleChange}
                 label="نوع کوپن"
               >
-                <MenuItem value="ALL">همه</MenuItem>
-                <MenuItem value="COURSE_SESSION">کلاس های آموزشی</MenuItem>
+                <MenuItem value="COURSE_SESSION">دوره آموزشی</MenuItem>
                 <MenuItem value="ORDER">سفارش</MenuItem>
               </Select>
             </FormControl>
           </Grid>
-
-          {/* Description (Optional) */}
-          <Grid size={{ xs: 12, md: 6 }}>
-            <TextField
-              fullWidth
-              id="description"
-              name="description"
-              label="توضیحات (اختیاری)"
-              multiline
-              rows={4}
-              value={formData.description}
-              onChange={handleChange}
-            />
-          </Grid>
-
 
           {/* Valid From Date */}
           <Grid size={{ xs: 12, md: 6 }}>
@@ -310,7 +302,19 @@ const CreateCoupon = () => {
             />
           </Grid>
 
-
+          {/* Description (Optional) */}
+          <Grid size={{ xs: 12, md: 6 }}>
+            <TextField
+              fullWidth
+              id="description"
+              name="description"
+              label="توضیحات (اختیاری)"
+              multiline
+              rows={3}
+              value={formData.description}
+              onChange={handleChange}
+            />
+          </Grid>
 
           {/* Is Combined Checkbox */}
           <Grid size={{ xs: 12, md: 6 }}>
@@ -342,6 +346,28 @@ const CreateCoupon = () => {
             />
           </Grid>
 
+          {/* Except Mode Checkbox (Conditional) */}
+          {isSpecificProducts && (
+            <Grid size={{ xs: 12 }}>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={isExceptMode}
+                    onChange={handleExceptModeChange}
+                    name="exceptMode"
+                    color="secondary"
+                  />
+                }
+                label="کوپن روی تمام آیتم ها اعمال شود به غیر از"
+              />
+              <Typography variant="caption" color="text.secondary" display="block" sx={{ mr: 4 }}>
+                {isExceptMode
+                  ? 'کوپن روی همه محصولات به جز موارد انتخاب شده اعمال خواهد شد'
+                  : 'کوپن فقط روی موارد انتخاب شده اعمال خواهد شد'}
+              </Typography>
+            </Grid>
+          )}
+
           {/* Course and Session Selectors (Conditional) */}
           {isSpecificProducts && (
             <>
@@ -351,7 +377,12 @@ const CreateCoupon = () => {
                   type="COURSE"
                   selectedIds={selectedCourses}
                   onSelectionChange={setSelectedCourses}
-                  label="انتخاب فیلم های آموزشی"
+                  label={
+                    isExceptMode
+                      ? 'انتخاب فیلم های آموزشی که کوپن روی آنها اعمال نشود'
+                      : 'انتخاب فیلم های آموزشی'
+                  }
+                  isExceptMode={isExceptMode}
                 />
               </Grid>
 
@@ -361,7 +392,12 @@ const CreateCoupon = () => {
                   type="COURSE_SESSION"
                   selectedIds={selectedSessions}
                   onSelectionChange={setSelectedSessions}
-                  label="انتخاب دوره ها"
+                  label={
+                    isExceptMode
+                      ? 'انتخاب دوره هایی که کوپن روی آنها اعمال نشود'
+                      : 'انتخاب دوره ها'
+                  }
+                  isExceptMode={isExceptMode}
                 />
               </Grid>
             </>
