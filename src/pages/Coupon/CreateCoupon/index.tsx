@@ -12,6 +12,7 @@ import {
   Typography,
   Paper,
   Grid2 as Grid,
+  Alert,
 } from '@mui/material'
 import DatePicker from 'react-datepicker2'
 import moment from 'moment-jalaali'
@@ -28,6 +29,8 @@ const CreateCoupon = () => {
     valid_until: moment().add(1, 'month'),
     min_purchase_amount: '',
     description: '',
+    is_combined: true,
+    coupon_variant: '',
   })
 
   // Error state for validation
@@ -90,7 +93,7 @@ const CreateCoupon = () => {
     })
   }
 
-  // Handle checkbox change
+  // Handle checkbox change for specific products
   const handleSpecificProductsChange = (
     e: React.ChangeEvent<HTMLInputElement>,
   ) => {
@@ -100,6 +103,16 @@ const CreateCoupon = () => {
       setSelectedCourses([])
       setSelectedSessions([])
     }
+  }
+
+  // Handle checkbox change for is_combined
+  const handleIsCombinedChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    setFormData({
+      ...formData,
+      is_combined: e.target.checked,
+    })
   }
 
   // Handle form submission
@@ -134,6 +147,8 @@ const CreateCoupon = () => {
         : undefined,
       valid_from: formData.valid_from.format('YYYY-MM-DD'),
       valid_until: formData.valid_until.format('YYYY-MM-DD'),
+      is_combined: formData.is_combined,
+      coupon_variant: formData.coupon_variant,
       ...(isSpecificProducts && {
         applicable_courses: [..._selectedCourses, ..._selectedSessions],
       }),
@@ -226,6 +241,45 @@ const CreateCoupon = () => {
             />
           </Grid>
 
+          {/* Coupon Variant */}
+          <Grid size={{ xs: 12, md: 6 }}>
+            <Alert severity="info" sx={{ mb: 2 }}>
+              <div dir="rtl" className="mr-2">
+                با انتخاب کلاس های آموزشی کوپن فقط روی دوره های  آموزشی اجرا میشود و با انتخاب سفارش کوپن روی محصولات و فیلم های آموزشی آفلاین اجرا میشود
+              </div>
+            </Alert>
+            <FormControl fullWidth required>
+              <InputLabel id="coupon-variant-label">نوع کوپن</InputLabel>
+              <Select
+                labelId="coupon-variant-label"
+                id="coupon_variant"
+                name="coupon_variant"
+                value={formData.coupon_variant}
+                onChange={(event) => handleChange(event as React.ChangeEvent<HTMLInputElement>)}
+                label="نوع کوپن"
+              >
+                <MenuItem value="ALL">همه</MenuItem>
+                <MenuItem value="COURSE_SESSION">کلاس های آموزشی</MenuItem>
+                <MenuItem value="ORDER">سفارش</MenuItem>
+              </Select>
+            </FormControl>
+          </Grid>
+
+          {/* Description (Optional) */}
+          <Grid size={{ xs: 12, md: 6 }}>
+            <TextField
+              fullWidth
+              id="description"
+              name="description"
+              label="توضیحات (اختیاری)"
+              multiline
+              rows={4}
+              value={formData.description}
+              onChange={handleChange}
+            />
+          </Grid>
+
+
           {/* Valid From Date */}
           <Grid size={{ xs: 12, md: 6 }}>
             <Box sx={{ mb: 1 }}>
@@ -256,17 +310,20 @@ const CreateCoupon = () => {
             />
           </Grid>
 
-          {/* Description (Optional) */}
+
+
+          {/* Is Combined Checkbox */}
           <Grid size={{ xs: 12, md: 6 }}>
-            <TextField
-              fullWidth
-              id="description"
-              name="description"
-              label="توضیحات (اختیاری)"
-              multiline
-              rows={3}
-              value={formData.description}
-              onChange={handleChange}
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={formData.is_combined}
+                  onChange={handleIsCombinedChange}
+                  name="is_combined"
+                  color="primary"
+                />
+              }
+              label="آیا این کوپن قابل تجمیع هست"
             />
           </Grid>
 
