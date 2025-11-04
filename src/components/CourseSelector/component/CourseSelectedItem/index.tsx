@@ -17,6 +17,7 @@ const CourseSelectedItem: React.FC<CourseSelectedItemProps> = ({
       onDelete={() => onRemove(course.id)}
       deleteIcon={<CloseIcon />}
       color="primary"
+      dir="ltr"
       variant="outlined"
     />
   )

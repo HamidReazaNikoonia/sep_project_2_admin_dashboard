@@ -24,6 +24,12 @@ const CourseListItem: React.FC<CourseListItemProps> = ({
     >
       <Checkbox
         edge="start"
+        sx={{
+          '& .MuiSvgIcon-root': {
+            fontSize: 28,
+          },
+          marginLeft: 1,
+        }}
         checked={isSelected}
         tabIndex={-1}
         disableRipple

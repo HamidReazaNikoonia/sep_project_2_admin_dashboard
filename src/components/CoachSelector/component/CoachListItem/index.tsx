@@ -1,6 +1,7 @@
 import React from 'react'
 import { ListItem, ListItemText, Checkbox, Box, Typography } from '@mui/material'
 import moment from 'moment-jalaali'
+import { convertToPersianDigits } from '@/utils/helper'
 
 interface CoachListItemProps {
   coach: any
@@ -15,7 +16,7 @@ const CoachListItem: React.FC<CoachListItemProps> = ({
 }) => {
   const coachId = coach.id || coach._id
   const fullName = `${coach.first_name || ''} ${coach.last_name || ''}`.trim()
-
+  const createdAt = moment(coach.createdAt).format('jYYYY/jMM/jDD')
   return (
     <ListItem
       button
@@ -27,6 +28,12 @@ const CoachListItem: React.FC<CoachListItemProps> = ({
     >
       <Checkbox
         edge="start"
+        sx={{
+          '& .MuiSvgIcon-root': {
+            fontSize: 28,
+          },
+          marginLeft: 1,
+        }}
         checked={isSelected}
         tabIndex={-1}
         disableRipple
@@ -58,7 +65,7 @@ const CoachListItem: React.FC<CoachListItemProps> = ({
             )}
             {coach.createdAt && (
               <Typography variant="caption" display="block" color="text.secondary">
-                تاریخ ایجاد: {moment(coach.createdAt).format('jYYYY/jMM/jDD')}
+                تاریخ ایجاد: {createdAt && convertToPersianDigits(createdAt)}
               </Typography>
             )}
           </Box>

@@ -23,6 +23,7 @@ const CoachSelectedItem: React.FC<CoachSelectedItemProps> = ({
       deleteIcon={<CloseIcon />}
       color="primary"
       variant="outlined"
+      dir="ltr"
     />
   )
 }

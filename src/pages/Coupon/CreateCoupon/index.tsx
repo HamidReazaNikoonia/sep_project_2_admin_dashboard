@@ -12,6 +12,9 @@ import {
   Typography,
   Paper,
   Grid2 as Grid,
+  Alert,
+  Divider,
+  Chip,
 } from '@mui/material'
 import DatePicker from 'react-datepicker2'
 import moment from 'moment-jalaali'
@@ -191,13 +194,13 @@ const CreateCoupon = () => {
       // Add courses/sessions to except_courses or applicable_courses
       ...(isSpecificProducts &&
         selectedItems.length > 0 && {
-          [isExceptMode ? 'except_courses' : 'applicable_courses']: selectedItems,
-        }),
+        [isExceptMode ? 'except_courses' : 'applicable_courses']: selectedItems,
+      }),
       // Add coaches to except_coach or applicable_coach
       ...(isSpecificCoaches &&
         coachIds.length > 0 && {
-          [isExceptCoachMode ? 'except_coach' : 'applicable_coach']: coachIds,
-        }),
+        [isExceptCoachMode ? 'except_coach' : 'applicable_coach']: coachIds,
+      }),
     }
 
     console.log('Submitting coupon data:', couponData)
@@ -289,6 +292,20 @@ const CreateCoupon = () => {
 
           {/* Coupon Variant */}
           <Grid size={{ xs: 12, md: 6 }}>
+            <Alert severity="info" sx={{ mb: 4 }}>
+              <div className='mr-4'>
+                <Typography variant="body2">
+                  همه: کوپن روی همه محصولات اعمال خواهد شد
+                </Typography>
+                <Typography variant="body2">
+                  کلاس های آموزشی: کوپن روی کلاس های آموزشی اعمال خواهد شد
+                </Typography>
+                <Typography variant="body2">
+                  سفارش: کوپن  شامل محصولات فیزیکی و دوره های آفلاین هست اعمال خواهد شد
+                </Typography>
+              </div>
+
+            </Alert>
             <FormControl fullWidth required>
               <InputLabel id="coupon-variant-label">نوع کوپن</InputLabel>
               <Select
@@ -299,14 +316,29 @@ const CreateCoupon = () => {
                 onChange={handleChange}
                 label="نوع کوپن"
               >
-                <MenuItem value="COURSE_SESSION">دوره آموزشی</MenuItem>
+                <MenuItem value="ALL">همه</MenuItem>
+                <MenuItem value="COURSE_SESSION">کلاس های آموزشی</MenuItem>
                 <MenuItem value="ORDER">سفارش</MenuItem>
               </Select>
             </FormControl>
           </Grid>
 
-          {/* Valid From Date */}
+          {/* Description (Optional) */}
           <Grid size={{ xs: 12, md: 6 }}>
+            <TextField
+              fullWidth
+              id="description"
+              name="description"
+              label="توضیحات (اختیاری)"
+              multiline
+              rows={6}
+              value={formData.description}
+              onChange={handleChange}
+            />
+          </Grid>
+
+          {/* Valid From Date */}
+          <Grid sx={{ mt: 5 }} size={{ xs: 12, md: 6 }}>
             <Box sx={{ mb: 1 }}>
               <Typography variant="body2">تاریخ شروع اعتبار *</Typography>
             </Box>
@@ -321,7 +353,7 @@ const CreateCoupon = () => {
           </Grid>
 
           {/* Valid Until Date */}
-          <Grid size={{ xs: 12, md: 6 }}>
+          <Grid sx={{ mt: 5 }} size={{ xs: 12, md: 6 }}>
             <Box sx={{ mb: 1 }}>
               <Typography variant="body2">تاریخ پایان اعتبار *</Typography>
             </Box>
@@ -335,19 +367,7 @@ const CreateCoupon = () => {
             />
           </Grid>
 
-          {/* Description (Optional) */}
-          <Grid size={{ xs: 12, md: 6 }}>
-            <TextField
-              fullWidth
-              id="description"
-              name="description"
-              label="توضیحات (اختیاری)"
-              multiline
-              rows={3}
-              value={formData.description}
-              onChange={handleChange}
-            />
-          </Grid>
+
 
           {/* Is Combined Checkbox */}
           <Grid size={{ xs: 12, md: 6 }}>
@@ -363,6 +383,24 @@ const CreateCoupon = () => {
               label="آیا این کوپن قابل تجمیع هست"
             />
           </Grid>
+
+          <Grid size={{ xs: 12 }}>
+            <Divider sx={{ my: 4 }}>
+              <Chip label="اعمال کوپن روی آیتم های مشخص" size="small" />
+            </Divider>
+          </Grid>
+
+
+          <Grid size={{ xs: 12 }}>
+            <Alert severity="warning" sx={{ mb: 1 }}>
+                <div className='mr-4'>
+                  در نظر داشته باشید که مشخص و فیلتر کردن استاد و همزمان مشخص و فیلتر کردن دوره یا کلاس آموزشی در صورت در نظر گرفتن تداخل موجب خطا در سیستم میباشد , لذا در انتخاب هر دو توجه کافی کنید 
+                </div>
+            </Alert>
+          </Grid>
+
+
+
 
           {/* Product Specific Checkbox */}
           <Grid size={{ xs: 12 }}>

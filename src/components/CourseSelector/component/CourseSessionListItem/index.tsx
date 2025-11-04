@@ -1,6 +1,7 @@
 import React from 'react'
 import { ListItem, ListItemText, Checkbox, Box, Typography } from '@mui/material'
 import moment from 'moment-jalaali'
+import { convertToPersianDigits } from '@/utils/helper'
 
 interface CourseSessionListItemProps {
   courseSession: any
@@ -13,6 +14,8 @@ const CourseSessionListItem: React.FC<CourseSessionListItemProps> = ({
   isSelected,
   onToggle,
 }) => {
+
+  const createdAt = moment(courseSession.createdAt).format('jYYYY/jMM/jDD')
   return (
     <ListItem
       button
@@ -24,6 +27,12 @@ const CourseSessionListItem: React.FC<CourseSessionListItemProps> = ({
     >
       <Checkbox
         edge="start"
+        sx={{
+          '& .MuiSvgIcon-root': {
+            fontSize: 28,
+          },
+          marginLeft: 1,
+        }}
         checked={isSelected}
         tabIndex={-1}
         disableRipple
@@ -45,12 +54,12 @@ const CourseSessionListItem: React.FC<CourseSessionListItemProps> = ({
             )}
             {courseSession.price_real && (
               <Typography variant="caption" display="block">
-                قیمت: {courseSession.price_real.toLocaleString('fa-IR')} تومان
+                  قیمت اصلی: {convertToPersianDigits(courseSession.price_real, { isPrice: true })}
               </Typography>
             )}
             {courseSession.createdAt && (
               <Typography variant="caption" display="block" color="text.secondary">
-                تاریخ ایجاد: {moment(courseSession.createdAt).format('jYYYY/jMM/jDD')}
+                تاریخ ایجاد: {createdAt && convertToPersianDigits(createdAt)}
               </Typography>
             )}
           </Box>

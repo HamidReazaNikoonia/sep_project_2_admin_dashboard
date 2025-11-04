@@ -30,6 +30,7 @@ const CourseSessionSelectedItem: React.FC<CourseSessionSelectedItemProps> = ({
       deleteIcon={<CloseIcon />}
       color="primary"
       variant="outlined"
+      dir="ltr"
     />
   )
 }

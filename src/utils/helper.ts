@@ -25,12 +25,20 @@ export const validateIranianNationalId = (nationalId: string) => {
 };
 
 // Persian digits conversion
-export const convertToPersianDigits = (text: string) => {
-  if (text && typeof text === 'number') {
-    text = text.toString();
+export const convertToPersianDigits = (text: string | number, options: { isPrice?: boolean } = {}) => {
+  const { isPrice = false } = options;
+  let textStr = text;
+  if (typeof textStr === 'number') {
+    textStr = textStr.toString();
   }
+  
+  // Add comma separator for prices
+  if (options.isPrice) {
+    textStr = textStr.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') + ' ریال';
+  }
+  
   const persianDigits = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹']
-  return text.replace(/[0-9]/g, (d) => persianDigits[parseInt(d)])
+  return textStr.replace(/[0-9]/g, (d) => persianDigits[parseInt(d)])
 }
 
 
