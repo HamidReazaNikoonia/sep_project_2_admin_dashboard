@@ -17,6 +17,7 @@ import DatePicker from 'react-datepicker2'
 import moment from 'moment-jalaali'
 import { useCreateCoupon } from '@/API/Coupon/coupon.hook'
 import CourseSelector from '@/components/CourseSelector'
+import CoachSelector from '@/components/CoachSelector'
 
 const CreateCoupon = () => {
   // Form state
@@ -43,6 +44,11 @@ const CreateCoupon = () => {
   const [isExceptMode, setIsExceptMode] = useState(false)
   const [selectedCourses, setSelectedCourses] = useState<string[]>([])
   const [selectedSessions, setSelectedSessions] = useState<string[]>([])
+
+  // State for coach specific coupon
+  const [isSpecificCoaches, setIsSpecificCoaches] = useState(false)
+  const [isExceptCoachMode, setIsExceptCoachMode] = useState(false)
+  const [selectedCoaches, setSelectedCoaches] = useState<string[]>([])
 
   // Create coupon mutation
   const createCouponMutation = useCreateCoupon()
@@ -113,6 +119,25 @@ const CreateCoupon = () => {
     setIsExceptMode(e.target.checked)
   }
 
+  // Handle checkbox change for specific coaches
+  const handleSpecificCoachesChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    setIsSpecificCoaches(e.target.checked)
+    // Reset selections when toggling
+    if (!e.target.checked) {
+      setSelectedCoaches([])
+      setIsExceptCoachMode(false)
+    }
+  }
+
+  // Handle checkbox change for except coach mode
+  const handleExceptCoachModeChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    setIsExceptCoachMode(e.target.checked)
+  }
+
   // Handle checkbox change for is_combined
   const handleIsCombinedChange = (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -147,6 +172,9 @@ const CreateCoupon = () => {
     // Combine selected items
     const selectedItems = [..._selectedCourses, ..._selectedSessions]
 
+    // Prepare coach IDs
+    const coachIds = selectedCoaches
+
     // Prepare data for API
     const couponData = {
       ...formData,
@@ -160,10 +188,15 @@ const CreateCoupon = () => {
       valid_until: formData.valid_until.format('YYYY-MM-DD'),
       is_combined: formData.is_combined,
       coupon_variant: formData.coupon_variant,
-      // Add to except_courses if isExceptMode is true, otherwise applicable_courses
+      // Add courses/sessions to except_courses or applicable_courses
       ...(isSpecificProducts &&
         selectedItems.length > 0 && {
           [isExceptMode ? 'except_courses' : 'applicable_courses']: selectedItems,
+        }),
+      // Add coaches to except_coach or applicable_coach
+      ...(isSpecificCoaches &&
+        coachIds.length > 0 && {
+          [isExceptCoachMode ? 'except_coach' : 'applicable_coach']: coachIds,
         }),
     }
 
@@ -401,6 +434,59 @@ const CreateCoupon = () => {
                 />
               </Grid>
             </>
+          )}
+
+          {/* Coach Specific Checkbox */}
+          <Grid size={{ xs: 12 }}>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={isSpecificCoaches}
+                  onChange={handleSpecificCoachesChange}
+                  name="specificCoaches"
+                  color="primary"
+                />
+              }
+              label="آیا میخواهید این کد تخفیف روی مربی خاصی اعمال شود"
+            />
+          </Grid>
+
+          {/* Except Coach Mode Checkbox (Conditional) */}
+          {isSpecificCoaches && (
+            <Grid size={{ xs: 12 }}>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={isExceptCoachMode}
+                    onChange={handleExceptCoachModeChange}
+                    name="exceptCoachMode"
+                    color="secondary"
+                  />
+                }
+                label="کوپن روی تمام مربیان اعمال شود به غیر از"
+              />
+              <Typography variant="caption" color="text.secondary" display="block" sx={{ mr: 4 }}>
+                {isExceptCoachMode
+                  ? 'کوپن روی همه مربیان به جز موارد انتخاب شده اعمال خواهد شد'
+                  : 'کوپن فقط روی مربیان انتخاب شده اعمال خواهد شد'}
+              </Typography>
+            </Grid>
+          )}
+
+          {/* Coach Selector (Conditional) */}
+          {isSpecificCoaches && (
+            <Grid size={{ xs: 12 }}>
+              <CoachSelector
+                selectedIds={selectedCoaches}
+                onSelectionChange={setSelectedCoaches}
+                label={
+                  isExceptCoachMode
+                    ? 'انتخاب مربیانی که کوپن روی آنها اعمال نشود'
+                    : 'انتخاب مربیان'
+                }
+                isExceptMode={isExceptCoachMode}
+              />
+            </Grid>
           )}
 
           {/* Submit Button */}
