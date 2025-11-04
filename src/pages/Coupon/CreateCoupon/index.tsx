@@ -41,6 +41,7 @@ const CreateCoupon = () => {
   const [errors, setErrors] = useState({
     max_uses: '',
     discount_value: '',
+    implement_count: '',
   })
 
   // State for course/session specific coupon
@@ -53,6 +54,10 @@ const CreateCoupon = () => {
   const [isSpecificCoaches, setIsSpecificCoaches] = useState(false)
   const [isExceptCoachMode, setIsExceptCoachMode] = useState(false)
   const [selectedCoaches, setSelectedCoaches] = useState<string[]>([])
+
+    // State for multiple coupon creation
+    const [isMultipleCoupons, setIsMultipleCoupons] = useState(false)
+    const [implementCount, setImplementCount] = useState(1)
 
   // Create coupon mutation
   const createCouponMutation = useCreateCoupon()
@@ -152,6 +157,43 @@ const CreateCoupon = () => {
     })
   }
 
+
+    // Handle checkbox change for multiple coupons
+    const handleMultipleCouponsChange = (
+      e: React.ChangeEvent<HTMLInputElement>,
+    ) => {
+      setIsMultipleCoupons(e.target.checked)
+      if (!e.target.checked) {
+        setImplementCount(1)
+        setErrors((prev) => ({ ...prev, implement_count: '' }))
+      }
+    }
+  
+    // Handle implement count change
+    const handleImplementCountChange = (
+      e: React.ChangeEvent<HTMLInputElement>,
+    ) => {
+      const value = e.target.value
+      const numValue = Number(value)
+      
+      setImplementCount(numValue)
+  
+      // Validate implement_count
+      if (isNaN(numValue) || numValue < 1) {
+        setErrors((prev) => ({
+          ...prev,
+          implement_count: 'تعداد کوپن باید بزرگتر یا مساوی 1 باشد',
+        }))
+      } else if (numValue > 1000) {
+        setErrors((prev) => ({
+          ...prev,
+          implement_count: 'تعداد کوپن نمی‌تواند بیشتر از 1000 باشد',
+        }))
+      } else {
+        setErrors((prev) => ({ ...prev, implement_count: '' }))
+      }
+    }
+
   // Handle form submission
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -226,6 +268,10 @@ const CreateCoupon = () => {
       ...(isSpecificCoaches &&
         coachIds.length > 0 && {
         [isExceptCoachMode ? 'except_coach' : 'applicable_coach']: coachIds,
+      }),
+       // Add implement_count if multiple coupons is enabled
+       ...(isMultipleCoupons && {
+        implement_count: implementCount,
       }),
     }
 
@@ -553,8 +599,47 @@ const CreateCoupon = () => {
             </Grid>
           )}
 
-          {/* Submit Button */}
+          {/* Multiple Coupons Checkbox */}
           <Grid size={{ xs: 12 }}>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={isMultipleCoupons}
+                  onChange={handleMultipleCouponsChange}
+                  name="multipleCoupons"
+                  color="primary"
+                />
+              }
+              label="ایجاد چندین کد تخفیف به صورت یکجا"
+            />
+            <Typography variant="caption" color="text.secondary" display="block" sx={{ mr: 4 }}>
+              با فعال کردن این گزینه، می‌توانید چندین کد تخفیف با مشخصات یکسان ایجاد کنید
+            </Typography>
+          </Grid>
+
+
+          {/* Implement Count Input (Conditional) */}
+          {isMultipleCoupons && (
+            <Grid size={{ xs: 12, md: 6 }}>
+              <TextField
+                required
+                fullWidth
+                id="implement_count"
+                name="implement_count"
+                label="تعداد کد تخفیف"
+                type="number"
+                inputProps={{ min: 1, max: 1000 }}
+                value={implementCount}
+                onChange={handleImplementCountChange}
+                error={!!errors.implement_count}
+                helperText={errors.implement_count || 'حداکثر 1000 کد تخفیف'}
+              />
+            </Grid>
+          )}
+
+
+         {/* Submit Button */}
+         <Grid size={{ xs: 12 }}>
             <Button
               type="submit"
               variant="contained"
@@ -564,6 +649,8 @@ const CreateCoupon = () => {
             >
               {createCouponMutation.isPending
                 ? 'در حال ارسال...'
+                : isMultipleCoupons
+                ? `ایجاد ${implementCount} کد تخفیف`
                 : 'ایجاد کد تخفیف'}
             </Button>
           </Grid>
