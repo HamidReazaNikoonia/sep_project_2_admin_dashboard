@@ -21,6 +21,7 @@ import moment from 'moment-jalaali'
 import { useCreateCoupon } from '@/API/Coupon/coupon.hook'
 import CourseSelector from '@/components/CourseSelector'
 import CoachSelector from '@/components/CoachSelector'
+import { showToast } from '@/utils/toast'
 
 const CreateCoupon = () => {
   // Form state
@@ -155,6 +156,31 @@ const CreateCoupon = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
 
+    // validation
+    if (formData.discount_type === '') {
+      showToast('خطا', 'نوع تخفیف الزامی است', 'error')
+      return
+    }
+    if (formData.discount_value === '' || Number(formData.discount_value) <= 0) {
+      showToast('خطا', 'مقدار تخفیف الزامی است', 'error')
+      return
+    }
+    
+    if(formData.coupon_variant === '' || formData.coupon_variant === null || formData.coupon_variant === undefined) {
+      showToast('خطا', 'نوع کوپن الزامی است', 'error')
+      return
+    }
+
+    // Validate percentage discount value
+    if (formData.discount_type === 'PERCENTAGE') {
+      const discountValue = Number(formData.discount_value)
+      if (discountValue < 1 || discountValue > 100) {
+        showToast('خطا', 'مقدار تخفیف درصدی باید بین ۱ تا ۱۰۰ باشد', 'error')
+        return
+      }
+    }
+
+
     // Check for validation errors
     if (errors.max_uses || errors.discount_value) {
       return
@@ -208,12 +234,12 @@ const CreateCoupon = () => {
     // Submit data
     createCouponMutation.mutate(couponData, {
       onSuccess: () => {
-        alert('کد تخفیف با موفقیت ایجاد شد')
+        showToast('موفق', 'کد تخفیف با موفقیت ایجاد شد', 'success')
         // Reset form state here if needed
       },
       onError: (error) => {
         console.error('Error creating coupon:', error)
-        alert('خطا در ایجاد کد تخفیف')
+        showToast('خطا', 'خطا در ایجاد کد تخفیف', 'error')
       },
     })
   }
@@ -353,7 +379,7 @@ const CreateCoupon = () => {
           </Grid>
 
           {/* Valid Until Date */}
-          <Grid sx={{ mt: 5 }} size={{ xs: 12, md: 6 }}>
+          <Grid sx={{ mt: {xs: 1, md: 5} }} size={{ xs: 12, md: 6 }}>
             <Box sx={{ mb: 1 }}>
               <Typography variant="body2">تاریخ پایان اعتبار *</Typography>
             </Box>
