@@ -54,3 +54,59 @@ export const findFirstSession = (sessions: any) => {
   // Return the first session (earliest date)
   return sortedSessions[0]?.date ?  formatDateShort(sortedSessions[0]?.date) : null;
 };
+
+/**
+ * Convert array of objects to CSV and trigger download
+ * @param data - Array of objects to convert to CSV
+ * @param filename - Name of the CSV file (without extension)
+ * @param headers - Optional custom headers mapping { key: 'Display Name' }
+ */
+export const downloadCSV = (
+  data: any[],
+  filename: string,
+  headers?: Record<string, string>
+) => {
+  if (!data || data.length === 0) {
+    console.warn('No data to export')
+    return
+  }
+
+  // Get headers from first object or use custom headers
+  const keys = Object.keys(data[0])
+  const headerRow = headers
+    ? keys.map((key) => headers[key] || key).join(',')
+    : keys.join(',')
+
+  // Convert data to CSV rows
+  const csvRows = data.map((row) =>
+    keys
+      .map((key) => {
+        const value = row[key]
+        // Handle values that contain commas or quotes
+        if (value === null || value === undefined) return ''
+        const stringValue = String(value)
+        if (stringValue.includes(',') || stringValue.includes('"')) {
+          return `"${stringValue.replace(/"/g, '""')}"`
+        }
+        return stringValue
+      })
+      .join(',')
+  )
+
+  // Combine header and rows
+  const csvContent = [headerRow, ...csvRows].join('\n')
+
+  // Create blob and download
+  const blob = new Blob(['\uFEFF' + csvContent], {
+    type: 'text/csv;charset=utf-8;',
+  })
+  const link = document.createElement('a')
+  const url = URL.createObjectURL(blob)
+
+  link.setAttribute('href', url)
+  link.setAttribute('download', `${filename}.csv`)
+  link.style.visibility = 'hidden'
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+}

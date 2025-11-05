@@ -15,7 +15,18 @@ import {
   Alert,
   Divider,
   Chip,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  List,
+  ListItem,
+  ListItemText,
+  IconButton,
 } from '@mui/material'
+import DownloadIcon from '@mui/icons-material/Download'
+import CloseIcon from '@mui/icons-material/Close'
+import { downloadCSV } from '@/utils/helper'
 import DatePicker from 'react-datepicker2'
 import moment from 'moment-jalaali'
 import { useCreateCoupon } from '@/API/Coupon/coupon.hook'
@@ -59,6 +70,11 @@ const CreateCoupon = () => {
     const [isMultipleCoupons, setIsMultipleCoupons] = useState(false)
     const [implementCount, setImplementCount] = useState(1)
 
+
+    // State for created coupons modal
+const [showCouponsModal, setShowCouponsModal] = useState(false)
+const [createdCoupons, setCreatedCoupons] = useState<any[]>([])
+
   // Create coupon mutation
   const createCouponMutation = useCreateCoupon()
 
@@ -99,6 +115,40 @@ const CreateCoupon = () => {
       }
     }
   }
+
+  // Handle close coupons modal
+const handleCloseCouponsModal = () => {
+  setShowCouponsModal(false)
+  setCreatedCoupons([])
+}
+
+// Handle download coupons as CSV
+const handleDownloadCouponsCSV = () => {
+  if (createdCoupons.length === 0) return
+
+  const csvData = createdCoupons.map((coupon) => ({
+    code: coupon.code || '',
+    discount_type: coupon.discount_type || '',
+    discount_value: coupon.discount_value || '',
+    max_uses: coupon.max_uses || '',
+    valid_from: coupon.valid_from || '',
+    valid_until: coupon.valid_until || '',
+    description: coupon.description || '',
+  }))
+
+  const headers = {
+    code: 'کد تخفیف',
+    discount_type: 'نوع تخفیف',
+    discount_value: 'مقدار تخفیف',
+    max_uses: 'حداکثر استفاده',
+    valid_from: 'تاریخ شروع',
+    valid_until: 'تاریخ پایان',
+    description: 'توضیحات',
+  }
+
+  const timestamp = moment().format('YYYY-MM-DD_HH-mm-ss')
+  downloadCSV(csvData, `coupons_${timestamp}`, headers)
+}
 
   // Handle date changes
   const handleDateChange = (name: string) => (date: any) => {
@@ -279,8 +329,17 @@ const CreateCoupon = () => {
 
     // Submit data
     createCouponMutation.mutate(couponData, {
-      onSuccess: () => {
-        showToast('موفق', 'کد تخفیف با موفقیت ایجاد شد', 'success')
+      onSuccess: (response) => {
+        // Check if multiple coupons were created
+        if (isMultipleCoupons && Array.isArray(response)) {
+          setCreatedCoupons(response)
+          setShowCouponsModal(true)
+        } else {
+          const message = isMultipleCoupons 
+            ? `${implementCount} کد تخفیف با موفقیت ایجاد شد`
+            : 'کد تخفیف با موفقیت ایجاد شد'
+          showToast('موفق', message, 'success')
+        }
         // Reset form state here if needed
       },
       onError: (error) => {
@@ -656,6 +715,84 @@ const CreateCoupon = () => {
           </Grid>
         </Grid>
       </Box>
+
+      <Dialog
+        open={showCouponsModal}
+        onClose={handleCloseCouponsModal}
+        maxWidth="md"
+        fullWidth
+        dir="rtl"
+      >
+        <DialogTitle>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Typography variant="h6">
+              کدهای تخفیف ایجاد شده ({createdCoupons.length})
+            </Typography>
+            <IconButton onClick={handleCloseCouponsModal} size="small">
+              <CloseIcon />
+            </IconButton>
+          </Box>
+        </DialogTitle>
+        <DialogContent dividers>
+          <Box sx={{ mb: 2 }}>
+            <Typography variant="body2" color="text.secondary">
+              کدهای تخفیف زیر با موفقیت ایجاد شدند. می‌توانید آنها را کپی کرده یا به صورت فایل CSV دانلود کنید.
+            </Typography>
+          </Box>
+          <List sx={{ maxHeight: '400px', overflow: 'auto' }}>
+            {createdCoupons.map((coupon, index) => (
+              <ListItem
+                key={coupon.id || index}
+                sx={{
+                  borderBottom: '1px solid #e0e0e0',
+                  '&:last-child': { borderBottom: 'none' },
+                }}
+              >
+                <ListItemText
+                  primary={
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <Typography variant="body1" fontWeight="bold">
+                        {index + 1}.
+                      </Typography>
+                      <Typography
+                        variant="body1"
+                        sx={{
+                          fontFamily: 'monospace',
+                          backgroundColor: '#f5f5f5',
+                          padding: '4px 8px',
+                          borderRadius: '4px',
+                        }}
+                      >
+                        {coupon.code}
+                      </Typography>
+                    </Box>
+                  }
+                  secondary={
+                    coupon.description && (
+                      <Typography variant="caption" color="text.secondary">
+                        {coupon.description}
+                      </Typography>
+                    )
+                  }
+                />
+              </ListItem>
+            ))}
+          </List>
+        </DialogContent>
+        <DialogActions sx={{ p: 2, justifyContent: 'space-between' }}>
+          <Button
+            variant="contained"
+            color="success"
+            startIcon={<DownloadIcon className='ml-2' />}
+            onClick={handleDownloadCouponsCSV}
+          >
+            دانلود فایل CSV
+          </Button>
+          <Button variant="outlined" onClick={handleCloseCouponsModal}>
+            بستن
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Paper>
   )
 }
