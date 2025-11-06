@@ -5,11 +5,28 @@ import couponApi from './coupon.api'
 const COUPON_KEY = 'coupon'
 
 
-// get all coupons
-export const useGetAllCoupons = () => {
+// Get all coupons with filters
+export const useGetAllCoupons = (params?: {
+  page?: number
+  limit?: number
+  code?: string
+  type?: string
+  is_active?: boolean
+  is_combined?: boolean
+  valid_from?: string
+  valid_until?: string
+  discount_type?: string
+  coupon_variant?: string
+  createdAt_from?: string
+  createdAt_to?: string
+  sortBy?: string
+}) => {
   return useQuery({
-    queryKey: [COUPON_KEY],
-    queryFn: () => couponApi.getAllCoupons(),
+    queryKey: [COUPON_KEY, params],
+    queryFn: () => couponApi.getAllCoupons(params),
+    // Add these options to ensure proper refetching
+    staleTime: 0,
+    refetchOnMount: true,
   })
 }
 

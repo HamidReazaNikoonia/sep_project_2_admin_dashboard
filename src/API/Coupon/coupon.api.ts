@@ -7,9 +7,23 @@ const couponApi = {
     return data
   },
 
-  // get all coupons
-  getAllCoupons: async () => {
-    const { data } = await axios.get('admin/coupon-code')
+   // Get all coupons with filters and pagination
+   getAllCoupons: async (params?: {
+    page?: number
+    limit?: number
+    code?: string
+    type?: string
+    is_active?: boolean
+    is_combined?: boolean
+    valid_from?: string
+    valid_until?: string
+    discount_type?: string
+    coupon_variant?: string
+    createdAt_from?: string
+    createdAt_to?: string
+    sortBy?: string
+  }) => {
+    const { data } = await axios.get('admin/coupon-code', { params })
     return data
   },
 }
