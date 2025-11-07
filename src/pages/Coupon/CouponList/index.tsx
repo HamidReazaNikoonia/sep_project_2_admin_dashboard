@@ -152,19 +152,19 @@ const CouponList: React.FC = () => {
   // Extract data
   const data = queryData
     ? {
-        results: queryData.results || [],
-        page,
-        limit,
-        totalPages: queryData.totalPages || 0,
-        totalResults: queryData.totalResults || 0,
-      }
+      results: queryData.results || [],
+      page,
+      limit,
+      totalPages: queryData.totalPages || 0,
+      totalResults: queryData.totalResults || 0,
+    }
     : {
-        results: [],
-        page: 1,
-        limit: 10,
-        totalPages: 0,
-        totalResults: 0,
-      }
+      results: [],
+      page: 1,
+      limit: 10,
+      totalPages: 0,
+      totalResults: 0,
+    }
 
   // Format dates
   const formatDate = (dateString: string) => {
@@ -333,8 +333,8 @@ const CouponList: React.FC = () => {
                         {coupon.coupon_variant === 'COURSE_SESSION'
                           ? 'کلاس آموزشی'
                           : coupon.coupon_variant === 'ORDER'
-                          ? 'سفارش'
-                          : 'همه'}
+                            ? 'سفارش'
+                            : 'همه'}
                       </Typography>
                     </Box>
                   )}
@@ -577,10 +577,9 @@ const CouponList: React.FC = () => {
                   label="محدوده کوپن"
                   onChange={(e) => handleFilterChange(setCouponVariant)(e.target.value)}
                 >
-                  <MenuItem value="">همه</MenuItem>
+                  <MenuItem value="ALL">همه</MenuItem>
                   <MenuItem value="COURSE_SESSION">کلاس آموزشی</MenuItem>
                   <MenuItem value="ORDER">سفارش</MenuItem>
-                  <MenuItem value="ALL">همه</MenuItem>
                 </Select>
               </FormControl>
             </div>
@@ -741,11 +740,10 @@ const CouponList: React.FC = () => {
                   <button
                     onClick={() => handlePageChange(data.page - 1)}
                     disabled={data.page === 1}
-                    className={`px-4 py-2 border rounded-md ${
-                      data.page === 1
+                    className={`px-4 py-2 border rounded-md ${data.page === 1
                         ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                         : 'bg-white text-gray-700 hover:bg-gray-50'
-                    }`}
+                      }`}
                   >
                     Previous
                   </button>
@@ -765,11 +763,10 @@ const CouponList: React.FC = () => {
                       <button
                         key={pageNum}
                         onClick={() => handlePageChange(pageNum)}
-                        className={`px-4 py-2 border rounded-md ${
-                          data.page === pageNum
+                        className={`px-4 py-2 border rounded-md ${data.page === pageNum
                             ? 'bg-blue-500 text-white'
                             : 'bg-white text-gray-700 hover:bg-gray-50'
-                        }`}
+                          }`}
                       >
                         {pageNum}
                       </button>
@@ -778,11 +775,10 @@ const CouponList: React.FC = () => {
                   <button
                     onClick={() => handlePageChange(data.page + 1)}
                     disabled={data.page === data.totalPages}
-                    className={`px-4 py-2 border rounded-md ${
-                      data.page === data.totalPages
+                    className={`px-4 py-2 border rounded-md ${data.page === data.totalPages
                         ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                         : 'bg-white text-gray-700 hover:bg-gray-50'
-                    }`}
+                      }`}
                   >
                     Next
                   </button>

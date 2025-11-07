@@ -67,6 +67,7 @@ import CreateBlog from './pages/Blog/CreateBlog'
 import EditBlog from './pages/Blog/EditBlog'
 import BlogSpecific from './pages/Blog/BlogSpecific'
 import OrderSpecific from './pages/Orders/OrderSpecific'
+import EditCourseSessionProgram from './pages/CourseSessionProgram/EditCourseSessionProgram'
 
 
 const router = createBrowserRouter(
@@ -256,6 +257,14 @@ const router = createBrowserRouter(
       element: (
         <Layout>
           <CourseSessionProgramSpecific />
+        </Layout>
+      ),
+    },
+    {
+      path: '/course-session-program/update-program/:id',
+      element: (
+        <Layout>
+          <EditCourseSessionProgram />
         </Layout>
       ),
     },

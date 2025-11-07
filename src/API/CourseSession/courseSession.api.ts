@@ -83,6 +83,11 @@ const courseSessionApi = {
     return response?.data;
   },
 
+  updateCourseSessionProgramById: async (id: string, requestData: any): Promise<any> => {
+    const response = await axios.put(`/course-session/admin/program/${id}`, requestData);
+    return response?.data;
+  },
+
 
   getProgramMembers: async (id: string): Promise<any> => {
     const response = await axios.get(`/course-session/admin/program/${id}/members`);

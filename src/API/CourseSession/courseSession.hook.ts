@@ -117,6 +117,21 @@ export const useGetCourseSessionProgramById = (id: string) => {
   })
 }
 
+export const useUpdateCourseSessionProgramById = (id: string) => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (requestData: any) => courseSessionApi.updateCourseSessionProgramById(id, requestData),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['COURSE_SESSION_PROGRAM', id] })
+    },
+    onError: (err) => {
+      console.log('log from useUpdateCourseSessionProgramById')
+      console.log(err)
+      console.log(err?.response)
+    },
+  })
+}
+
 export const useGetProgramMembers = (id: string) => {
   return useQuery({
     queryKey: ['COURSE_SESSION_PROGRAM_MEMBERS', id],
