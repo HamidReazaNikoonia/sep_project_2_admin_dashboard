@@ -288,7 +288,7 @@ export default function CourseSessionProgramSpecific() {
   }
 
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('fa-IR').format(price) + ' تومان'
+    return new Intl.NumberFormat('fa-IR').format(price) + ' ریال'
   }
 
   if (isLoading) {
@@ -417,10 +417,25 @@ export default function CourseSessionProgramSpecific() {
                     {data?.class_id?.class_status === 'ACTIVE' ? 'فعال' : 'غیرفعال'}
                   </span>
                 </div>
+
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-8">
                 <div className="text-gray-700">
-                  <span className="font-semibold block">حداکثر تعداد دانشجو</span>
-                  <span className="font-bold text-lg">{data?.class_id?.class_max_student_number || 'نامحدود'}</span>
+                  <span className="font-semibold mb-2 block">(کلاس) حداکثر تعداد دانشجو</span>
+                  <span className="font-bold bg-amber-600 px-6 py-0.5 rounded-md text-lg text-white">{data?.class_id?.class_max_student_number?.toLocaleString('fa-IR') || 'نامحدود'}</span>
                 </div>
+
+                <div className="text-gray-700">
+                  <span className="font-semibold mb-2 block">(دوره) حداکثر تعداد دانشجو</span>
+                  <span className="font-bold bg-amber-600 px-6 py-0.5 rounded-md text-lg text-white">{data?.max_member_accept?.toLocaleString('fa-IR') || 'نامحدود'}</span>
+                </div>
+
+                <div className="text-gray-700">
+                  <span className="font-semibold mb-2 block">تعداد دانشجویان ثبت نام شده</span>
+                  <span className="font-bold bg-amber-600 px-6 py-0.5 rounded-md text-lg text-white">{data?.members?.length?.toLocaleString('fa-IR') || '0'}</span>
+                </div>
+
               </div>
             </div>
 
@@ -605,18 +620,18 @@ export default function CourseSessionProgramSpecific() {
           <div className="space-y-6">
             <div className="bg-white rounded-lg shadow-md p-6">
               <div className='flex justify-between items-center mb-4 border-b-2 border-gray-300 pb-2'>
-              <h2 className="text-2xl font-semibold text-gray-800 ">
-                جلسات دوره
-              </h2>
+                <h2 className="text-2xl font-semibold text-gray-800 ">
+                  جلسات دوره
+                </h2>
 
-              <Button
-                variant="outlined"
-                startIcon={<AddIcon className='text-blue-600 ml-2' />}
-                color="primary"
-                onClick={() => setShowEditSessionModal(true)}
-              >
-                 جلسه جدید
-              </Button>
+                <Button
+                  variant="outlined"
+                  startIcon={<AddIcon className='text-blue-600 ml-2' />}
+                  color="primary"
+                  onClick={() => setShowEditSessionModal(true)}
+                >
+                  جلسه جدید
+                </Button>
               </div>
 
               {otherSessions && otherSessions.length > 0 ? (

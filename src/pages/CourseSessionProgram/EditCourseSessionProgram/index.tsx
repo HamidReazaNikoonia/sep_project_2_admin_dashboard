@@ -360,8 +360,20 @@ interface SampleMediaDialogProps {
   
     const handleSave = () => {
       if (mediaType && mediaTitle && uploadedFile) {
+
+        let item = null;
+
+        // the editingSampleMediaIndex is Index of the initial Array of sample_media
+        if(initialData && typeof editingSampleMediaIndex === 'number') {
+          item = initialData[editingSampleMediaIndex]
+        } else if(initialData && typeof editingSampleMediaIndex === 'string') {
+          item = initialData.find((m) => m._id === editingSampleMediaIndex)
+        }
+
+        console.log({ item, editingSampleMediaIndex, initialData })
+        
         onSave({
-          _id: initialData?._id,
+          _id: item?._id,
           media_type: mediaType,
           media_title: mediaTitle,
           file: uploadedFile,
@@ -576,7 +588,21 @@ const EditCourseSessionProgram: React.FC = () => {
     setFormData(prev => {
       const newMedia = [...prev.sample_media]
       if (editingSampleMediaIndex !== null) {
-        newMedia[editingSampleMediaIndex] = media
+
+        // the editingSampleMediaIndex is Index of the initial Array of sample_media
+        if(typeof editingSampleMediaIndex === 'number') {
+          newMedia[editingSampleMediaIndex] = media
+        } else if(typeof editingSampleMediaIndex === 'string') {
+          let item = newMedia.find((m) => m._id === editingSampleMediaIndex);
+          if(item) {
+            item.media_type = media.media_type
+            item.media_title = media.media_title
+            item.file = media.file
+          }
+        }
+
+
+        // newMedia[editingSampleMediaIndex] = media
       } else {
         newMedia.push(media)
       }
