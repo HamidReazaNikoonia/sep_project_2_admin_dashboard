@@ -278,71 +278,180 @@ const SubjectDialog: React.FC<SubjectDialogProps> = ({
 }
 
 // Sample Media Dialog Component
+// Sample Media Dialog Component
 interface SampleMediaDialogProps {
-  open: boolean
-  onClose: () => void
-  onSave: (media: { media_type: string; media_title: string; url_address: string; file: any }) => void
-  initialData?: { media_type: string; media_title: string; url_address: string; file: any }
-}
-
-const SampleMediaDialog: React.FC<SampleMediaDialogProps> = ({
-  open,
-  onClose,
-  onSave,
-  initialData,
-}) => {
-  const [mediaType, setMediaType] = useState(initialData?.media_type || '')
-  const [mediaTitle, setMediaTitle] = useState(initialData?.media_title || '')
-  const [urlAddress, setUrlAddress] = useState(initialData?.url_address || '')
-
-  const handleSave = () => {
-    if (mediaType && mediaTitle && urlAddress) {
-      onSave({
-        media_type: mediaType,
-        media_title: mediaTitle,
-        url_address: urlAddress,
-        file: null, // Handle file upload separately if needed
-      })
-      onClose()
-      setMediaType('')
-      setMediaTitle('')
-      setUrlAddress('')
-    }
+    open: boolean
+    editingSampleMediaIndex: number | null
+    onClose: () => void
+    onSave: (media: { _id?: string; media_type: string; media_title: string; file: any | null }) => void
+    initialData?: { _id?: string; media_type: string; media_title: string; file: any | null }[]
   }
+  
+  const SampleMediaDialog: React.FC<SampleMediaDialogProps> = ({
+    open,
+    onClose,
+    onSave,
+    initialData,
+    editingSampleMediaIndex,
+  }) => {
+    const [mediaType, setMediaType] = useState('')
+    const [mediaTitle, setMediaTitle] = useState('')
+    const [uploadedFile, setUploadedFile] = useState<any | null>(null)
+    const [isUploading, setIsUploading] = useState(false)
 
-  return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>ویرایش رسانه نمونه</DialogTitle>
-      <DialogContent>
+    useEffect(() => {
+      if (initialData && editingSampleMediaIndex !== null) {
+        let item
+        if (typeof editingSampleMediaIndex === 'number') {
+          // Use as array index
+          item = initialData[editingSampleMediaIndex]
+        } else if (
+          typeof editingSampleMediaIndex === 'string' &&
+          Array.isArray(initialData)
+        ) {
+          // Use as _id to find in array
+          item = initialData.find((m) => m._id === editingSampleMediaIndex)
+        }
+        if (item) {
+            setMediaType(item.media_type)
+            setMediaTitle(item.media_title)
+            setUploadedFile(item.file)
+        }
+      } else if (editingSampleMediaIndex === null) {
+        setMediaType('')
+        setMediaTitle('')
+        setUploadedFile(null)
+      }
+    }, [initialData, editingSampleMediaIndex])
+
+    const uploadFile = async (file: File): Promise<any> => {
+        const formData = new FormData()
+        formData.append('file', file)
+    
+        const response = await fetch(`${process.env.REACT_APP_SERVER_URL}/admin/setting/upload`, {
+          method: 'POST',
+          body: formData,
+        })
+    
+        if (!response.ok) {
+          throw new Error('Upload failed')
+        }
+    
+        const data = await response.json()
+        return data.uploadedFile
+      }
+  
+    const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0]
+      if (!file) return
+  
+      setIsUploading(true)
+      try {
+        const uploaded = await uploadFile(file)
+        setUploadedFile(uploaded)
+        showToast('موفق', 'فایل با موفقیت آپلود شد', 'success')
+      } catch (error) {
+        showToast('خطا', 'خطا در آپلود فایل', 'error')
+      } finally {
+        setIsUploading(false)
+      }
+    }
+  
+    const handleSave = () => {
+      if (mediaType && mediaTitle && uploadedFile) {
+        onSave({
+          _id: initialData?._id,
+          media_type: mediaType,
+          media_title: mediaTitle,
+          file: uploadedFile,
+        })
+        onClose()
+        // Reset form
+        setMediaType('')
+        setMediaTitle('')
+        setUploadedFile(null)
+      } else {
+        showToast('خطا', 'لطفا همه فیلدها را پر کنید', 'error')
+      }
+    }
+  
+    return (
+      <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+        <DialogTitle dir="rtl">ویرایش رسانه نمونه</DialogTitle>
+        <DialogContent dir="rtl">
         <TextField
-          fullWidth
-          label="نوع رسانه"
-          value={mediaType}
-          onChange={(e) => setMediaType(e.target.value)}
-          sx={{ mt: 2 }}
-        />
-        <TextField
-          fullWidth
-          label="عنوان رسانه"
-          value={mediaTitle}
-          onChange={(e) => setMediaTitle(e.target.value)}
-          sx={{ mt: 2 }}
-        />
-        <TextField
-          fullWidth
-          label="آدرس URL"
-          value={urlAddress}
-          onChange={(e) => setUrlAddress(e.target.value)}
-          sx={{ mt: 2 }}
-        />
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={onClose}>لغو</Button>
-        <Button onClick={handleSave} variant="contained">ذخیره</Button>
-      </DialogActions>
-    </Dialog>
-  )
-}
+            fullWidth
+            label="عنوان رسانه"
+            value={mediaTitle}
+            onChange={(e) => setMediaTitle(e.target.value)}
+            sx={{ mt: 2 }}
+          />
+          <FormControl fullWidth sx={{ mt: 2 }}>
+            <InputLabel id="media-type-select-label">نوع رسانه</InputLabel>
+            <Select
+              labelId="media-type-select-label"
+              value={mediaType}
+              label="نوع رسانه"
+              dir="rtl"
+              sx={{ textAlign: 'right' }}
+              className="text-right"
+              onChange={(e) => setMediaType(e.target.value)}
+            >
+              <MenuItem dir="rtl" value="IMAGE">تصویر</MenuItem>
+              <MenuItem dir="rtl" value="VIDEO">ویدیو</MenuItem>
+              <MenuItem dir="rtl" value="FILE">فایل</MenuItem>
+            </Select>
+          </FormControl>
+          
+          
+          {/* File Upload Section */}
+          <Box dir="rtl" sx={{ mt: 2 }}>
+            <Typography variant="body1" gutterBottom>
+              فایل رسانه
+            </Typography>
+            <input
+              accept="*"
+              style={{ display: 'none' }}
+              id="file-upload"
+              type="file"
+              onChange={handleFileUpload}
+            />
+            <label htmlFor="file-upload">
+              <Button
+                variant="outlined"
+                component="span"
+                fullWidth
+                disabled={isUploading}
+                sx={{ mt: 1 }}
+              >
+                {isUploading ? <CircularProgress size={20} /> : 'انتخاب فایل'}
+              </Button>
+            </label>
+            
+            {uploadedFile && (
+              <Box sx={{ mt: 1 }}>
+                <Typography variant="body2" color="success.main">
+                  فایل آپلود شده: {uploadedFile.file_name}
+                </Typography>
+                <a 
+                  href={`${process.env.REACT_APP_SERVER_FILE}/${uploadedFile.file_name}`} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  style={{ color: '#1976d2', textDecoration: 'underline' }}
+                >
+                  مشاهده فایل
+                </a>
+              </Box>
+            )}
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={onClose}>لغو</Button>
+          <Button onClick={handleSave} variant="contained">ذخیره</Button>
+        </DialogActions>
+      </Dialog>
+    )
+  }
 
 const EditCourseSessionProgram: React.FC = () => {
   const { id } = useParams<{ id: string }>()
@@ -462,7 +571,7 @@ const EditCourseSessionProgram: React.FC = () => {
     }))
   }
 
-  const handleSaveSampleMedia = (media: { media_type: string; media_title: string; url_address: string; file: any }) => {
+  const handleSaveSampleMedia = (media: { _id?: string; media_type: string; media_title: string; file: any | null }) => {
     setFormData(prev => {
       const newMedia = [...prev.sample_media]
       if (editingSampleMediaIndex !== null) {
@@ -645,12 +754,33 @@ const EditCourseSessionProgram: React.FC = () => {
             </Box>
             <List>
               {formData.sample_media.map((media, index) => (
-                <ListItem key={index} divider>
+                <ListItem className="w-full" dir="rtl" component="div" key={index} divider>
                   <ListItemText
+                    dir="rtl"
+                    className="w-full text-right"
                     primary={media.media_title}
-                    secondary={`نوع: ${media.media_type} | URL: ${media.url_address}`}
+                    secondary={
+                      <Box>
+                        <Typography variant="body2" color="text.secondary">
+                          نوع: {media.media_type}
+                        </Typography>
+                        {media.file?.file_name && (
+                          <Typography variant="body2" color="text.secondary">
+                            فایل: 
+                            <a 
+                              href={`${process.env.REACT_APP_SERVER_FILE}/${media.file.file_name}`} 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              style={{ color: '#1976d2', textDecoration: 'underline', marginRight: '4px' }}
+                            >
+                              مشاهده فایل
+                            </a>
+                          </Typography>
+                        )}
+                      </Box>
+                    }
                   />
-                  <IconButton onClick={() => handleEditSampleMedia(index)}>
+                  <IconButton onClick={() => handleEditSampleMedia((media?._id || index))}>
                     <EditIcon />
                   </IconButton>
                   <IconButton onClick={() => handleDeleteSampleMedia(index)} color="error">
@@ -798,11 +928,13 @@ const EditCourseSessionProgram: React.FC = () => {
         initialData={editingSubjectIndex !== null ? formData.subjects[editingSubjectIndex] : undefined}
       />
 
+      {/* Sample Media Dialog */}
       <SampleMediaDialog
         open={sampleMediaDialogOpen}
         onClose={() => setSampleMediaDialogOpen(false)}
         onSave={handleSaveSampleMedia}
-        initialData={editingSampleMediaIndex !== null ? formData.sample_media[editingSampleMediaIndex] : undefined}
+        editingSampleMediaIndex={editingSampleMediaIndex}
+        initialData={formData.sample_media || []}
       />
     </Box>
   )
