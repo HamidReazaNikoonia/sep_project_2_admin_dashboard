@@ -38,6 +38,7 @@ import { useGetAllCoaches } from '../../../API/Coach/coach.hook'
 import { showToast } from '../../../utils/toast'
 import moment from 'moment-jalaali'
 import { convertToPersianDigits } from '../../../utils/helper'
+import { formatPrice } from '@/utils/price'
 
 // Single Coach Selector Component
 interface SingleCoachSelectorProps {
@@ -793,7 +794,7 @@ const EditCourseSessionProgram: React.FC = () => {
         </Grid>
 
         {/* Packages */}
-        <Grid item xs={12}>
+        <Grid size={12}>
           <Paper sx={{ p: 2 }}>
             <Typography variant="h6" gutterBottom>
               پکیج‌ها
@@ -802,10 +803,10 @@ const EditCourseSessionProgram: React.FC = () => {
               {packages.map((pkg: any) => (
                 <Chip
                   key={pkg._id}
-                  label={`${pkg.title} - ${pkg.price}`}
-                  onClick={() => handlePackageToggle(pkg._id)}
-                  color={formData.packages.includes(pkg._id) ? 'primary' : 'default'}
-                  variant={formData.packages.includes(pkg._id) ? 'filled' : 'outlined'}
+                  label={`${pkg?.title} ||  ${formatPrice(pkg?.price)}`}
+                  onClick={() => handlePackageToggle(pkg?._id)}
+                  color={formData.packages.includes(pkg?._id) ? 'primary' : 'default'}
+                  variant={formData.packages.includes(pkg?._id) ? 'filled' : 'outlined'}
                 />
               ))}
             </Box>
@@ -813,7 +814,7 @@ const EditCourseSessionProgram: React.FC = () => {
         </Grid>
 
         {/* Price Fields */}
-        <Grid item xs={12} md={6}>
+        <Grid size={12}>
           <Paper sx={{ p: 2 }}>
             <Typography variant="h6" gutterBottom>
               قیمت‌ها
@@ -841,13 +842,13 @@ const EditCourseSessionProgram: React.FC = () => {
                   onChange={(e) => handleInputChange('is_fire_sale', e.target.checked)}
                 />
               }
-              label="فروش آتشین"
+              label="فروش ویژه (فعال باشد دوره با تخفیف فروش خواهد شد)"
             />
           </Paper>
         </Grid>
 
         {/* Program Settings */}
-        <Grid item xs={12} md={6}>
+        <Grid size={12}>
           <Paper sx={{ p: 2 }}>
             <Typography variant="h6" gutterBottom>
               تنظیمات برنامه
