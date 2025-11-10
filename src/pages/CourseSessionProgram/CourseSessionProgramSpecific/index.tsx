@@ -843,6 +843,14 @@ export default function CourseSessionProgramSpecific() {
   return (
     <div className="p-2 md:p-6 bg-[#dcdcdc] min-h-screen" dir="rtl">
       {/* Tab Container */}
+      <div className="flex justify-between items-center mb-4">
+        <h1 className="text-2xl font-semibold text-gray-800">جزئیات برنامه دوره</h1>
+        <Link to={`/course-session-program/update-program/${id}`}>
+          <Button variant="outlined" color="primary">
+            ویرایش برنامه دوره
+          </Button>
+        </Link>
+      </div>
       <div className="max-w-6xl mx-auto">
         {/* Tab Headers */}
         <div className="flex border-b border-gray-300 mb-6">

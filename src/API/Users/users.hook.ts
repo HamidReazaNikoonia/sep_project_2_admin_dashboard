@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient, UseQueryOptions } from '@tanstack/react-query';
 import { usersApi } from './users.api';
 import type { UserListResponse, UserResponse } from './types';
 
@@ -30,10 +30,11 @@ export const useUsers = (filters: {
   role?: string;
   mobile?: string;
   sortBy?: string;
-}) => {
+}, options?: UseQueryOptions<UserListResponse>) => {
   return useQuery<UserListResponse>({
     queryKey: usersKeys.list(filters),
     queryFn: () => usersApi.getUsers(filters),
+    ...options,
   });
 };
 

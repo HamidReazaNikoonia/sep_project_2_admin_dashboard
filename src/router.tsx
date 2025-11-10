@@ -69,6 +69,10 @@ import BlogSpecific from './pages/Blog/BlogSpecific'
 import OrderSpecific from './pages/Orders/OrderSpecific'
 import EditCourseSessionProgram from './pages/CourseSessionProgram/EditCourseSessionProgram'
 
+// Implement New Order For User Explicit Page
+import ImplementNewOrderForUserExplicitPage from './pages/ImplementNewOrderForUserExplicitPage'
+
+
 
 const router = createBrowserRouter(
   [
@@ -321,6 +325,14 @@ const router = createBrowserRouter(
       element: (
         <Layout>
           <OrderList />
+        </Layout>
+      ),
+    },
+    {
+      path: '/implement-new-order',
+      element: (
+        <Layout>
+          <ImplementNewOrderForUserExplicitPage />
         </Layout>
       ),
     },
