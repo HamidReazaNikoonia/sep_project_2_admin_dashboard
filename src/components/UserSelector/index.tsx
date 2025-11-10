@@ -10,10 +10,15 @@ import {
   CircularProgress,
   InputAdornment,
   Avatar,
+  IconButton,
+  Link,
 } from '@mui/material'
 import SearchIcon from '@mui/icons-material/Search'
 import PersonIcon from '@mui/icons-material/Person'
+import DeleteIcon from '@mui/icons-material/Delete'
 import { useUsers } from '@/API/Users/users.hook'
+
+const SERVER_FILE = process.env.REACT_APP_SERVER_FILE
 
 interface UserSelectorProps {
   selectedUser: any
@@ -105,8 +110,8 @@ const UserSelector: React.FC<UserSelectorProps> = ({
         sx={{ mb: 1 }}
       />
 
-      {/* Selected User Display */}
-      {selectedUser && (
+        {/* Selected User Display */}
+        {selectedUser && (
         <Paper
           variant="outlined"
           sx={{
@@ -118,20 +123,38 @@ const UserSelector: React.FC<UserSelectorProps> = ({
             gap: 2,
           }}
         >
-          <Avatar>
-            {selectedUser.first_name?.[0]}
-          </Avatar>
-          <Box>
+          <Avatar
+            sx={{ width: 90, height: 90, ml: 2 }}
+            src={selectedUser?.avatar?.file_name ? `${SERVER_FILE}/${selectedUser.avatar.file_name}` : undefined}
+          >
+              {selectedUser.first_name?.[0]}
+            </Avatar> 
+          <Box sx={{ flexGrow: 1 }}>
+            <Link href={`/users/${selectedUser.id}`}>
             <Typography variant="body1" fontWeight="bold">
               {selectedUser.first_name} {selectedUser.last_name}
             </Typography>
+            </Link>
             <Typography variant="body2" color="text.secondary">
-              {selectedUser.mobile}
+              {selectedUser.mobile} - شماره موبایل
             </Typography>
             <Typography variant="caption" color="text.secondary">
-              {selectedUser.email}
+              {selectedUser.student_id} - کد دانشجویی
             </Typography>
           </Box>
+          <IconButton
+            onClick={() => onUserSelect(undefined)}
+            size="small"
+            sx={{ 
+              color: 'error.main',
+              '&:hover': {
+                backgroundColor: 'error.light',
+                color: 'white',
+              }
+            }}
+          >
+            <DeleteIcon />
+          </IconButton>
         </Paper>
       )}
 
@@ -165,18 +188,23 @@ const UserSelector: React.FC<UserSelectorProps> = ({
               <Typography color="text.secondary">کاربری یافت نشد</Typography>
             </Box>
           ) : (
-            <List>
+            <List dir="rtl">
               {users.map((user: any) => (
                 <ListItem
+                  dir="rtl"
                   key={user.id}
                   button
                   onClick={() => handleUserSelect(user)}
                   sx={{
                     borderBottom: '1px solid #e0e0e0',
                     '&:last-child': { borderBottom: 'none' },
+                    textAlign: 'right',
                   }}
                 >
-                  <Avatar sx={{ width: 32, height: 32, mr: 2 }}>
+                  <Avatar
+                    sx={{ width: 60, height: 60, ml: 2 }}
+                    src={user?.avatar?.file_name ? `${SERVER_FILE}/${user.avatar.file_name}` : undefined}
+                  >
                     {user.first_name?.[0]}
                   </Avatar>
                   <ListItemText
