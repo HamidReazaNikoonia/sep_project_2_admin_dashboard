@@ -11,7 +11,7 @@ import {
   Chip,
   IconButton,
   Alert,
-  Grid,
+  Grid2 as Grid,
 } from '@mui/material'
 import LoadingButton from '@/components/LoadingButton'
 import DeleteIcon from '@mui/icons-material/Delete'
@@ -119,14 +119,14 @@ const ImplementNewOrderForUserExplicitPage: React.FC = () => {
             </Typography>
             
             <Grid container spacing={3}>
-              <Grid item xs={12} md={6}>
+              <Grid size={{ xs: 12 }}>
                 <ProductSelector
                   selectedIds={selectedProductIds}
                   onSelectionChange={setSelectedProductIds}
                   label="انتخاب محصولات"
                 />
               </Grid>
-              <Grid item xs={12} md={6}>
+              <Grid size={{ xs: 12 }}>
                 <CourseSelector
                   type="COURSE"
                   selectedIds={selectedCourseIds}
@@ -255,7 +255,7 @@ const ImplementNewOrderForUserExplicitPage: React.FC = () => {
   }
 
   return (
-    <Box sx={{ maxWidth: 800, mx: 'auto', p: 3 }}>
+    <Box sx={{ maxWidth: 1200, mx: 'auto', p: 3 }}>
       <Typography variant="h4" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
         <ShoppingCartIcon />
         ثبت سفارش جدید
@@ -265,7 +265,7 @@ const ImplementNewOrderForUserExplicitPage: React.FC = () => {
         <Stepper activeStep={activeStep} sx={{ mb: 4 }}>
           {steps.map((label) => (
             <Step key={label}>
-              <StepLabel>{label}</StepLabel>
+              <StepLabel> &nbsp;&nbsp;{label} </StepLabel>
             </Step>
           ))}
         </Stepper>

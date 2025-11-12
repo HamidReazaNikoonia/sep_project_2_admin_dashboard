@@ -13,8 +13,8 @@ const ProductSelectedItem: React.FC<ProductSelectedItemProps> = ({
 }) => {
   return (
     <Chip
-      label={product?.title || product._id}
-      onDelete={() => onRemove(product._id)}
+      label={product?.title || product.id}
+      onDelete={() => onRemove(product.id)}
       deleteIcon={<CloseIcon />}
       color="secondary"
       dir="ltr"

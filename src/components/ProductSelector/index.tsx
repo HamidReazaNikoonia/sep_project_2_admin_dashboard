@@ -107,7 +107,7 @@ const ProductSelector: React.FC<ProductSelectorProps> = ({
           </Typography>
           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mt: 1 }}>
             {selectedIds.map((id) => {
-              const item = items.find((i: any) => i._id === id)
+              const item = items.find((i: any) => i.id === id)
               if (!item) return null
 
               return (
@@ -166,9 +166,9 @@ const ProductSelector: React.FC<ProductSelectorProps> = ({
           <List>
             {items.map((item: any) =>
               <ProductListItem
-                key={item._id}
+                key={item.id}
                 product={item}
-                isSelected={selectedIds.includes(item._id)}
+                isSelected={selectedIds.includes(item.id)}
                 onToggle={handleToggleItem}
               />
             )}
