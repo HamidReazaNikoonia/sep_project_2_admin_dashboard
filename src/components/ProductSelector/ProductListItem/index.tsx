@@ -48,11 +48,16 @@ const ProductListItem: React.FC<ProductListItemProps> = ({
         }
         secondary={
           <Box sx={{ mt: 1 }}>
-            {product.price && (
+            {product.price_real && (
               <Typography variant="caption" display="block">
-                قیمت: {product.price.toLocaleString('fa-IR')} تومان
+                قیمت: {product?.price_real.toLocaleString('fa-IR')} ریال
               </Typography>
             )}
+            {(product?.price_discount && product?.is_fire_sale) ? (
+              <Typography variant="caption" display="block">
+                قیمت با تخفیف: {product?.price_discount.toLocaleString('fa-IR')} ریال
+              </Typography>
+            ) : null}
             {product.brand && (
               <Typography variant="caption" display="block">
                 برند: {product.brand}

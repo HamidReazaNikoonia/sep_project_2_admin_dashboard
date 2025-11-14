@@ -42,3 +42,38 @@ export interface OrdersResponse {
   page: number;
   limit: number;
 }
+
+
+// Order Summary Types
+export interface OrderSummaryItem {
+  product?: string;
+  course?: string;
+  quantity: number;
+  price: number;
+}
+
+export interface ValidCoupon {
+  id: string;
+  code: string;
+  discount_type: string;
+  discount_value: number;
+}
+
+export interface InvalidCoupon {
+  code: string;
+  reason: string;
+}
+
+export interface CouponInfo {
+  validCoupons: ValidCoupon[];
+  invalidCoupons: InvalidCoupon[];
+  totalDiscount: number;
+}
+
+export interface OrderSummaryResponse {
+  products: OrderSummaryItem[];
+  total: number;
+  tax: number;
+  totalAmount: number;
+  couponInfo: CouponInfo;
+}

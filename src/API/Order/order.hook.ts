@@ -36,3 +36,36 @@ export const useUpdateOrderStatus = () => {
     },
   });
 };
+
+export const useCalculateOrderSummary = (params: {
+  couponCodes: string[];
+  items: Array<{ productId?: string; courseId?: string; quantity: number }>;
+  enabled?: boolean;
+}) => {
+  return useQuery({
+    queryKey: ['order-summary', params],
+    queryFn: () => orderAPI.calculateOrderSummary(params),
+    enabled: params.enabled && params.items.length > 0,
+  });
+};
+
+
+
+export const useCreateOrder = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (orderData: {
+      customer: string;
+      products?: { product?: string; course?: string; quantity: number }[];
+      couponCodes?: string[];
+    }) => orderAPI.createOrder(orderData),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['orders'] });
+      showToast('موفق', 'سفارش با موفقیت ثبت شد', 'success');
+    },
+    onError: () => {
+      showToast('خطا', 'خطا در ثبت سفارش', 'error');
+    },
+  });
+};
