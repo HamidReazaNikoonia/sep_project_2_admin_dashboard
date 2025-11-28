@@ -424,7 +424,7 @@ const OrderSpecific = () => {
             <Card>
               <CardContent>
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                  <LocalShippingIcon sx={{ mr: 1 }} color="primary" />
+                  <LocalShippingIcon sx={{ ml: 1 }} color="primary" />
                   <Typography variant="h6">اطلاعات ارسال</Typography>
                 </Box>
                 <Divider sx={{ mb: 2 }} />
@@ -434,7 +434,10 @@ const OrderSpecific = () => {
                       <Typography variant="subtitle2" color="text.secondary">
                         آدرس ارسال
                       </Typography>
-                      <Typography variant="body1">{order.shippingAddress}</Typography>
+                      <Typography variant="body1">{order?.shippingAddress?.billingAddress?.addressLine1}</Typography>
+                      <Typography variant="body1">{order?.shippingAddress?.billingAddress?.city}</Typography>
+                      <Typography variant="body1">{order?.shippingAddress?.billingAddress?.state}</Typography>
+                      <Typography variant="body1">{order?.shippingAddress?.billingAddress?.postal_code}</Typography>
                     </Grid>
                   )}
                   {order.billingAddress && (

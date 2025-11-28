@@ -126,7 +126,7 @@ const OrderList = () => {
     }
 
     if (orderId) {
-      params.order_id = urlOrderId;
+      params.order_id = orderId;
     } else if (debouncedOrderId) {
       params.order_id = debouncedOrderId;
     }
