@@ -17,8 +17,8 @@ export const orderAPI = {
     return data;
   },
 
-  updateOrderStatus: async (id: string, status: string): Promise<{ order: Order }> => {
-    const { data } = await axios.put(`/admin/order/${id}`, { status });
+  updateOrderStatus: async (id: string, status: string, { returnMoneyBackToWallet, redoCoupons, redoOrderProducts }: { returnMoneyBackToWallet?: boolean; redoCoupons?: boolean; redoOrderProducts?: boolean }): Promise<{ order: Order }> => {
+    const { data } = await axios.put(`/admin/order/${id}`, { status, returnMoneyBackToWallet, redoCoupons, redoOrderProducts });
     return data;
   },
 

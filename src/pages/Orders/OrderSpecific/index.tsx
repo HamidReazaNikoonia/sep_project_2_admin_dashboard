@@ -4,6 +4,7 @@ import { useParams, Link, useNavigate } from 'react-router';
 import { useOrders, useUpdateOrderStatus } from '../../../API/Order/order.hook';
 import { formatDate } from '../../../utils/date';
 import { formatPrice } from '../../../utils/price';
+import { showToast } from '../../../utils/toast';
 import {
   Box,
   Card,
@@ -25,6 +26,8 @@ import {
   TableRow,
   Paper,
   Alert,
+  Checkbox,
+  FormControlLabel,
 } from '@mui/material';
 import {
   ArrowBack as ArrowBackIcon,
@@ -87,6 +90,13 @@ const OrderSpecific = () => {
   const [selectedStatus, setSelectedStatus] = useState('');
   const [isUpdating, setIsUpdating] = useState(false);
 
+  // cancell status state
+  const [cancellStatusProperties, setCancellStatusProperties] = useState({
+    returnMoneyBackToWallet: false,
+    redoCoupons: false,
+    redoOrderProducts: false,
+  });
+
   // Fetch order data using useOrders with order_id query param
   const { data: queryData, isLoading, error } = useOrders({ order_id: order_id, limit: 1 });
 
@@ -98,13 +108,61 @@ const OrderSpecific = () => {
 
   // Handle status update
   const handleStatusUpdate = async () => {
+
+    // if selected status is cancelled, check if the user has chosen to return money to wallet, redo coupons or redo order products
+
+    if (selectedStatus === 'cancelled') {
+      // If chosen to return money to wallet, confirm with window prompt
+      if (cancellStatusProperties.returnMoneyBackToWallet) {
+        const confirmed = window.confirm(
+          "در صورتی که این گزینه را انتخاب کرده‌اید، مبلغ سفارش به کیف پول کاربر بازخواهد گشت. آیا مطمئن هستید؟"
+        );
+        if (!confirmed) {
+          // Show a toast notification if user cancels
+          showToast("عملیات تغییر وضعیت سفارش لغو شد", "بازگرداندن پول به کیف پول لغو شد", "warning");
+          return;
+        }
+      }
+
+
+      // If chosen to redo coupons, confirm with window prompt
+      if (cancellStatusProperties.redoCoupons) {
+        const confirmed = window.confirm(
+          "در صورتی که این گزینه را انتخاب کرده‌اید، کوپن های اعمال شده بر روی سفارش بازخواهد گشت. آیا مطمئن هستید؟"
+        );
+        if (!confirmed) {
+          // Show a toast notification if user cancels
+          showToast("عملیات تغییر وضعیت سفارش لغو شد", "بازگرداندن کوپن های اعمال شده بر روی سفارش لغو شد", "warning");
+          return;
+        }
+      }
+
+      // If chosen to redo order products, confirm with window prompt
+      if (cancellStatusProperties.redoOrderProducts) {
+        const confirmed = window.confirm(
+          "در صورتی که این گزینه را انتخاب کرده‌اید، محصولات سفارش بازخواهد گشت. آیا مطمئن هستید؟"
+        );
+        if (!confirmed) {
+          // Show a toast notification if user cancels
+          showToast("عملیات تغییر وضعیت سفارش لغو شد", "بازگرداندن محصولات سفارش لغو شد", "warning");
+          return;
+        }
+      }
+    }
+
+
     if (!selectedStatus || !order) return;
+
+    console.log('cancellStatusProperties', cancellStatusProperties);
 
     setIsUpdating(true);
     try {
       await updateOrderStatusMutation.mutateAsync({
         id: order._id,
         status: selectedStatus,
+        ...(cancellStatusProperties.returnMoneyBackToWallet && { returnMoneyBackToWallet: true }),
+        ...(cancellStatusProperties.redoCoupons && { redoCoupons: true }),
+        ...(cancellStatusProperties.redoOrderProducts && { redoOrderProducts: true }),
       });
       setSelectedStatus('');
     } catch (error) {
@@ -307,7 +365,7 @@ const OrderSpecific = () => {
 
         {/* Payment Information - Bill Style */}
         <Grid item xs={12} md={6}>
-          <Card sx={{minHeight: '562px'}}>
+          <Card sx={{ minHeight: '562px' }}>
             <CardContent>
               <Box className='mb-2'>
                 <Link className='flex items-center gap-2 hover:text-blue-500' to={`/transactions/${order?.transactionId}`}>
@@ -316,7 +374,7 @@ const OrderSpecific = () => {
                 </Link>
               </Box>
               <Divider sx={{ mb: 2 }} />
-              
+
               {/* Bill Header */}
               <div className="bg-blue-50 p-4 rounded-lg mb-4">
                 <div className="flex justify-between items-center mb-2">
@@ -360,26 +418,26 @@ const OrderSpecific = () => {
                   )}
 
                   {/* Delivery Fees */}
-                  
-                    <div className="flex justify-between items-center p-3">
-                      <span className="text-sm text-gray-600">هزینه ارسال:</span>
 
-                      <span>
+                  <div className="flex justify-between items-center p-3">
+                    <span className="text-sm text-gray-600">هزینه ارسال:</span>
+
+                    <span>
                       {order.deliveryFees !== undefined && order.deliveryFees > 0 ? (
                         <span className="font-semibold">{formatPrice(order.deliveryFees)}</span>
                       ) : (
                         <span className="font-semibold"> --- </span>
                       )}
-                      </span>
-                    </div>
+                    </span>
+                  </div>
 
                   {/* Coupons */}
-                   
-                    <div className="flex justify-between items-center p-3 bg-yellow-50">
-                      <span className="text-sm text-green-600">کوپن‌های اعمال شده:</span>
-                      <span className="font-semibold text-gray-600">{order?.appliedCoupons?.length || 0} </span>
-                    </div>
-                  
+
+                  <div className="flex justify-between items-center p-3 bg-yellow-50">
+                    <span className="text-sm text-green-600">کوپن‌های اعمال شده:</span>
+                    <span className="font-semibold text-gray-600">{order?.appliedCoupons?.length || 0} </span>
+                  </div>
+
                 </div>
 
                 {/* Bill Footer - Final Amount */}
@@ -390,7 +448,7 @@ const OrderSpecific = () => {
                       {formatPrice(order.final_order_price ?? order.totalAmount)}
                     </span>
                   </div>
-                  
+
                   {/* Payment Status Badge */}
                   <div className="flex justify-center mt-3">
                     <Chip
@@ -464,7 +522,7 @@ const OrderSpecific = () => {
               </Box>
               <Divider sx={{ mb: 2 }} />
               <StyledTableContainer component={Paper} variant="outlined">
-                  <StyledTable size="small">
+                <StyledTable size="small">
                   <StyledTableHead>
                     <StyledTableRow>
                       <StyledTableCell>نام</StyledTableCell>
@@ -504,7 +562,7 @@ const OrderSpecific = () => {
         </Grid>
 
         {/* Order Dates */}
-        <Grid item xs={12} md={6}>
+        <Grid item xs={12}>
           <Card>
             <CardContent>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
@@ -531,7 +589,16 @@ const OrderSpecific = () => {
         </Grid>
 
         {/* Update Order Status */}
-        <Grid item xs={12} md={6}>
+        <Grid item xs={12}>
+        {order?.status === 'cancelled' && (
+                <div className='w-full my-2 flex flex-col items-start gap-2 mb-6'>
+                  <Alert severity="warning" sx={{ mt: 2 }}>
+                  <div className='mr-2 text-lg font-bold text-red-800'>
+                  لطفا بعد از لغو سفارش , وضعیت سفارش را تغییر ندهید و یک سفارش جدید ایجاد کنید
+                </div>
+                  </Alert>
+                </div>
+              )}
           <Card>
             <CardContent>
               <div className='w-full mb-2 flex justify-between items-center'>
@@ -539,12 +606,12 @@ const OrderSpecific = () => {
                   بروزرسانی وضعیت سفارش
                 </Typography>
                 <Box sx={{ mt: 1 }}>
-                <Chip
-                  label={orderStatusTranslations[order.status] || order.status}
-                  color={statusColors[order.status]}
-                  size="medium"
-                />
-              </Box>
+                  <Chip
+                    label={orderStatusTranslations[order.status] || order.status}
+                    color={statusColors[order.status]}
+                    size="medium"
+                  />
+                </Box>
               </div>
               <Divider sx={{ mb: 2 }} />
               <FormControl fullWidth sx={{ mb: 2 }}>
@@ -564,14 +631,51 @@ const OrderSpecific = () => {
                   <MenuItem value="finish">{orderStatusTranslations.finish}</MenuItem>
                 </Select>
               </FormControl>
-              <Button
-                variant="contained"
-                fullWidth
-                onClick={handleStatusUpdate}
-                disabled={!selectedStatus || isUpdating || updateOrderStatusMutation.isPending}
-              >
-                {isUpdating || updateOrderStatusMutation.isPending ? 'در حال بروزرسانی...' : 'بروزرسانی وضعیت'}
-              </Button>
+              {selectedStatus === 'cancelled' && (
+                <div className='my-2 flex flex-col items-start gap-2 mb-6'>
+                  <div className='flex flex-col gap-2'>
+                    <div className='text-sm text-red-400 font-bold'>لطفا اطلاعات بیشتری درباره لغو سفارش را وارد کنید</div>
+                    <Alert severity="error" sx={{ mt: 2 }}>
+                      <div className='mr-2'>
+                        لطفا در انتخاب گزینه های زیر قبل از بروزرسانی وضعیت سفارش توجه کنید
+
+                      </div>
+                    </Alert>
+                  </div>
+
+                  <div className='flex flex-col gap-2 md:flex-row'>
+                    <FormControlLabel
+                      control={<Checkbox checked={cancellStatusProperties.returnMoneyBackToWallet} onChange={(e) => setCancellStatusProperties({ ...cancellStatusProperties, returnMoneyBackToWallet: e.target.checked })} />}
+                      label="بازگشت پول به کیف پول کاربر"
+                    />
+
+                    <FormControlLabel
+                      control={<Checkbox checked={cancellStatusProperties.redoCoupons} onChange={(e) => setCancellStatusProperties({ ...cancellStatusProperties, redoCoupons: e.target.checked })} />}
+                      label="بازگشت کوپن های اعمال شده"
+                    />
+
+                    <FormControlLabel
+                      control={<Checkbox checked={cancellStatusProperties.redoOrderProducts} onChange={(e) => setCancellStatusProperties({ ...cancellStatusProperties, redoOrderProducts: e.target.checked })} />}
+                      label="بازگشت محصولات سفارش"
+                    />
+                  </div>
+                </div>
+              )}
+
+              <div className='flex w-full justify-center md:w-autom'>
+                <Button
+                  className='w-full md:w-auto'
+                  sx={{
+                    minWidth: '250px',
+                    textAlign: 'center',
+                  }}
+                  variant="contained"
+                  onClick={handleStatusUpdate}
+                  disabled={!selectedStatus || isUpdating || updateOrderStatusMutation.isPending}
+                >
+                  {isUpdating || updateOrderStatusMutation.isPending ? 'در حال بروزرسانی...' : 'بروزرسانی وضعیت'}
+                </Button>
+              </div>
               {selectedStatus && (
                 <Alert severity="info" sx={{ mt: 2 }}>
                   وضعیت فعلی: <strong>{orderStatusTranslations[order.status]}</strong>

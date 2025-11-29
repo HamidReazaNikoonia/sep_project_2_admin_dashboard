@@ -25,8 +25,8 @@ export const useUpdateOrderStatus = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, status }: { id: string; status: string }) =>
-      orderAPI.updateOrderStatus(id, status),
+    mutationFn: ({ id, status, returnMoneyBackToWallet, redoCoupons, redoOrderProducts }: { id: string; status: string; returnMoneyBackToWallet?: boolean; redoCoupons?: boolean; redoOrderProducts?: boolean }) =>
+      orderAPI.updateOrderStatus(id, status, { returnMoneyBackToWallet, redoCoupons, redoOrderProducts }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['orders'] });
       showToast('موفق', 'وضعیت سفارش با موفقیت بروزرسانی شد', 'success');
