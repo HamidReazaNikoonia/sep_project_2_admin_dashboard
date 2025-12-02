@@ -273,7 +273,7 @@ const OrderSpecific = () => {
 
       <Grid container spacing={3}>
         {/* Customer Information */}
-        <Grid item xs={12} md={6}>
+        <Grid item xs={12}>
           <Card>
             <CardContent>
               <Box className='mb-2'>
@@ -364,7 +364,7 @@ const OrderSpecific = () => {
         </Grid>
 
         {/* Payment Information - Bill Style */}
-        <Grid item xs={12} md={6}>
+        <Grid item xs={12}>
           <Card sx={{ minHeight: '562px' }}>
             <CardContent>
               <Box className='mb-2'>
@@ -395,17 +395,11 @@ const OrderSpecific = () => {
                 <div className="divide-y divide-gray-200">
                   {/* Subtotal */}
                   <div className="flex justify-between items-center p-3">
-                    <span className="text-sm text-gray-600">جمع کل:</span>
-                    <span className="font-semibold">{formatPrice(order.totalAmount)}</span>
+                    <span className="text-sm text-gray-600">جمع محصولات:</span>
+                    <span className="font-semibold">{formatPrice(order.total)}</span>
                   </div>
 
-                  {/* Discount */}
-                  {order.total_discount_price !== undefined && order.total_discount_price > 0 && (
-                    <div className="flex justify-between items-center p-3 bg-red-50">
-                      <span className="text-sm text-red-600">تخفیف:</span>
-                      <span className="font-semibold text-red-600">-{formatPrice(order.total_discount_price)}</span>
-                    </div>
-                  )}
+                 
 
                   {/* Taxes */}
                   {order.taxes !== undefined && order.taxes > 0 && (
@@ -431,11 +425,66 @@ const OrderSpecific = () => {
                     </span>
                   </div>
 
+                   {/* Discount */}
+                   {order.total_discount_price !== undefined && order.total_discount_price > 0 && (
+                    <div className="flex justify-between items-center p-3 bg-red-50">
+                      <span className="text-sm text-red-600">  کسری: </span>
+                      <span className="font-semibold text-red-600">-{formatPrice(order.total_discount_price)}</span>
+                    </div>
+                  )}
+
+                  {/* Use Wallet Amount */}
+                  {order.used_wallet_amount !== undefined && order.used_wallet_amount > 0 && (
+                    <div className="flex justify-between items-center p-3 bg-green-50">
+                      <span className="text-sm text-green-600">مبلغ استفاده شده از کیف پول: </span>
+                      <span className="font-semibold text-green-600">{formatPrice(order.used_wallet_amount)}</span>
+                    </div>
+                  )}
+
                   {/* Coupons */}
 
-                  <div className="flex justify-between items-center p-3 bg-yellow-50">
-                    <span className="text-sm text-green-600">کوپن‌های اعمال شده:</span>
-                    <span className="font-semibold text-gray-600">{order?.appliedCoupons?.length || 0} </span>
+                  <div className="p-3 bg-yellow-50">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-sm text-green-600">کوپن‌های اعمال شده:</span>
+                      <span className="font-semibold text-xs text-gray-600">
+                        {order?.appliedCoupons?.length ? (
+                          <>
+                            {order.appliedCoupons.length}
+                            <span className="mx-1">عدد</span>
+                          </>
+                        ) : (
+                          '۰'
+                        )}
+                      </span>
+                    </div>
+                    {order?.appliedCoupons?.length > 0 && (
+                      <div className="flex flex-col gap-2 mt-2">
+                        {order.appliedCoupons.map((coupon: any, idx: number) => (
+                          <div key={idx} className="flex flex-wrap gap-4 border rounded p-2 bg-white items-center shadow-sm text-xs">
+                            <div>
+                              <span className="font-bold">کد:</span>{" "}
+                              <span className="font-mono">{coupon.code}</span>
+                            </div>
+                            <div>
+                              <span className="font-bold">نوع تخفیف:</span>{" "}
+                              <span>
+                                {coupon.discountType === 'PERCENTAGE' ? 'درصدی' : coupon.discountType === 'FIXED_AMOUNT' ? 'مبلغ ثابت' : coupon.discountType}
+                              </span>
+                            </div>
+                            <div>
+                              <span className="font-bold">مقدار تخفیف:</span>{" "}
+                              <span>
+                                {coupon.discountType === 'percent'
+                                  ? `${coupon.discountAmount}%`
+                                  : formatPrice
+                                    ? formatPrice(coupon.discountAmount)
+                                    : coupon.discountAmount}
+                              </span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
 
                 </div>
@@ -462,7 +511,7 @@ const OrderSpecific = () => {
               </div>
 
               {/* Additional Payment Info */}
-              {(order.total_discount_price > 0 && order.appliedCoupons?.length > 0) && (
+              {/* {(order.total_discount_price > 0 && order.appliedCoupons?.length > 0) && (
                 <div className="mt-3 p-3 bg-green-50 rounded-lg">
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-green-700">  جمع تخفیف کوپن های اعمال شده:</span>
@@ -471,7 +520,7 @@ const OrderSpecific = () => {
                     </span>
                   </div>
                 </div>
-              )}
+              )} */}
             </CardContent>
           </Card>
         </Grid>
