@@ -319,10 +319,10 @@ const OrderList = () => {
               {order.customer?.first_name} {order.customer?.last_name}
             </p>
             {order.customer?.mobile && (
-              <p className="text-sm text-gray-600 mt-1">{order.customer.mobile}</p>
+              <p className="text-sm font-medium text-gray-600 mt-1">موبایل: {order.customer.mobile}</p>
             )}
             {order.customer?.student_id && (
-              <p className="text-sm text-gray-600">شماره دانشجویی: {order.customer.student_id}</p>
+              <p className="text-sm font-medium text-gray-600">شماره دانشجویی: {order.customer.student_id}</p>
             )}
           </div>
 
@@ -380,8 +380,13 @@ const OrderList = () => {
           <div className="lg:col-span-3">
             <span className="text-sm text-gray-500 block mb-2">اطلاعات مالی:</span>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 bg-gray-50 p-3 rounded">
-              <div>
+            <div>
                 <span className="text-xs text-gray-500">مبلغ کل:</span>
+                <p className="font-medium text-gray-700">{formatPrice(order.total)}</p>
+              </div>
+              
+              <div>
+                <span className="text-xs text-gray-500">مبلغ پرداخت شده:</span>
                 <p className="font-bold text-blue-600">{formatPrice(order.totalAmount)}</p>
               </div>
 
@@ -394,7 +399,7 @@ const OrderList = () => {
 
               {order.total_discount_price !== undefined && order.total_discount_price > 0 && (
                 <div>
-                  <span className="text-xs text-gray-500">تخفیف:</span>
+                  <span className="text-xs text-gray-500">کسری:</span>
                   <p className="font-bold text-red-600">{formatPrice(order.total_discount_price)}</p>
                 </div>
               )}
