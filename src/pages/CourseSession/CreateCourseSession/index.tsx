@@ -336,22 +336,9 @@ const CreateCourseSession: React.FC = () => {
             <Typography fontWeight={800} variant="subtitle1" sx={{ mb: 1 }}>
               توضیح کامل
             </Typography>
-            {/* <RichTextEditor
-        ref={rteRef}
-        extensions={[StarterKit]} // Or any Tiptap extensions you wish!
-        content="<p>Hello world</p>" // Initial content for the editor
-        // Optionally include `renderControls` for a menu-bar atop the editor:
-        renderControls={() => (
-          <MenuControlsContainer>
-            <MenuSelectHeading />
-            <MenuDivider />
-            <MenuButtonBold />
-            <MenuButtonItalic />
-          </MenuControlsContainer>
-        )}
-      /> */}
+           
             <Box sx={{ marginBottom: '60px' }}>
-              <Editor submitHandlerForPassData={submitHandlerForPassData} />
+              <Editor submitHandlerForPassData={submitHandlerForPassData} initialContent="" />
             </Box>
             {errors.description_long && (
               <Typography color="error" variant="caption">
@@ -380,101 +367,7 @@ const CreateCourseSession: React.FC = () => {
             )}
           </Grid>
           {/* Sample Media Image Uploader */}
-          {/* <Grid size={{ xs: 12, md: 6 }}>
-            <Typography variant="subtitle1" sx={{ mb: 1 }}>
-              نمونه رسانه جلسه
-            </Typography>
-            <ImageUploader
-              withIcon={true}
-              buttonText="انتخاب نمونه رسانه"
-              onChange={(files: File[]) => setSampleMediaImage(files[0])}
-              imgExtension={['.jpg', '.jpeg', '.png']}
-              maxFileSize={5242880}
-              singleImage={true}
-              withPreview={true}
-            />
-            {sampleMediaImage && (
-              <Alert severity="info" sx={{ mt: 1 }}>
-                نمونه رسانه انتخاب شد: {sampleMediaImage.name}
-              </Alert>
-            )}
-          </Grid> */}
-          {/* Price */}
-          {/* <Grid size={{ xs: 12, md: 4 }}>
-            <TextField
-              {...register('price')}
-              fullWidth
-              type="number"
-              label="قیمت (تومان)"
-              error={!!errors.price}
-              helperText={errors.price?.message}
-            />
-          </Grid> */}
-          {/* Course Language */}
-          {/* <Grid size={{ xs: 12, md: 4 }}>
-            <TextField
-              {...register('course_language')}
-              fullWidth
-              label="زبان جلسه"
-              error={!!errors.course_language}
-              helperText={errors.course_language?.message}
-            />
-          </Grid> */}
-          {/* Course Duration */}
-          {/* <Grid size={{ xs: 12, md: 4 }}>
-            <TextField
-              {...register('course_duration')}
-              fullWidth
-              type="number"
-              label="مدت جلسه (دقیقه)"
-              error={!!errors.course_duration}
-              helperText={errors.course_duration?.message}
-            />
-          </Grid> */}
-          {/* Course Type */}
-          {/* <Grid size={{ xs: 12, md: 6 }}>
-            <TextField
-              {...register('course_type')}
-              select
-              fullWidth
-              label="نوع جلسه"
-              error={!!errors.course_type}
-              helperText={errors.course_type?.message}
-            >
-              <MenuItem value="HOZORI">حضوری</MenuItem>
-              <MenuItem value="ONLINE">آنلاین</MenuItem>
-            </TextField>
-          </Grid> */}
-          {/* Educational Level */}
-          {/* <Grid size={{ xs: 12, md: 6 }}>
-            <TextField
-              {...register('educational_level')}
-              fullWidth
-              type="number"
-              label="سطح آموزشی"
-              error={!!errors.educational_level}
-              helperText={errors.educational_level?.message}
-            />
-          </Grid> */}
-          {/* Is Have Licence */}
-          {/* <Grid size={12}>
-            <FormControlLabel
-              control={
-                <Controller
-                  name="is_have_licence"
-                  control={control}
-                  render={({ field }) => (
-                    <Switch
-                      {...field}
-                      checked={!!field.value}
-                      color="primary"
-                    />
-                  )}
-                />
-              }
-              label="دارای گواهینامه"
-            />
-          </Grid> */}
+         
 
           {/* Categories Selection */}
           <Grid size={12}>
