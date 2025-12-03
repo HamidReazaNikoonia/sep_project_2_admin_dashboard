@@ -35,6 +35,8 @@ import { showToast } from '@/utils/toast'
 import { useCreateCourseSession } from '@/API/CourseSession/courseSession.hook'
 import { useNavigate } from 'react-router'
 import CategorySelection from '@/components/CategorySelection'
+import CourseDetailsForm from '@/components/CourseDetailsForm'
+import CourseDetailsPreview from '@/components/CourseDetailsPreview'
 
 const SERVER_URL = process.env.REACT_APP_SERVER_URL
 const SERVER_FILE = process.env.REACT_APP_SERVER_FILE
@@ -61,6 +63,11 @@ const schema = yup.object().shape({
   // educational_level: yup.number(),
   // is_have_licence: yup.boolean().required(),
 })
+
+interface DetailItem {
+  header_title: string
+  description: string
+}
 
 interface FormData {
   title: string
@@ -97,11 +104,12 @@ interface UploadedFile {
 
 const CreateCourseSession: React.FC = () => {
   const navigate = useNavigate()
-  const [thumbnailImage, setThumbnailImage] = useState<string | null>(null)
+  const [thumbnailImage, setThumbnailImage] = useState<File | null>(null)
   const [sampleMediaImage, setSampleMediaImage] = useState<string | null>(null)
   const [descriptionLong, setDescriptionLong] = useState('')
   const [fileUploads, setFileUploads] = useState<FileUploadState>({})
   const [categories, setcategories] = useState([])
+  const [details, setDetails] = useState<DetailItem[]>([])
 
   // API Mutation
   const createCourseSessionMutation = useCreateCourseSession()
@@ -116,7 +124,7 @@ const CreateCourseSession: React.FC = () => {
     setValue,
     watch,
   } = useForm<FormData>({
-    resolver: yupResolver(schema),
+    resolver: yupResolver(schema) as any,
     defaultValues: {
       // is_have_licence: false,
       // course_type: 'HOZORI',
@@ -147,12 +155,12 @@ const CreateCourseSession: React.FC = () => {
   // }, [descriptionLong, setValue]);
 
   const onSubmit = async (data: FormData) => {
-    let courseSessionRequestBody = {}
+    let courseSessionRequestBody: any = {}
 
     // Form Manual Validation
-    if (!descriptionLong) {
-      showToast('خطا', ' لطفا توضیحات را کامل کنید', 'error')
-    }
+    // if (!descriptionLong) {
+    //   showToast('خطا', ' لطفا توضیحات را کامل کنید', 'error')
+    // }
 
     // add categories
     // course_session_category
@@ -200,7 +208,8 @@ const CreateCourseSession: React.FC = () => {
       ...courseSessionRequestBody,
       ...data,
       sample_media: sampleMediaWithFiles,
-      description_long: descriptionLong,
+      // description_long: descriptionLong,
+      details: details, // Add details array to request body
     }
     console.log({ courseSessionRequestBody })
 
@@ -233,7 +242,7 @@ const CreateCourseSession: React.FC = () => {
   //   // console.log({text_editor:logDesc })
   // }
 
-  const submitHandlerForPassData = (data) => {
+  const submitHandlerForPassData = (data: string) => {
     console.log({ data })
     setDescriptionLong(data)
   }
@@ -292,6 +301,15 @@ const CreateCourseSession: React.FC = () => {
     setcategories(data)
   }
 
+  const handleDetailsChange = (updatedDetails: DetailItem[]) => {
+    setDetails(updatedDetails)
+  }
+
+  const handleDeleteDetail = (index: number) => {
+    const updatedDetails = details.filter((_, i) => i !== index)
+    setDetails(updatedDetails)
+  }
+
   return (
     <Box dir="rtl" p={{ xs: 0, md: 4 }}>
       <Typography className="pb-4" variant="h4" gutterBottom>
@@ -331,21 +349,22 @@ const CreateCourseSession: React.FC = () => {
               helperText={errors.description?.message}
             />
           </Grid>
-          {/* Description Long (WYSIWYG) */}
+
+          
+          {/* Course Details Form */}
           <Grid size={12}>
-            <Typography fontWeight={800} variant="subtitle1" sx={{ mb: 1 }}>
-              توضیح کامل
-            </Typography>
-           
-            <Box sx={{ marginBottom: '60px' }}>
-              <Editor submitHandlerForPassData={submitHandlerForPassData} initialContent="" />
-            </Box>
-            {errors.description_long && (
-              <Typography color="error" variant="caption">
-                {errors.description_long.message}
-              </Typography>
-            )}
+            <CourseDetailsForm onDetailsChange={handleDetailsChange} />
           </Grid>
+
+          {/* Course Details Preview */}
+          {details.length > 0 && (
+            <Grid size={12}>
+              <CourseDetailsPreview 
+                details={details} 
+                onDelete={handleDeleteDetail}
+              />
+            </Grid>
+          )}
           {/* Thumbnail Image Uploader */}
           <Grid size={12}>
             <Typography variant="subtitle1" sx={{ mb: 1 }}>
