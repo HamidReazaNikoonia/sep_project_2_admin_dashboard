@@ -19,6 +19,7 @@ import UploadIcon from '@mui/icons-material/Upload'
 import ImageUploader from 'react-images-upload'
 
 import CategorySelection from '@/components/CategorySelection'
+import CourseDetailsFormEditable, { DetailItem } from '@/components/CourseDetailsFormEditable'
 
 // Import hooks for fetching and updating course session
 import {
@@ -86,6 +87,7 @@ const EditCourseSession: React.FC = () => {
   const [thumbnailImageUrl, setThumbnailImageUrl] = useState<string | null>(null)
   const [descriptionLong, setDescriptionLong] = useState('')
   const [sampleMedia, setSampleMedia] = useState<SampleMedia[]>([])
+  const [details, setDetails] = useState<DetailItem[]>([])
   // Remove editing states since we don't need them anymore
   // const [editingMediaIndex, setEditingMediaIndex] = useState<number | null>(null)
   // const [editingMediaData, setEditingMediaData] = useState<{...}>({...})
@@ -124,10 +126,10 @@ const EditCourseSession: React.FC = () => {
   // Load course session data when it's available
   useEffect(() => {
     if (courseSession && !isLoadingCourseSession) {
-      console.log({ courseSession: courseSession?.results })
+      // console.log({ courseSession: courseSession })
 
-      if (courseSession?.results?.[0]) {
-        const _courseSessionData = courseSession.results[0]
+      if (courseSession?.results[0]) {
+        const _courseSessionData = courseSession.results[0] as any
 
         // Set form values
         setFormData({
@@ -137,10 +139,13 @@ const EditCourseSession: React.FC = () => {
         })
 
         // Set description long
-        setDescriptionLong(_courseSessionData.description_long || '')
+        // setDescriptionLong(_courseSessionData.description_long || '')
 
         // Set sample media
         setSampleMedia(_courseSessionData.sample_media || [])
+
+        // Set details
+        setDetails(_courseSessionData.details || [])
 
         // Set categories
         if (_courseSessionData.course_session_category) {
@@ -234,6 +239,10 @@ const EditCourseSession: React.FC = () => {
     setCategories(data)
   }
 
+  const handleDetailsChange = (updatedDetails: DetailItem[]) => {
+    setDetails(updatedDetails)
+  }
+
   // Remove the editing functions and replace with simpler ones
   const deleteSampleMedia = (index: number) => {
     setSampleMedia(prev => prev.filter((_, i) => i !== index))
@@ -262,7 +271,7 @@ const EditCourseSession: React.FC = () => {
   const handleNewSampleMediaChange = (field: keyof typeof newSampleMedia, value: string) => {
     setNewSampleMedia(prev => ({ ...prev, [field]: value }))
     // Clear error when user starts typing
-    if (newMediaErrors[field]) {
+    if (field !== 'url_address' && newMediaErrors[field as keyof typeof newMediaErrors]) {
       setNewMediaErrors(prev => ({ ...prev, [field]: undefined }))
     }
   }
@@ -376,8 +385,13 @@ const EditCourseSession: React.FC = () => {
     }
 
     // Form Manual Validation
-    if (!descriptionLong) {
-      showToast('خطا', 'لطفا توضیحات را کامل کنید', 'error')
+    // if (!descriptionLong) {
+    //   showToast('خطا', 'لطفا توضیحات را کامل کنید', 'error')
+    //   return
+    // }
+
+    if (details.length === 0) {
+      showToast('خطا', 'حداقل یک جزئیات وارد کنید', 'error')
       return
     }
 
@@ -426,6 +440,10 @@ const EditCourseSession: React.FC = () => {
 
       courseSessionRequestBody.sample_media = sampleMediaWithFiles
 
+      // Add details to request body
+      if (details.length > 0) {
+        courseSessionRequestBody.details = details
+      }
 
       if (categories.length > 0) {
         courseSessionRequestBody.course_session_category = categories
@@ -435,12 +453,12 @@ const EditCourseSession: React.FC = () => {
       showToast('موفق', 'جلسه با موفقیت بروزرسانی شد', 'success')
       navigate('/courses-sessions')
     } catch (error: any) {
-      if (error instanceof Error && error?.response?.data?.message) {
+      if (error?.response?.data?.message) {
         showToast('خطا', error?.response?.data?.message, 'error')
       } else {
-        showToast('خطا', error.message || 'خطا در بروزرسانی جلسه', 'error')
+        showToast('خطا', error?.message || 'خطا در بروزرسانی جلسه', 'error')
       }
-      console.error('Error submitting form:', error?.response?.data?.message || error.message)
+      console.error('Error submitting form:', error?.response?.data?.message || error?.message)
     }
   }
 
@@ -505,7 +523,7 @@ const EditCourseSession: React.FC = () => {
           </Grid>
           
           {/* Description Long (WYSIWYG) */}
-          <Grid size={12}>
+          {/* <Grid size={12}>
             <Typography fontWeight={800} variant="subtitle1" sx={{ mb: 1 }}>
               توضیح کامل
             </Typography>
@@ -515,6 +533,16 @@ const EditCourseSession: React.FC = () => {
                 initialContent={descriptionLong}
               />
             </Box>
+          </Grid> */}
+
+          {/* Course Details Form Editable */}
+          <Grid size={12}>
+            <StyledPaper sx={{ p: 3 }}>
+              <CourseDetailsFormEditable
+                initialDetails={details}
+                onDetailsChange={handleDetailsChange}
+              />
+            </StyledPaper>
           </Grid>
           
           {/* Thumbnail Image Uploader */}
@@ -559,7 +587,7 @@ const EditCourseSession: React.FC = () => {
                   {courseSession?.results?.[0] && (
                     <CategorySelection
                     passSelectedCategories={implementCategories}
-                    defaultCategories={courseSession?.results?.[0]?.course_session_category}
+                    defaultCategories={(courseSession.results?.[0] as any)?.course_session_category}
                   />
                   )}
                   
