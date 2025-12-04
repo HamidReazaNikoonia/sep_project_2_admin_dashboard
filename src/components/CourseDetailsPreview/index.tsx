@@ -17,6 +17,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import DeleteIcon from '@mui/icons-material/Delete'
 import { RichTextReadOnly } from 'mui-tiptap'
 import useExtensions from '@/components/TextEditor/useExtensions'
+import he from 'he'
 
 interface DetailItem {
   header_title: string
@@ -25,11 +26,13 @@ interface DetailItem {
 
 interface CourseDetailsPreviewProps {
   details: DetailItem[]
+  isPreview?: boolean
   onDelete?: (index: number) => void
 }
 
 const CourseDetailsPreview: React.FC<CourseDetailsPreviewProps> = ({ 
   details,
+  isPreview = false,
   onDelete 
 }) => {
   const [selectedIndex, setSelectedIndex] = useState<number>(0)
@@ -64,11 +67,12 @@ const CourseDetailsPreview: React.FC<CourseDetailsPreviewProps> = ({
         <AccordionDetails>
           <Grid container spacing={2}>
             {/* Right side - List of headers */}
-            <Grid size={{ xs: 12, md: 4 }}>
+            <Grid dir="rtl" size={{ xs: 12, md: 2 }}>
               <Paper variant="outlined" sx={{ p: 1 }}>
-                <List>
+                <List dir="rtl">
                   {details.map((detail, index) => (
                     <ListItem
+                      dir="ltr"
                       key={index}
                       disablePadding
                       secondaryAction={
@@ -85,7 +89,9 @@ const CourseDetailsPreview: React.FC<CourseDetailsPreviewProps> = ({
                             }}
                             size="small"
                           >
+                            {!isPreview && (
                             <DeleteIcon fontSize="small" />
+                            )}
                           </IconButton>
                         )
                       }
@@ -97,7 +103,8 @@ const CourseDetailsPreview: React.FC<CourseDetailsPreviewProps> = ({
                         <ListItemText
                           primary={detail.header_title}
                           primaryTypographyProps={{
-                            fontSize: '0.9rem',
+                            fontSize: '0.8rem',
+                            textAlign: 'right',
                             fontWeight: selectedIndex === index ? 600 : 400,
                           }}
                         />
@@ -109,7 +116,7 @@ const CourseDetailsPreview: React.FC<CourseDetailsPreviewProps> = ({
             </Grid>
 
             {/* Left side - Description content */}
-            <Grid size={{ xs: 12, md: 8 }}>
+            <Grid size={{ xs: 12, md: 10 }}>
               <Paper variant="outlined" sx={{ p: 3, minHeight: '300px' }}>
                 {details[selectedIndex] && (
                   <>
@@ -124,7 +131,7 @@ const CourseDetailsPreview: React.FC<CourseDetailsPreviewProps> = ({
                       }}
                     >
                       <RichTextReadOnly
-                        content={details[selectedIndex].description}
+                        content={he.decode(details[selectedIndex].description || '')}
                         extensions={extensions}
                       />
                     </Box>

@@ -24,6 +24,7 @@ import {
 import ScheduleCoachTimeView from '@/components/ScheduleCoachTimeView'
 import CategoryTreeChips from '@/components/CategoryTreeChips'
 import useExtensions from '@/components/TextEditor/useExtensions'
+import CourseDetailsPreview from '@/components/CourseDetailsPreview';
 const label = { inputProps: { 'aria-label': 'Switch Course Status' } }
 
 const SERVER_URL = process.env.REACT_APP_SERVER_URL
@@ -348,7 +349,7 @@ const CourseSessionSpecific = () => {
         </Grid>
 
         {/* Long Description */}
-        <Grid size={12}>
+        {/* <Grid size={12}>
           <StyledPaper sx={{ p: { xs: 0, md: 4 } }}>
             <Typography sx={{ paddingTop: '15px' }} variant="h6" gutterBottom>
               توضیحات کامل
@@ -370,6 +371,32 @@ const CourseSessionSpecific = () => {
             )}
 
 
+          </StyledPaper>
+        </Grid> */}
+
+
+        {/* Course Details */}
+        <Grid size={12}>
+          <StyledPaper sx={{ p: { xs: 0, md: 4 } }}>
+            <Typography sx={{ paddingTop: '15px' }} variant="h6" gutterBottom>
+              جزئیات دوره
+            </Typography>
+
+            <div className="w-full px-2 md:px-4 py-4 flex flex-wrap leading-8"
+              style={{
+                wordBreak: 'break-word',
+                overflowWrap: 'break-word',
+              }}
+            >
+
+              <Grid size={12}>
+              <CourseDetailsPreview
+                details={course.details}
+                isPreview={true}
+              />
+              </Grid>
+
+            </div>
           </StyledPaper>
         </Grid>
 
