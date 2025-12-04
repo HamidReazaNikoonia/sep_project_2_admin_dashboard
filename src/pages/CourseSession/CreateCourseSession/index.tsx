@@ -69,6 +69,21 @@ interface DetailItem {
   description: string
 }
 
+interface PreviewMedia {
+  video_file: {
+    _id: string
+    file_name: string
+  } | null
+  preview_image_desktop: {
+    _id: string
+    file_name: string
+  } | null
+  preview_image_mobile: {
+    _id: string
+    file_name: string
+  } | null
+}
+
 interface FormData {
   title: string
   sub_title: string
@@ -111,6 +126,20 @@ const CreateCourseSession: React.FC = () => {
   const [categories, setcategories] = useState([])
   const [details, setDetails] = useState<DetailItem[]>([])
 
+
+  // Preview Media state
+  const [previewMedia, setPreviewMedia] = useState<PreviewMedia>({
+    video_file: null,
+    preview_image_desktop: null,
+    preview_image_mobile: null,
+  })
+  const [previewVideoFile, setPreviewVideoFile] = useState<File | null>(null)
+  const [previewDesktopImage, setPreviewDesktopImage] = useState<File | null>(null)
+  const [previewMobileImage, setPreviewMobileImage] = useState<File | null>(null)
+  const [uploadingPreviewVideo, setUploadingPreviewVideo] = useState(false)
+  const [uploadingDesktopImage, setUploadingDesktopImage] = useState(false)
+  const [uploadingMobileImage, setUploadingMobileImage] = useState(false)
+
   // API Mutation
   const createCourseSessionMutation = useCreateCourseSession()
 
@@ -149,10 +178,91 @@ const CreateCourseSession: React.FC = () => {
     control,
   })
 
-  // Keep description_long in sync with WYSIWYG
-  // React.useEffect(() => {
-  //   setValue('description_long', descriptionLong);
-  // }, [descriptionLong, setValue]);
+  // Preview Media functions
+  // Preview Video Upload Handler
+  const handlePreviewVideoUpload = async () => {
+    if (!previewVideoFile) {
+      showToast('خطا', 'لطفا ابتدا فایل ویدیو را انتخاب کنید', 'error')
+      return
+    }
+
+    // Check file size (20MB limit)
+    const maxSize = 20 * 1024 * 1024 // 20MB in bytes
+    if (previewVideoFile.size > maxSize) {
+      showToast('خطا', 'حجم فایل ویدیو نباید بیشتر از 20 مگابایت باشد', 'error')
+      return
+    }
+
+    setUploadingPreviewVideo(true)
+    try {
+      const uploadedFile = await uploadFile(previewVideoFile)
+      setPreviewMedia(prev => ({
+        ...prev,
+        video_file: {
+          _id: uploadedFile._id,
+          file_name: uploadedFile.file_name,
+        },
+      }))
+      showToast('موفق', 'ویدیو با موفقیت آپلود شد', 'success')
+    } catch (error) {
+      showToast('خطا', 'خطا در آپلود ویدیو', 'error')
+      console.error('Video upload error:', error)
+    } finally {
+      setUploadingPreviewVideo(false)
+    }
+  }
+
+  // Preview Desktop Image Upload Handler
+  const handlePreviewDesktopImageUpload = async () => {
+    if (!previewDesktopImage) {
+      showToast('خطا', 'لطفا ابتدا تصویر دسکتاپ را انتخاب کنید', 'error')
+      return
+    }
+
+    setUploadingDesktopImage(true)
+    try {
+      const uploadedFile = await uploadFile(previewDesktopImage)
+      setPreviewMedia(prev => ({
+        ...prev,
+        preview_image_desktop: {
+          _id: uploadedFile._id,
+          file_name: uploadedFile.file_name,
+        },
+      }))
+      showToast('موفق', 'تصویر دسکتاپ با موفقیت آپلود شد', 'success')
+    } catch (error) {
+      showToast('خطا', 'خطا در آپلود تصویر دسکتاپ', 'error')
+      console.error('Desktop image upload error:', error)
+    } finally {
+      setUploadingDesktopImage(false)
+    }
+  }
+
+  // Preview Mobile Image Upload Handler
+  const handlePreviewMobileImageUpload = async () => {
+    if (!previewMobileImage) {
+      showToast('خطا', 'لطفا ابتدا تصویر موبایل را انتخاب کنید', 'error')
+      return
+    }
+
+    setUploadingMobileImage(true)
+    try {
+      const uploadedFile = await uploadFile(previewMobileImage)
+      setPreviewMedia(prev => ({
+        ...prev,
+        preview_image_mobile: {
+          _id: uploadedFile._id,
+          file_name: uploadedFile.file_name,
+        },
+      }))
+      showToast('موفق', 'تصویر موبایل با موفقیت آپلود شد', 'success')
+    } catch (error) {
+      showToast('خطا', 'خطا در آپلود تصویر موبایل', 'error')
+      console.error('Mobile image upload error:', error)
+    } finally {
+      setUploadingMobileImage(false)
+    }
+  }
 
   const onSubmit = async (data: FormData) => {
     let courseSessionRequestBody: any = {}
@@ -203,6 +313,20 @@ const CreateCourseSession: React.FC = () => {
       }
     })
 
+
+    // Prepare preview media with uploaded file IDs
+    // Prepare preview_media object
+    const previewMediaPayload: any = {}
+    if (previewMedia.video_file?._id) {
+      previewMediaPayload.video_file = previewMedia.video_file._id
+    }
+    if (previewMedia.preview_image_desktop?._id) {
+      previewMediaPayload.preview_image_desktop = previewMedia.preview_image_desktop._id
+    }
+    if (previewMedia.preview_image_mobile?._id) {
+      previewMediaPayload.preview_image_mobile = previewMedia.preview_image_mobile._id
+    }
+
     // omit => thumbnailImage, sampleMediaImage,
     courseSessionRequestBody = {
       ...courseSessionRequestBody,
@@ -210,6 +334,7 @@ const CreateCourseSession: React.FC = () => {
       sample_media: sampleMediaWithFiles,
       // description_long: descriptionLong,
       details: details, // Add details array to request body
+      ...(Object.keys(previewMediaPayload).length > 0 && { preview_media: previewMediaPayload }),
     }
     console.log({ courseSessionRequestBody })
 
@@ -350,21 +475,187 @@ const CreateCourseSession: React.FC = () => {
             />
           </Grid>
 
-          
+
           {/* Course Details Form */}
           <Grid size={12}>
             <CourseDetailsForm onDetailsChange={handleDetailsChange} />
           </Grid>
 
-          {/* Course Details Preview */}
-          {details.length > 0 && (
+
+           {/* Course Details Preview */}
+           {details.length > 0 && (
             <Grid size={12}>
-              <CourseDetailsPreview 
-                details={details} 
+              <CourseDetailsPreview
+                details={details}
                 onDelete={handleDeleteDetail}
               />
             </Grid>
           )}
+
+          {/* Preview Media Section */}
+          <Grid size={12}>
+            <StyledPaper sx={{ p: 3 }}>
+              <Typography variant="h6" sx={{ mb: 3 }}>
+                ویدیو و تصاویر پیش‌نمایش دوره
+              </Typography>
+
+              {/* Video Upload Section */}
+              <Box sx={{ mb: 4 }}>
+                <Typography variant="subtitle1" fontWeight={600} sx={{ mb: 2 }}>
+                  ویدیو پیش‌نمایش (اختیاری)
+                </Typography>
+                <Alert severity="info" sx={{ mb: 2 }}>
+                  حداکثر حجم مجاز برای ویدیو: 20 مگابایت
+                </Alert>
+
+                <Box display="flex" flexDirection="column" gap={2}>
+                  <input
+                    type="file"
+                    accept="video/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0]
+                      if (file) {
+                        // Check file size
+                        const maxSize = 20 * 1024 * 1024 // 20MB
+                        if (file.size > maxSize) {
+                          showToast('خطا', 'حجم فایل ویدیو نباید بیشتر از 20 مگابایت باشد', 'error')
+                          return
+                        }
+                        setPreviewVideoFile(file)
+                      }
+                    }}
+                    style={{ display: 'none' }}
+                    id="preview-video-upload"
+                  />
+
+                  <Box display="flex" alignItems="center" gap={2}>
+                    <label htmlFor="preview-video-upload">
+                      <Button variant="outlined" component="span">
+                        انتخاب ویدیو
+                      </Button>
+                    </label>
+
+                    {previewVideoFile && !previewMedia.video_file && (
+                      <Button
+                        variant="contained"
+                        onClick={handlePreviewVideoUpload}
+                        disabled={uploadingPreviewVideo}
+                        startIcon={
+                          uploadingPreviewVideo ? (
+                            <CircularProgress size={20} sx={{ marginLeft: '5px' }} />
+                          ) : (
+                            <UploadIcon sx={{ marginLeft: '5px' }} />
+                          )
+                        }
+                      >
+                        {uploadingPreviewVideo ? 'در حال آپلود...' : 'آپلود ویدیو'}
+                      </Button>
+                    )}
+                  </Box>
+
+                  {previewVideoFile && (
+                    <Typography variant="body2" color="text.secondary">
+                      فایل انتخاب شده: {previewVideoFile.name} ({(previewVideoFile.size / (1024 * 1024)).toFixed(2)} MB)
+                    </Typography>
+                  )}
+
+                  {previewMedia.video_file && (
+                    <Alert severity="success">
+                      ویدیو با موفقیت آپلود شد: {previewMedia.video_file.file_name}
+                    </Alert>
+                  )}
+                </Box>
+              </Box>
+
+              {/* Desktop Image Upload Section */}
+              <Box sx={{ mb: 4 }}>
+                <Typography variant="subtitle1" fontWeight={600} sx={{ mb: 2 }}>
+                  تصویر پیش‌نمایش دسکتاپ (اختیاری)
+                </Typography>
+
+                <Box display="flex" flexDirection="column" gap={2}>
+                  <ImageUploader
+                    withIcon={true}
+                    buttonText="انتخاب تصویر دسکتاپ"
+                    onChange={(files: File[]) => setPreviewDesktopImage(files[0])}
+                    imgExtension={['.jpg', '.jpeg', '.png', '.webp']}
+                    maxFileSize={5242880}
+                    singleImage={true}
+                    withPreview={true}
+                  />
+
+                  {previewDesktopImage && !previewMedia.preview_image_desktop && (
+                    <Button
+                      variant="contained"
+                      onClick={handlePreviewDesktopImageUpload}
+                      disabled={uploadingDesktopImage}
+                      startIcon={
+                        uploadingDesktopImage ? (
+                          <CircularProgress size={20} sx={{ marginLeft: '5px' }} />
+                        ) : (
+                          <UploadIcon sx={{ marginLeft: '5px' }} />
+                        )
+                      }
+                      sx={{ maxWidth: '200px' }}
+                    >
+                      {uploadingDesktopImage ? 'در حال آپلود...' : 'آپلود تصویر'}
+                    </Button>
+                  )}
+
+                  {previewMedia.preview_image_desktop && (
+                    <Alert severity="success">
+                      تصویر دسکتاپ با موفقیت آپلود شد: {previewMedia.preview_image_desktop.file_name}
+                    </Alert>
+                  )}
+                </Box>
+              </Box>
+
+              {/* Mobile Image Upload Section */}
+              <Box sx={{ mb: 2 }}>
+                <Typography variant="subtitle1" fontWeight={600} sx={{ mb: 2 }}>
+                  تصویر پیش‌نمایش موبایل (اختیاری)
+                </Typography>
+
+                <Box display="flex" flexDirection="column" gap={2}>
+                  <ImageUploader
+                    withIcon={true}
+                    buttonText="انتخاب تصویر موبایل"
+                    onChange={(files: File[]) => setPreviewMobileImage(files[0])}
+                    imgExtension={['.jpg', '.jpeg', '.png', '.webp']}
+                    maxFileSize={5242880}
+                    singleImage={true}
+                    withPreview={true}
+                  />
+
+                  {previewMobileImage && !previewMedia.preview_image_mobile && (
+                    <Button
+                      variant="contained"
+                      onClick={handlePreviewMobileImageUpload}
+                      disabled={uploadingMobileImage}
+                      startIcon={
+                        uploadingMobileImage ? (
+                          <CircularProgress size={20} sx={{ marginLeft: '5px' }} />
+                        ) : (
+                          <UploadIcon sx={{ marginLeft: '5px' }} />
+                        )
+                      }
+                      sx={{ maxWidth: '200px' }}
+                    >
+                      {uploadingMobileImage ? 'در حال آپلود...' : 'آپلود تصویر'}
+                    </Button>
+                  )}
+
+                  {previewMedia.preview_image_mobile && (
+                    <Alert severity="success">
+                      تصویر موبایل با موفقیت آپلود شد: {previewMedia.preview_image_mobile.file_name}
+                    </Alert>
+                  )}
+                </Box>
+              </Box>
+            </StyledPaper>
+          </Grid>
+
+         
           {/* Thumbnail Image Uploader */}
           <Grid size={12}>
             <Typography variant="subtitle1" sx={{ mb: 1 }}>
@@ -386,7 +677,7 @@ const CreateCourseSession: React.FC = () => {
             )}
           </Grid>
           {/* Sample Media Image Uploader */}
-         
+
 
           {/* Categories Selection */}
           <Grid size={12}>

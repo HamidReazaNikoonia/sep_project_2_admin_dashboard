@@ -390,10 +390,10 @@ const CourseSessionSpecific = () => {
             >
 
               <Grid size={12}>
-              <CourseDetailsPreview
-                details={course.details}
-                isPreview={true}
-              />
+                <CourseDetailsPreview
+                  details={course.details}
+                  isPreview={true}
+                />
               </Grid>
 
             </div>
@@ -413,6 +413,175 @@ const CourseSessionSpecific = () => {
                 <div>اطلاعاتی وجود ندارد</div>
               )}
             </Grid>
+          </StyledPaper>
+        </Grid>
+
+        {/* Preview Media */}
+        {/* Preview Media */}
+        <Grid size={12}>
+          <StyledPaper sx={{ p: 3 }}>
+            <Typography variant="h6" gutterBottom sx={{ mb: 3 }}>
+              ویدیو و تصاویر پیش‌نمایش دوره
+            </Typography>
+
+            {course.preview_media ? (
+              <Grid container spacing={3}>
+                {/* Video Preview */}
+                {course.preview_media.video_file && (
+                  <Grid size={12}>
+                    <Box sx={{ mb: 2 }}>
+                      <Typography variant="subtitle1" fontWeight={600} sx={{ mb: 2 }}>
+                        ویدیو پیش‌نمایش
+                      </Typography>
+                      <Box
+                        sx={{
+                          bgcolor: '#f5f5f5',
+                          p: 2,
+                          borderRadius: 2,
+                          border: '1px solid #e0e0e0',
+                        }}
+                      >
+                        <video
+                          src={`${SERVER_FILE}/${course.preview_media.video_file.file_name}`}
+                          controls
+                          style={{
+                            width: '100%',
+                            maxWidth: '800px',
+                            borderRadius: '8px',
+                            boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+                          }}
+                        />
+                        <Typography
+                          variant="caption"
+                          color="text.secondary"
+                          sx={{ mt: 1, display: 'block' }}
+                        >
+                          فایل: {course.preview_media.video_file.file_name}
+                        </Typography>
+                      </Box>
+                    </Box>
+                  </Grid>
+                )}
+
+                {/* Desktop Image Preview */}
+                {course.preview_media.preview_image_desktop && (
+                  <Grid size={{ xs: 12, md: 6 }}>
+                    <Box>
+                      <Typography variant="subtitle1" fontWeight={600} sx={{ mb: 2 }}>
+                        تصویر پیش‌نمایش دسکتاپ
+                      </Typography>
+                      <Box
+                        sx={{
+                          bgcolor: '#f5f5f5',
+                          p: 2,
+                          borderRadius: 2,
+                          border: '1px solid #e0e0e0',
+                        }}
+                      >
+                        <Box
+                          component="img"
+                          src={`${SERVER_FILE}/${course.preview_media.preview_image_desktop.file_name}`}
+                          alt="Desktop Preview"
+                          sx={{
+                            width: '100%',
+                            height: 'auto',
+                            maxHeight: '400px',
+                            objectFit: 'contain',
+                            borderRadius: 1,
+                            boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+                          }}
+                        />
+                        <Typography
+                          variant="caption"
+                          color="text.secondary"
+                          sx={{ mt: 1, display: 'block' }}
+                        >
+                          فایل: {course.preview_media.preview_image_desktop.file_name}
+                        </Typography>
+                      </Box>
+                    </Box>
+                  </Grid>
+                )}
+
+                {/* Mobile Image Preview */}
+                {course.preview_media.preview_image_mobile && (
+                  <Grid size={{ xs: 12, md: 6 }}>
+                    <Box>
+                      <Typography variant="subtitle1" fontWeight={600} sx={{ mb: 2 }}>
+                        تصویر پیش‌نمایش موبایل
+                      </Typography>
+                      <Box
+                        sx={{
+                          bgcolor: '#f5f5f5',
+                          p: 2,
+                          borderRadius: 2,
+                          border: '1px solid #e0e0e0',
+                          display: 'flex',
+                          justifyContent: 'center',
+                        }}
+                      >
+                        <Box
+                          component="img"
+                          src={`${SERVER_FILE}/${course.preview_media.preview_image_mobile.file_name}`}
+                          alt="Mobile Preview"
+                          sx={{
+                            maxWidth: '300px',
+                            width: '100%',
+                            height: 'auto',
+                            maxHeight: '500px',
+                            objectFit: 'contain',
+                            borderRadius: 1,
+                            boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+                          }}
+                        />
+                      </Box>
+                      <Typography
+                        variant="caption"
+                        color="text.secondary"
+                        sx={{ mt: 1, display: 'block', textAlign: 'center' }}
+                      >
+                        فایل: {course.preview_media.preview_image_mobile.file_name}
+                      </Typography>
+                    </Box>
+                  </Grid>
+                )}
+
+                {/* No Preview Media Message */}
+                {!course.preview_media.video_file &&
+                  !course.preview_media.preview_image_desktop &&
+                  !course.preview_media.preview_image_mobile && (
+                    <Grid size={12}>
+                      <Box
+                        sx={{
+                          p: 3,
+                          textAlign: 'center',
+                          bgcolor: '#f9f9f9',
+                          borderRadius: 1,
+                          border: '1px dashed #ccc',
+                        }}
+                      >
+                        <Typography color="text.secondary">
+                          هیچ رسانه پیش‌نمایشی برای این دوره ثبت نشده است
+                        </Typography>
+                      </Box>
+                    </Grid>
+                  )}
+              </Grid>
+            ) : (
+              <Box
+                sx={{
+                  p: 3,
+                  textAlign: 'center',
+                  bgcolor: '#f9f9f9',
+                  borderRadius: 1,
+                  border: '1px dashed #ccc',
+                }}
+              >
+                <Typography color="text.secondary">
+                  هیچ رسانه پیش‌نمایشی برای این دوره ثبت نشده است
+                </Typography>
+              </Box>
+            )}
           </StyledPaper>
         </Grid>
 
