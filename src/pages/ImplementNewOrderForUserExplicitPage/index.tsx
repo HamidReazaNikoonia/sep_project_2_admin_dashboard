@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import {
   Box,
   Paper,
@@ -12,6 +12,10 @@ import {
   IconButton,
   Alert,
   Grid2 as Grid,
+  Divider,
+  List,
+  ListItem,
+  ListItemText,
 } from '@mui/material'
 import LoadingButton from '@/components/LoadingButton'
 import DeleteIcon from '@mui/icons-material/Delete'
@@ -20,12 +24,18 @@ import PersonIcon from '@mui/icons-material/Person'
 import InventoryIcon from '@mui/icons-material/Inventory'
 import ConfirmationNumberIcon from '@mui/icons-material/ConfirmationNumber'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
+import MonetizationOnIcon from '@mui/icons-material/MonetizationOn'
 
 import UserSelector from '@/components/UserSelector'
 import CourseSelector from '@/components/CourseSelector'
 import ProductSelector from '@/components/ProductSelector'
+import CouponCodesApply from '@/components/CouponCodesApply'
 
-const steps = ['انتخاب کاربر', 'انتخاب محصولات/دوره‌ها', 'اعمال کوپن', 'تایید و ثبت سفارش']
+import { useCalculateOrderSummary, useCreateOrder } from '@/API/Order/order.hook'
+import { useProducts } from '@/API/Products/products.hook'
+import { useCourses } from '@/API/Course/course.hook'
+
+const steps = ['انتخاب کاربر', 'انتخاب محصولات/دوره‌ها', 'اعمال کوپن و پیش‌فاکتور', 'تایید و ثبت سفارش']
 
 const ImplementNewOrderForUserExplicitPage: React.FC = () => {
   const [activeStep, setActiveStep] = useState(0)
@@ -35,6 +45,49 @@ const ImplementNewOrderForUserExplicitPage: React.FC = () => {
   const [couponCodes, setCouponCodes] = useState<string[]>([])
   const [currentCoupon, setCurrentCoupon] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
+
+
+
+  // Create items array for API call
+  const orderItems = useMemo(() => {
+    const items: Array<{ productId?: string; courseId?: string; quantity: number }> = []
+    
+    selectedProductIds.forEach(id => {
+      items.push({ productId: id, quantity: 1 })
+    })
+    
+    selectedCourseIds.forEach(id => {
+      items.push({ courseId: id, quantity: 1 })
+    })
+    
+    return items
+  }, [selectedProductIds, selectedCourseIds])
+
+   // Calculate order summary
+   const { data: orderSummary, isLoading: summaryLoading } = useCalculateOrderSummary({
+    couponCodes,
+    items: orderItems,
+    enabled: activeStep >= 2 && orderItems.length > 0,
+  })
+
+  // Create order mutation
+  const createOrderMutation = useCreateOrder()
+
+  // Fetch product details for display
+  const { data: productsData } = useProducts({
+    page: 1,
+    limit: 100,
+    enabled: selectedProductIds.length > 0,
+  })
+
+  // Fetch course details for display
+  const { data: coursesData } = useCourses({
+    page: 1,
+    limit: 100,
+    enabled: selectedCourseIds.length > 0,
+  })
+
+  
 
   const handleNext = () => {
     setActiveStep((prevActiveStep) => prevActiveStep + 1)
@@ -53,10 +106,9 @@ const ImplementNewOrderForUserExplicitPage: React.FC = () => {
     setCurrentCoupon('')
   }
 
-  const handleAddCoupon = () => {
-    if (currentCoupon.trim() && !couponCodes.includes(currentCoupon.trim())) {
-      setCouponCodes([...couponCodes, currentCoupon.trim()])
-      setCurrentCoupon('')
+  const handleAddCoupon = (couponCode: string) => {
+    if (!couponCodes.includes(couponCode)) {
+      setCouponCodes([...couponCodes, couponCode])
     }
   }
 
@@ -78,9 +130,15 @@ const ImplementNewOrderForUserExplicitPage: React.FC = () => {
     setIsSubmitting(true)
 
     try {
-      // Here you would call the create order API
-      // For now, we'll just simulate the process
-      await new Promise(resolve => setTimeout(resolve, 2000))
+      await createOrderMutation.mutateAsync({
+        customer: selectedUser.id,
+        products: orderItems.map(item => ({
+          product: item.productId,
+          course: item.courseId,
+          quantity: item.quantity,
+        })),
+        couponCodes: couponCodes,
+      })
       
       alert('سفارش با موفقیت ثبت شد!')
       handleReset()
@@ -137,57 +195,88 @@ const ImplementNewOrderForUserExplicitPage: React.FC = () => {
             </Grid>
           </Box>
         )
-      case 2:
-        return (
-          <Box>
-            <Typography variant="h6" gutterBottom>
-              اعمال کوپن تخفیف
-            </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-              در صورت داشتن کد کوپن، آن را وارد کنید (اختیاری)
-            </Typography>
-            
-            <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
-              <TextField
-                fullWidth
-                placeholder="کد کوپن را وارد کنید"
-                value={currentCoupon}
-                onChange={(e) => setCurrentCoupon(e.target.value)}
-                onKeyPress={(e) => {
-                  if (e.key === 'Enter') {
-                    handleAddCoupon()
-                  }
-                }}
-              />
-              <Button 
-                variant="contained" 
-                onClick={handleAddCoupon}
-                disabled={!currentCoupon.trim()}
-              >
-                افزودن
-              </Button>
+        case 2:
+          return (
+            <Box>
+              <Typography variant="h6" gutterBottom>
+                اعمال کوپن و پیش‌فاکتور
+              </Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+                کوپن‌های تخفیف را اعمال کرده و پیش‌فاکتور سفارش را مشاهده کنید
+              </Typography>
+  
+              <Grid container spacing={3}>
+                <Grid size={{ xs: 12, md: 6 }}>
+                  <CouponCodesApply
+                    couponCodes={couponCodes}
+                    couponInfo={orderSummary?.couponInfo}
+                    onCouponAdd={handleAddCoupon}
+                    onCouponRemove={handleRemoveCoupon}
+                    loading={summaryLoading}
+                  />
+                </Grid>
+                <Grid size={{ xs: 12, md: 6 }}>
+                  <Paper sx={{ p: 3 }}>
+                    <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <MonetizationOnIcon />
+                      پیش‌فاکتور
+                    </Typography>
+  
+                    {summaryLoading ? (
+                      <Typography>در حال محاسبه...</Typography>
+                    ) : orderSummary ? (
+                      <Box>
+                        {/* Order Items */}
+                        <List>
+                          {orderSummary?.products?.map((item, index) => {
+                            return (
+                              <ListItem key={index} divider>
+                                <ListItemText
+                                  primary={item?.course || item?.product}
+                                  secondary={`تعداد: ${item?.quantity} - قیمت: ${item?.price && item?.price.toLocaleString('fa-IR')} ریال`}
+                                />
+                              </ListItem>
+                            )
+                          })}
+                        </List>
+  
+                        <Divider sx={{ my: 2 }} />
+  
+                        {/* Summary */}
+                        {orderSummary && (
+                          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                          <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                            <Typography>مجموع:</Typography>
+                            <Typography>{orderSummary?.total?.toLocaleString('fa-IR')} تومان</Typography>
+                          </Box>
+                          <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                            <Typography>مالیات:</Typography>
+                            <Typography>{orderSummary?.tax?.toLocaleString('fa-IR')} تومان</Typography>
+                          </Box>
+                          {orderSummary?.couponInfo?.totalDiscount > 0 && (
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', color: 'success.main' }}>
+                              <Typography>تخفیف:</Typography>
+                              <Typography>-{orderSummary?.couponInfo?.totalDiscount?.toLocaleString('fa-IR')} تومان</Typography>
+                            </Box>
+                          )}
+                          <Divider />
+                          <Box sx={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold' }}>
+                            <Typography>مجموع نهایی:</Typography>
+                            <Typography>{orderSummary?.totalAmount?.toLocaleString('fa-IR')} تومان</Typography>
+                          </Box>
+                        </Box>
+                        )}
+                      </Box>
+                    ) : (
+                      <Typography color="text.secondary">
+                        برای مشاهده پیش‌فاکتور، ابتدا محصول یا دوره‌ای انتخاب کنید
+                      </Typography>
+                    )}
+                  </Paper>
+                </Grid>
+              </Grid>
             </Box>
-
-            {couponCodes.length > 0 && (
-              <Box sx={{ mt: 2 }}>
-                <Typography variant="body2" gutterBottom>
-                  کوپن‌های اعمال شده:
-                </Typography>
-                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                  {couponCodes.map((coupon, index) => (
-                    <Chip
-                      key={index}
-                      label={coupon}
-                      onDelete={() => handleRemoveCoupon(coupon)}
-                      color="primary"
-                      variant="outlined"
-                    />
-                  ))}
-                </Box>
-              </Box>
-            )}
-          </Box>
-        )
+          )
       case 3:
         return (
           <Box>
