@@ -2,7 +2,10 @@ import axios from  '../axios';
 
 const siteInfoApi = {
   getCitiesByProvinceId: async (provinceId: string) => {
-    const { data } = await axios.get<{ data: any[] }>(`/site-info/provinces/${provinceId}/cities`);
+    const { data } = await axios.get<{
+      province: any;
+      cities: string; data: any[] 
+}>(`/site-info/provinces/${provinceId}/cities`);
     return data;
   },
   getProvinces: async () => {

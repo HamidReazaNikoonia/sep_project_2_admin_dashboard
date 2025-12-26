@@ -14,6 +14,16 @@ export interface User {
   }
   
   export interface UserResponse {
+    avatar: any;
+    personal_img: any;
+    address: string;
+    job_title: string;
+    tel: string;
+    description: string;
+    description_long: string;
+    tags: any;
+    featured: any;
+    _id: any;
     isVerified: string;
     student_id: string;
     wallet_amount: any;

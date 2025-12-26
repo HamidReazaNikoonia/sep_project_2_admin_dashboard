@@ -78,6 +78,7 @@ const NewCoach = () => {
     tel: '',
     nationalId: '',
     isVerified: false,
+    coach_is_valid: false,
     permission: false,  // Changed from access_level: ''
     featured: false,
     description: '',
@@ -372,6 +373,7 @@ const NewCoach = () => {
         }),
         ...(formData.nationalId && { nationalId: formData.nationalId.trim() }),
         isVerified: formData.isVerified,
+        coach_is_valid: formData.isVerified,
         permission: formData.permission,  // Changed from access_level
         featured: formData.featured,
         ...(formData.description && { description: formData.description.trim() }),

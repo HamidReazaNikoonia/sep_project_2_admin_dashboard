@@ -86,3 +86,7 @@ code {
 .tether-element {
   z-index: 999999 !important;
 }
+
+.MuiChipsInput-Chip {
+  direction: ltr !important;
+}

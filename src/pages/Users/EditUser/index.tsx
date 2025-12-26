@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { MuiChipsInput } from 'mui-chips-input';
 import { useParams, useNavigate } from 'react-router';
 import {
   Box,
@@ -46,6 +47,10 @@ interface FormData {
   personal_img: string;
   avatar: string;
   national_card_images: string[];
+  description?: string;
+  description_long?: string;
+  permission?: boolean;
+  featured?: boolean;
 }
 
 interface FileUploadState {
@@ -89,6 +94,10 @@ const EditUser: React.FC = () => {
   const { data: citiesData, isLoading: citiesLoading } = useCitiesByProvinceId(selectedProvinceId);
 
 
+  // Add state for managing tags
+  const [tags, setTags] = useState<string[]>([]);
+
+
   const [isWalletEditing, setIsWalletEditing] = useState(true);
 
   const cities = citiesData?.cities || [];
@@ -115,7 +124,15 @@ const EditUser: React.FC = () => {
         national_card_images: Array.isArray((user as any).national_card_images) 
           ? (user as any).national_card_images.map((img: { _id: any; }) => img._id) 
           : [],
+        description: (user as any).description || '',
+        description_long: (user as any).description_long || '',
+        permission: (user as any).permission || false,
+        featured: (user as any).featured || false,
       });
+
+      if (user?.role === 'coach') {
+        setTags(user.tags || []);
+      }
       
       // Initialize existing national card images
       if ((user as any)?.national_card_images && Array.isArray((user as any).national_card_images)) {
@@ -275,6 +292,12 @@ const EditUser: React.FC = () => {
         personal_img: data.personal_img,
         avatar: data.avatar,
         national_card_images: allNationalCardImageIds,
+      // if user.role = coach then add description field
+      ...(user?.role === 'coach' && shouldInclude(data.description) ? { description: data.description } : {}),
+      ...(user?.role === 'coach' && shouldInclude(data.description_long) ? { description_long: data.description_long } : {}),
+      ...(user?.role === 'coach' ? { tags: tags } : {}),
+      ...(user?.role === 'coach' ? { permission: data.permission } : {}),
+      ...(user?.role === 'coach' ? { featured: data.featured } : {}),
       };
 
       // Filter out empty values
@@ -334,6 +357,12 @@ const EditUser: React.FC = () => {
       console.error('Error updating user:', error);
     }
   };
+
+
+    // Handle tags change
+    const handleTagsChange = (newTags: string[]) => {
+      setTags(newTags);
+    };
 
   if (isLoading) {
     return (
@@ -643,7 +672,9 @@ const EditUser: React.FC = () => {
               />
             </Grid>
 
-            <Grid size={{ xs: 12, md: 6 }}>
+            
+            {user && user?.role !== 'coach' && (
+              <Grid size={{ xs: 12, md: 6 }}>
               <Controller
                 name="isNationalIdVerified"
                 control={control}
@@ -656,6 +687,42 @@ const EditUser: React.FC = () => {
                 )}
               />
             </Grid>
+            )}
+
+
+
+            {user && user?.role === 'coach' && (
+              <>
+              <Grid size={{ xs: 12, md: 6 }}>
+              <Controller
+                name="permission"
+                control={control}
+                defaultValue={false}
+                render={({ field }) => (
+                  <FormControlLabel
+                    control={<Switch {...field} checked={field.value} />}
+                    label="دسترسی مربی"
+                  />
+                )}
+              />
+            </Grid>
+            <Grid size={{ xs: 12, md: 6 }}>
+              <Controller
+                name="featured"
+                control={control}
+                defaultValue={false}
+                render={({ field }) => (
+                  <FormControlLabel
+                    control={<Switch {...field} checked={field.value} />}
+                    label="مربی ویژه"
+                  />
+                )}
+              />
+            </Grid>
+          </>
+            
+            )}
+
 
             {/* File Uploads */}
             <Grid size={{ xs: 12 }}>
@@ -1009,6 +1076,90 @@ const EditUser: React.FC = () => {
                 </Box>
               )}
             </Grid>
+
+
+            {/* Coach Description Section If user is a coach `user?.role === 'coach'` */}
+            {user?.role === 'coach' && (
+              <Grid size={{ xs: 12 }}>
+              <Typography variant="h6" gutterBottom color="primary" sx={{ mt: 2 }}>
+               اطلاعات استاد
+                </Typography>
+
+                <div className="flex flex-col gap-y-6">
+
+                  {/* Coach Description Short Section */}
+                <div className='mt-6 flex flex-col gap-1'>
+                  <Typography variant="subtitle1" gutterBottom>توضیحات کوتاه</Typography>
+                  <Controller
+                control={control}
+                name="description"
+                render={({ field }) => (
+                  <TextField
+                    fullWidth
+                    label="توضیحات کوتاه"
+                    name="description"
+                    value={field.value}
+                    onChange={field.onChange}
+                    multiline
+                    rows={3}
+                  />
+                )}
+              />
+                </div>
+
+
+                {/* Coach Description Long Section */}
+                <div className='mt-6 flex flex-col gap-1'>
+                  <Typography variant="subtitle1" gutterBottom>توضیحات بلند</Typography>
+                  <Controller
+                    control={control}
+                    name="description_long"
+                    render={({ field }) => (
+                      <TextField
+                        fullWidth
+                        label="توضیحات بلند"
+                        name="description_long"
+                        value={field.value}
+                        onChange={field.onChange}
+                        multiline
+                        minRows={9}
+                        InputProps={{
+                          sx: {
+                            textarea: {
+                              resize: 'vertical',
+                            },
+                          },
+                        }}
+                      />
+                    )}
+              />
+                </div>
+
+
+
+                {/* Tags Section */}
+                <div className="flex flex-col">
+                <div className="mb-6">
+            <Typography variant="subtitle1" className="mb-2">
+              برچسب‌ها
+            </Typography>
+            <MuiChipsInput 
+              value={tags} 
+              onChange={handleTagsChange} 
+              onAddChip={(chipValue) => {
+                // if chipValue exist in `tags` array then remove it
+                if (tags.includes(chipValue)) {
+                  alert('برچسب موجود است');
+                }
+              }}
+              fullWidth
+              placeholder="برچسب را وارد کنید و Enter را بزنید"
+            />
+          </div>
+                </div>
+                </div>
+              </Grid>
+            )}
 
             {/* Submit Button */}
             <Grid size={{ xs: 12 }}>

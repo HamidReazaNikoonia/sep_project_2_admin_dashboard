@@ -14,9 +14,13 @@ import { useGetAllCourseSessionsOfUser } from '../../../API/CourseSession/course
 import EnrollmentsTable from './components/EnrollmentsTable';
 import CoachCourseProgramList from './components/CoachCourseProgramList';
 import { useOrders } from '@/API/Order/order.hook';
+
+// Icons
 import ClassIcon from '@mui/icons-material/Class';
 import PaidIcon from '@mui/icons-material/Paid';
 import ReceiptIcon from '@mui/icons-material/Receipt';
+import DoNotDisturbIcon from '@mui/icons-material/DoNotDisturb';
+import CheckBoxIcon from '@mui/icons-material/CheckBox';
 
 
 const SERVER_URL = process.env.REACT_APP_SERVER_URL;
@@ -170,12 +174,14 @@ const UserSpecific = () => {
             <Typography fontWeight={500}>{user.last_name}</Typography>
           </Box>
 
-          <Box>
-            <Typography variant="subtitle2" color="textSecondary">
-              کد دانشجویی
-            </Typography>
-            <Typography fontWeight={500}>{user?.student_id || 'N/A'}</Typography>
-          </Box>
+          {user.role !== 'coach' && (
+            <Box>
+              <Typography variant="subtitle2" color="textSecondary">
+                کد دانشجویی
+              </Typography>
+              <Typography fontWeight={500}>{user?.student_id || 'N/A'}</Typography>
+            </Box>
+          )}
 
           <Box>
             <Typography variant="subtitle2" color="textSecondary">
@@ -189,7 +195,7 @@ const UserSpecific = () => {
               Role
             </Typography>
             <Typography fontWeight={500}>
-            {userRoleTitleMap[user?.role as keyof typeof userRoleTitleMap]} 
+              {userRoleTitleMap[user?.role as keyof typeof userRoleTitleMap]}
             </Typography>
           </Box>
 
@@ -204,12 +210,14 @@ const UserSpecific = () => {
 
 
 
-          <Box>
-            <Typography variant="subtitle2" color="textSecondary">
-              کد دعوت
-            </Typography>
-            <Typography fontWeight={500}>{user?.referral_code || 'N/A'}</Typography>
-          </Box>
+          {user.role !== 'coach' && (
+            <Box>
+              <Typography variant="subtitle2" color="textSecondary">
+                کد دعوت
+              </Typography>
+              <Typography fontWeight={500}>{user?.referral_code || 'N/A'}</Typography>
+            </Box>
+          )}
 
 
           <Box>
@@ -217,8 +225,8 @@ const UserSpecific = () => {
               وضعیت تایید کاربر
             </Typography>
             <span className={`px-4 py-1 text-xs font-bold rounded-full ${user?.isVerified ? 'bg-green-200 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                            {user.isVerified ? 'تایید شده' : 'عدم تایید'}
-                        </span>
+              {user.isVerified ? 'تایید شده' : 'عدم تایید'}
+            </span>
           </Box>
 
 
@@ -261,10 +269,10 @@ const UserSpecific = () => {
                   وضعیت تاهل
                 </Typography>
                 <Typography fontWeight={500}>
-                  {user?.mariage_status === 'married' ? 'متاهل' : 
-                   user?.mariage_status === 'single' ? 'مجرد' :
-                   user?.mariage_status === 'widowed' ? 'بیوه' :
-                   user?.mariage_status === 'divorced' ? 'مطلقه' : 'N/A'}
+                  {user?.mariage_status === 'married' ? 'متاهل' :
+                    user?.mariage_status === 'single' ? 'مجرد' :
+                      user?.mariage_status === 'widowed' ? 'بیوه' :
+                        user?.mariage_status === 'divorced' ? 'مطلقه' : 'N/A'}
                 </Typography>
               </Box>
 
@@ -307,16 +315,18 @@ const UserSpecific = () => {
                 <Typography fontWeight={500}>{user?.nationalId || 'N/A'}</Typography>
               </Box>
 
-              <Box>
-                <Typography variant="subtitle2" color="textSecondary">
-                  وضعیت تایید کد ملی
-                </Typography>
-                <Chip
-                  label={user?.isNationalIdVerified ? "تایید شده" : "تایید نشده"}
-                  sx={{ padding: '2px 10px' }}
-                  color={user?.isNationalIdVerified ? "success" : "error"}
-                />
-              </Box>
+              {user.role !== 'coach' && (
+                <Box>
+                  <Typography variant="subtitle2" color="textSecondary">
+                    وضعیت تایید کد ملی
+                  </Typography>
+                  <Chip
+                    label={user?.isNationalIdVerified ? "تایید شده" : "تایید نشده"}
+                    sx={{ padding: '2px 10px' }}
+                    color={user?.isNationalIdVerified ? "success" : "error"}
+                  />
+                </Box>
+              )}
 
               {user?.national_card_images && user?.national_card_images?.length > 0 && (
                 <Box sx={{ gridColumn: '1 / -1' }}>
@@ -463,6 +473,74 @@ const UserSpecific = () => {
                   )}
                 </div>
               )}
+            </div>
+          </div>
+        )}
+
+
+        {/* Coach Info */}
+        {user?.role === 'coach' && (
+          <div className='mt-8 px-2 md:px-6 py-6 border-t border-1 border-gray-400 rounded-lg'>
+            <Typography variant="h6" gutterBottom sx={{ mt: 1, mb: 2 }}>
+              اطلاعات استاد
+            </Typography>
+            <div className='flex flex-col gap-y-2'>
+              <div className='flex flex-col gap-y-2 bg-white p-4 rounded-lg' >
+                <Typography variant="subtitle2" color="textSecondary">
+                  توضیحات کوتاه
+                </Typography>
+                <Typography fontWeight={500}>{user?.description || 'N/A'}</Typography>
+              </div>
+              <div className='flex flex-col gap-y-2 bg-white p-4 rounded-lg' >
+                <Typography variant="subtitle2" color="textSecondary">
+                  توضیحات بلند
+                </Typography>
+                <Typography fontWeight={500}>{user?.description_long || 'N/A'}</Typography>
+              </div>
+
+
+              {/* Tags Section */}
+
+              <div className='my-4 '>
+                <Typography variant="subtitle1" className="mb-2">
+                  برچسب‌ها
+                </Typography>
+                <div className='flex flex-wrap space-x-2.5 mt-4'>
+                  {user?.tags?.map((tag: any) => (
+                    <Chip key={tag} label={tag} variant="outlined" />
+                  ))}
+                </div>
+              </div>
+
+
+            
+              <div className='flex gap-x-12 gap-y-2 bg-white p-4 rounded-lg' >
+                {/* Coach Is Featured */}
+               <div className="flex flex-col gap-y-2">
+               <Typography variant="subtitle2" color="textSecondary">
+                  مربی ویژه
+                </Typography>
+                <div className='flex items-center gap-x-2'>
+                {user?.featured ? <CheckBoxIcon color={'success'} /> : <DoNotDisturbIcon color={'error'} />}
+                <Typography color={user?.featured ? 'success' : 'error'} fontWeight={500}>{user?.featured ? 'بله' : 'خیر'}</Typography>
+                </div>
+               </div>
+
+                {/* Coach Permission */}
+              <div className='flex flex-col gap-y-2 ' >
+                <Typography variant="subtitle2" color="textSecondary">
+                  دسترسی مربی
+                </Typography>
+                <div className='flex items-center gap-x-2'>
+                {user?.permission ? <CheckBoxIcon color={'success'} /> : <DoNotDisturbIcon color={'error'} />}
+                <Typography color={user?.permission ? 'success' : 'error'} fontWeight={500}>{user?.permission ? 'دسترسی دارد' : 'دسترسی ندارد'}</Typography>
+                </div>
+              </div>
+                
+              </div>
+
+             
+
             </div>
           </div>
         )}
