@@ -277,6 +277,12 @@ const CourseAssignCoach: React.FC = () => {
     setSelectedDateState(momentJalaali().locale('fa').format('jYYYY/jM/jD'))
     settimeSlotItem(null)
     handleResetCalendar()
+
+    // Scroll to the time slot list
+    const timeSlotList = document.getElementById('time-slot-list')
+    if (timeSlotList) {
+      timeSlotList.scrollIntoView({ behavior: 'smooth' })
+    }
   }
 
   // sample media handler
@@ -639,11 +645,11 @@ const CourseAssignCoach: React.FC = () => {
             </div>
 
             <div className="flex w-full flex-col px-8 py-12">
-              <h2 className="text-center font-bold text-lg mb-8">
+              <h2  className="text-center font-bold text-lg mb-8">
                 لیست جلسات انتخاب شده
               </h2>
 
-              <div className="w-full flex flex-col space-y-2">
+              <div id="time-slot-list" className="w-full flex flex-col space-y-2">
                 {selectedSession &&
                   selectedSession.map((item, index) => (
                     <div key={index} className="w-full flex justify-between items-center px-2 md:px-8 py-4 bg-[#385773] border rounded-xl">
@@ -733,7 +739,7 @@ const CourseAssignCoach: React.FC = () => {
                   className="pb-2 text-gray-600 text-xs"
                   htmlFor="price_discounted"
                 >
-                  قیمت قبل تخفیف
+                  قیمت بعد تخفیف
                 </label>
                 <TextField
                   id="price_discounted"

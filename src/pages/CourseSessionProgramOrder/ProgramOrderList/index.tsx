@@ -15,6 +15,9 @@ const SERVER_URL = process.env.REACT_APP_SERVER_URL
 
  // Helper get frist date from sessions
  const getFirstProgramSessionDate = (sessions: any[]) => {
+    if (!sessions || sessions.length === 0) {
+        return 'N/A';
+    }
     const date = sessions.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())[0].date;
     return date ? convertToPersianDigits(formatDateShort(date)) : 'N/A';
 }
